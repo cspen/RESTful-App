@@ -1,0 +1,55 @@
+DROP DATABASE restapp;
+
+CREATE DATABASE restapp;
+USE restapp;
+
+SET NAMES 'utf8' COLLATE 'utf8_general_ci';
+
+# Set timezone to GMT for Http-date compliance
+SET time_zone = '+0:00';
+
+CREATE TABLE employee (
+	employeeID			INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	last_name			TINYTEXT NOT NULL,
+	first_name			TINYTEXT NOT NULL,
+	department			TINYTEXT NOT NULL,
+	full_time			BOOLEAN DEFAULT 0,
+	hire_date			TIMESTAMP NOT NULL,
+	salary				INT UNSIGNED NOT NULL,
+	etag				VARCHAR(32),
+	last_modified		TIMESTAMP,
+	
+	PRIMARY KEY(employeeID)	
+)
+ENGINE = MyISAM;
+
+delimiter |
+CREATE TRIGGER update_employee BEFORE UPDATE ON employee
+	FOR EACH ROW
+		BEGIN			
+			SET NEW.last_modified=NOW();
+			SET NEW.etag=MD5(FLOOR(RAND() * 100));
+		END;
+|
+
+CREATE TRIGGER insert_employee BEFORE INSERT ON employee
+	FOR EACH ROW
+		BEGIN			
+			SET NEW.last_modified=NOW();
+			SET NEW.etag=MD5(FLOOR(RAND() * 100));
+		END;
+|
+delimiter ;
+
+
+INSERT INTO employee (last_name, first_name, department, full_time, hire_date, salary)
+VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
+("Tina", "Hobart", "Administration", false, "2007-11-08", "25000"),
+("Jeff", "Simms", "Management", true, "1999-11-11", "75000"),
+("John", "von Nuemann", "Technology", true, "1999-07-11", "100000"),
+("Sally", "Williams", "Customer Service", true, "2000-01-27", "20000"),
+("George", "Greenburg", "Accounting", true, "1999-10-11", "50000"),
+("Bob", "Slob", "Administration", true, "2000-07-22", "40000"),
+("Charles", "Shock", "Sales", true, "1999-05-02", "60000"),
+("Alan", "Plesky", "Sales", false, "2010-10-15", "30000"),
+("Mike", "Smith", "Sales", false, "2018-02-20", "30000");
