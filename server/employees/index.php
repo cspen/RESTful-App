@@ -1,4 +1,7 @@
 <?php
+require_once '../../utilities/Database_Connection.php';
+require_once '../../utilities/tools.php';
+
 // Make sure this service can supply
 // the data format requested by the client
 // $outputFormat = processAcceptHeader();
@@ -168,8 +171,8 @@ function delete($id) {
 	}
 }
 
-function getAll($HTTPverb) {
-	$query = "SELECT * FROM customer";
+function getAll($HTTPverb) { 
+	$query = "SELECT * FROM employee";
 	
 	$sortBy = array("date", "headline");
 	if(isset($_GET['sort'])) {
@@ -205,38 +208,38 @@ function getAll($HTTPverb) {
 		}
 	}
 	
-	$dbconn = getDatabaseConnection();
+	$dbconn = getDBConnection();
 	$stmt = $dbconn->prepare($query);
 	if($stmt->execute()) {
 		if($stmt->rowCount() == 0) {
 			header('HTTP/1.1 204 No Content');
 			exit;
 		}
-		
+
 		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$customerList = array();
+		$employeeList = array();
 		foreach($results as $row) {
-			$customer = array();
-			$customer[] = $row['customerID'];
-			$customer[] = $row['first_name'];
-			$customer[] = $row['last_name'];
-			$customer[] = $row['department'];
-			$customer[] = $row['full_time'];
-			$customer[] = $row['hire_date'];
-			$customer[] = $row['salary'];
-			$customer[] = $row['etag'];
-			$customer[] = $row['last_modified'];
-			$customerList[] = $customer;
-		}
-		$customerList = Array( "Customers" => $aList);
-		$output = json_encode($aList);
+			$employee = array();
+			$employee[] = $row['employeeID'];
+			$employee[] = $row['first_name'];
+			$employee[] = $row['last_name'];
+			$employee[] = $row['department'];
+			$employee[] = $row['full_time'];
+			$employee[] = $row['hire_date'];
+			$employee[] = $row['salary'];
+			$employee[] = $row['etag'];
+			$employee[] = $row['last_modified'];
+			$employeeList[] = $employee;			
+		}		
+		$employeeList = Array( "Employees" => $employeeList);
+		$output = json_encode($employeeList);
 		
 		// Set headers
 		header('HTTP/1.1 200 OK');
 		header('Content-Type: application/json');
 		header('Content-Length: '.strlen($output));
 		
-		if($verb === "GET") {
+		if($HTTPverb === "GET") {
 			echo $output;
 		}
 		exit;
@@ -515,4 +518,16 @@ function validateNumericFields($a) {
 						exit;
 					}
 }
+
+function getDBConnection() { 
+	try {
+		$db = new Database_Connection();
+		return $db->getConnection(); 
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+		header('HTTP/1.1 500 Internal Server Error');
+		exit;
+	}
+}
+
 ?>
