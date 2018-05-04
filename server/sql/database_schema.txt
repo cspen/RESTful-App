@@ -1,12 +1,20 @@
-DROP DATABASE restapp;
-
-CREATE DATABASE restapp;
-USE restapp;
+USE db736128965;
 
 SET NAMES 'utf8' COLLATE 'utf8_general_ci';
 
 # Set timezone to GMT for Http-date compliance
 SET time_zone = '+0:00';
+
+CREATE TABLE admin (
+	adminID			INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	name			VARCHAR(60) NOT NULL,
+	password		VARCHAR(255) NOT NULL,
+	email			VARCHAR(255) NOT NULL,
+	type			TINYTEXT,
+	
+	PRIMARY KEY(adminID)
+)
+ENGINE = MyISAM;
 
 CREATE TABLE employee (
 	employeeID			INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -53,3 +61,5 @@ VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
 ("Charles", "Shock", "Sales", true, "1999-05-02", "60000"),
 ("Alan", "Plesky", "Sales", false, "2010-10-15", "30000"),
 ("Mike", "Smith", "Sales", false, "2018-02-20", "30000");
+
+INSERT INTO admin (name, password, email, type) VALUES ('admin', 'password', 'admin@email.com', 'MASTER');
