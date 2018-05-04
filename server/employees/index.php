@@ -470,12 +470,14 @@ function put($id) {
 					$rowCount = $stmt->rowCount();
 					$stmt->closeCursor();
 					
+					$flag = false;
 					if($rowCount == 1) { // Update (replace) existing resource
 						processConditionalHeaders($results['etag'], $stmt->rowCount(), $results['last_modified']);
 						
 						$stmt = $dbconn->prepare("UPDATE employee SET last_name=:lastName, first_name=:firstName,
 								department=:department, full_time=:fullTime, hire_date=:hireDate, salary=:salary,
 								WHERE employeeID=:empID");
+						$flag = true;
 					} else { // Create a new resource
 						processConditionalHeaders(null, 0, null);
 						
@@ -483,6 +485,7 @@ function put($id) {
 								(employeeID, last_name, first_name, department, full_time, hire_date, salary)
 								VALUES(:empID, :lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
 						$stmt->bindParam(':employeeID', $announcementId);
+						
 					}
 										
 					$stmt->bindParam(':lastName', $uid);
@@ -493,7 +496,11 @@ function put($id) {
 					$stmt->bindParam(':salary', $putVar['salary']);
 					
 					if($stmt->execute()) {
-						header('HTTP/1.1 204 No Content');
+						if($flag) {
+							header('HTTP/1.1 204 No Content');
+						} else {
+							header('HTTP/1.1 201 Created');
+						}
 						exit;
 					} else {
 						header('HTTP/1.1 504 Internal Server Error');
