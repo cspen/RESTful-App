@@ -58,14 +58,14 @@ if(preg_match('/^\/employees\/$/', $requestURI)) {
 			exit;
 	}
 } else {
-	header('HTTP/1.1 404 Not Found');
+	header('HTTP/1.1 404 Not Found'); 
 	exit;
 }
 
 
 function deleteAll() {
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
 	
 	if($user->getType() === "MASTER") {
 		$query = "DELETE FROM employee";
@@ -113,8 +113,8 @@ function deleteAll() {
 }
 
 function delete($id) {
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
 	
 	$userType = $user->getType();
 	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
@@ -252,10 +252,10 @@ function getAll($HTTPverb) {
 function get($id, $HTTPverb) {
 	$query = "SELECT * FROM employee WHERE employeeID=:empID";
 	
-	$dbconn = getDatabaseConnection();
+	$dbconn = getDBConnection();
 	$stmt = $dbconn->prepare($query);
-	$stmt->bindParam(':empID', $employeeId);
-	if($stmt->execute()) {
+	$stmt->bindParam(':empID', $id);
+	if($stmt->execute()) { 
 		$rowCount = $stmt->rowCount();
 		if($rowCount == 1) {
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -288,8 +288,8 @@ function get($id, $HTTPverb) {
 }
 
 function post() {
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
 	
 	$userType = $user->getType();
 	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
@@ -349,8 +349,8 @@ function post() {
 
 function putAll() {
 	if($input = json_decode(file_get_contents("php://input"), true)) {
-		$dbconn = getDatabaseConnection();
-		$user = authenticateUser($dbconn);
+		$dbconn = getDBConnection();
+		$user = lauthenticateUser($dbconn);
 		
 		$userType = $user->getType();
 		if($userType === "MASTER" || $userType === "ADMIN") {
@@ -456,7 +456,7 @@ function put($id) {
 				
 				validateNumericFields($putVar);
 				
-				$dbconn = getDatabaseConnection();
+				$dbconn = getDBConnection();
 				$user = authenticateUser($dbconn);
 				
 				$userType = $user->getType();
@@ -527,6 +527,45 @@ function getDBConnection() {
 		echo $e->getMessage();
 		header('HTTP/1.1 500 Internal Server Error');
 		exit;
+	}
+}
+
+function lauthenticateUser($dbconn) {
+	$segments = @explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+	
+	if(count($segments) == 2) {
+		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = $segments;
+	}
+	
+	if (!isset($_SERVER['PHP_AUTH_USER']) || ($_SERVER['PHP_AUTH_USER']) == "")  {
+		header('WWW-Authenticate: Basic realm="Modintro"');
+		header('HTTP/1.0 401 Unauthorized');
+		// echo 'Text to send if user hits Cancel button<br>';
+		exit;
+	} else {
+		$stmt = $dbconn->prepare("SELECT adminID, email, password FROM admin WHERE email=:email");
+		$stmt->bindParam(':email', $_SERVER['PHP_AUTH_USER']);
+		$stmt->execute();
+		
+		if($stmt->rowCount() == 1) {
+			$result = $stmt->fetch();
+			$stmt->closeCursor();
+			
+			if(password_verify($_SERVER['PHP_AUTH_PW'], $result['password'])) {
+				$user =  new User($result['adminID'], $result['name'], $_SERVER['PHP_AUTH_USER']);
+				return $user;
+			} else {
+				header('HTTP/1.0 401 Unauthorized');
+				exit;
+			}
+			
+		} else { // No record found
+			header('HTTP/1.0 401 Unauthorized');
+			// header('WWW-Authenticate: Basic realm="Modintro"');
+			// echo 'Text to send if user hits Cancel button<br>';
+			// echo '{ Error:"Not Found", ErrorCode: 333 }';
+			exit;
+		}
 	}
 }
 
