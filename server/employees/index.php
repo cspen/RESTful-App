@@ -470,14 +470,14 @@ function put($id) {
 					$rowCount = $stmt->rowCount();
 					$stmt->closeCursor();
 					
-					$flag = false;
+					$existed = false;
 					if($rowCount == 1) { // Update (replace) existing resource
 						processConditionalHeaders($results['etag'], $stmt->rowCount(), $results['last_modified']);
 						
 						$stmt = $dbconn->prepare("UPDATE employee SET last_name=:lastName, first_name=:firstName,
 								department=:department, full_time=:fullTime, hire_date=:hireDate, salary=:salary,
 								WHERE employeeID=:empID");
-						$flag = true;
+						$existed = true;
 					} else { // Create a new resource
 						processConditionalHeaders(null, 0, null);
 						
@@ -496,7 +496,7 @@ function put($id) {
 					$stmt->bindParam(':salary', $putVar['salary']);
 					
 					if($stmt->execute()) {
-						if($flag) {
+						if($existed) {
 							header('HTTP/1.1 204 No Content');
 						} else {
 							header('HTTP/1.1 201 Created');
