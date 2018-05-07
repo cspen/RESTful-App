@@ -259,20 +259,23 @@ function get($id, $HTTPverb) {
 		$rowCount = $stmt->rowCount();
 		if($rowCount == 1) {
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$result = $result[0];
+			$result = $result[0]; 
 			processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
 			
-			// ****** NEED TO MOVE DATA FORMATING TO A FUNCTION
+			// NEED TO MOVE DATA FORMATING TO A FUNCTION
 			$output = json_encode($result);			
 			
-			// ***** NEED TO UPDATE THIS HEADER BASED ON $outputFormat
+			header('HTTP/1.1 200 OK');
+			// NEED TO UPDATE THIS HEADER BASED ON $outputFormat
 			header('Content-Type: application/json');
+
+			// CONTENT LENGTH WILL VARY DEPENDING ON OUTPUT FORMAT
 			header('Content-Length: '.strlen($output));
 			header('Etag: '.$result['etag']);
 			header('Last-Modified: '.$result['last_modified']);
-			header('HTTP/1.1 200 OK');
 			
-			if($verb === "GET") {
+			
+			if($HTTPverb === "GET") {
 				echo $output;
 			}
 			exit;
@@ -305,7 +308,7 @@ function post() {
 					&& isset($_POST['hiredate']) && isset($_POST['salary'])) {
 				$lastName = trim($_POST['lastname']);
 				$firstName = trim($_POST['firstname']);
-				$deparment = trim($_POST['department']);
+				$department = trim($_POST['department']);
 				$fullTime = trim($_POST['fulltime']);
 				$hireDate = trim($_POST['hiredate']);
 				$salary = trim($_POST['salary']);
@@ -317,13 +320,14 @@ function post() {
 			$stmt = $dbconn->prepare("INSERT INTO employee
 				(last_name, first_name, department, full_time, hire_date, salary)
 				VALUES(:lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
-			
+			/*
 			if($mflag) {
 				$stmt->bindParam(':userID_FK', $userID_FK);
 			} else {
 				$uid = $user->getId();
 				$stmt->bindParam(':userID_FK', $uid);
 			}
+			*/
 			$stmt->bindParam(':lastName', $lastName);
 			$stmt->bindParam(':firstName', $firstName);
 			$stmt->bindParam(':department', $department);
@@ -334,6 +338,7 @@ function post() {
 			if($stmt->execute()) {
 				$i = $dbconn->lastInsertId();
 				$location = $_SERVER['REQUEST_URI'].$i;
+				header('HTTP/1.1 201 Created');
 				header('Content-Location: '.$location);
 				echo $location;
 			} else {
@@ -538,7 +543,7 @@ function getDBConnection() {
 }
 
 function lauthenticateUser($dbconn) {
-	$segments = @explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+	$segments = @explode(':', base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6)));
 	
 	if(count($segments) == 2) {
 		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = $segments;
@@ -546,11 +551,11 @@ function lauthenticateUser($dbconn) {
 	
 	if (!isset($_SERVER['PHP_AUTH_USER']) || ($_SERVER['PHP_AUTH_USER']) == "")  {
 		header('WWW-Authenticate: Basic realm="Modintro"');
-		header('HTTP/1.0 401 Unauthorized');
+		header('HTTP/1.0 401 Unauthorized'); 
 		// echo 'Text to send if user hits Cancel button<br>';
 		exit;
 	} else {
-		$stmt = $dbconn->prepare("SELECT adminID, email, password FROM admin WHERE email=:email");
+		$stmt = $dbconn->prepare("SELECT adminID, email, password, type FROM admin WHERE email=:email");
 		$stmt->bindParam(':email', $_SERVER['PHP_AUTH_USER']);
 		$stmt->execute();
 		
@@ -559,7 +564,7 @@ function lauthenticateUser($dbconn) {
 			$stmt->closeCursor();
 			
 			if(password_verify($_SERVER['PHP_AUTH_PW'], $result['password'])) {
-				$user =  new User($result['adminID'], $result['name'], $_SERVER['PHP_AUTH_USER']);
+				$user =  new User($result['name'], $_SERVER['PHP_AUTH_USER'], $result['type']);
 				return $user;
 			} else {
 				header('HTTP/1.0 401 Unauthorized');
