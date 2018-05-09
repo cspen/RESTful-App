@@ -1,87 +1,81 @@
 <?php
-/* /announcements/index.php */
-
+require_once '../../utilities/Database_Connection.php';
 require_once '../../utilities/tools.php';
-require_once '../../utilities/appSettings.php';
-require_once '../../classes/User.php';
 
-// Check if Content-Type  and character set requested by
-// client are available
-processHeaders();
+// Make sure this service can supply
+// the data format requested by the client
+// $outputFormat = processAcceptHeader();
 
-// Dissect the url and grab http verb
+// Dissect the url
 $params = explode("/", $_SERVER['REQUEST_URI']);
-$HTTPVerb = $_SERVER['REQUEST_METHOD'];
 
 // Separate URL from query string
 $requestURI = explode("?", $_SERVER['REQUEST_URI']);
 $requestURI = $requestURI[0];
 
-if(preg_match('/^\/announcements\/$/', $requestURI)) {
-	/* URL:	/announcements/ */
-
+if(preg_match('/^\/employees\/$/', $requestURI)) {
+	/* URL: /employees/	*/
+	
 	switch($_SERVER['REQUEST_METHOD']) {
 		case "DELETE":
-			deleteAnnouncements();
+			deleteAll();
 		case "GET":
 		case "HEAD":
-			getAnnouncements($HTTPVerb);
+			getAll($_SERVER['REQUEST_METHOD']);
 		case "OPTIONS":
 			header("HTTP/1.1 200 OK");
 			header("Allow: DELETE, GET, HEAD, POST, PUT");
 			exit;
 		case "POST":
-			postAnnouncement();
+			post();
 		case "PUT":
-			putAnnouncements();
+			putAll();
 		default:
 			header("HTTP/1.1 405 Method Not Allowed");
 			header("Allow:  DELETE, GET, HEAD, OPTIONS, POST, PUT");
-			exit;
+			exit;			
 	}
-
-} elseif(preg_match('/^\/announcements\/[0-9]+$/', $requestURI)) {
-	/* URL:	/announcements/{announcementID}	*/
 	
-	$announcementId = end($params);
-
+} elseif(preg_match('/^\/employees\/[0-9]+$/', $requestURI)) {
+	/* URL: /employees/{id}	*/
+		
+	$id = end($params);
 	switch($_SERVER['REQUEST_METHOD']) {
 		case "DELETE":
-			deleteAnnouncement($announcementId);
+			delete($id);
 		case "GET":
 		case "HEAD":
-			getAnnouncement($HTTPVerb, $announcementId);
+			get($id, $_SERVER['REQUEST_METHOD']);
 		case "OPTIONS":
 			header("HTTP/1.1 200 OK");
 			header("Allow: DELETE, GET, HEAD, PUT");
 			exit;
 		case "PUT":
-			putAnnouncement($announcementId);
+			put($id);
 		default:
 			header("HTTP/1.1 405 Method Not Allowed");
 			header("Allow:  DELETE, GET, HEAD, OPTIONS, PUT");
 			exit;
 	}
-
 } else {
-	header('HTTP/1.1 404 Not Found');
+	header('HTTP/1.1 404 Not Found'); 
 	exit;
 }
 
-/* URL: /announcements/ */
-function deleteAnnouncements() {
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
+
+function deleteAll() {
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
 	
 	if($user->getType() === "MASTER") {
-		$query = "ALTER TABLE announcement AUTO_INCREMENT = 1; DELETE FROM announcement";
+		$query = "DELETE FROM employee";
 		$fromFlag = $toFlag = FALSE;
 		if(isset($_GET['from'])) {
 			if(!is_numeric($_GET['from'])) {
 				header('HTTP/1.1 400 Bad Request');
 				exit;
 			}
-			$query .= " WHERE announcementID >= :fromID";
+			$query .= " WHERE employeeID >= :fromID";
 			$fromFlag = TRUE;
 		}
 		if(isset($_GET['to'])) {
@@ -91,9 +85,9 @@ function deleteAnnouncements() {
 			}
 			$toFlag = TRUE;
 			if($fromFlag) {
-				$query .= " AND announcementID <= :toID";
+				$query .= " AND employeeID <= :toID";
 			} else {
-				$query .= " WHERE announcementID <= :toID";
+				$query .= " WHERE employeeID <= :toID";
 			}
 		}
 		
@@ -111,23 +105,81 @@ function deleteAnnouncements() {
 		} else {
 			header('HTTP/1.1 500 Internal Server Error');
 			exit;
-		}	
+		}
 	} else {
 		header("HTTP/1.1 403 Forbidden");
 		exit;
 	}
 }
 
-function getAnnouncements($verb) {
-	$query = "SELECT announcementID, userID_FK, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\") AS last_modified, date, headline, body, previous, allow_comments, deleted, etag
- 			FROM announcement WHERE deleted=FALSE";
+function delete($id) {
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
+	
+	$userType = $user->getType();
+	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
+		// First check record against headers
+		$stmt = $dbconn->prepare("SELECT * FROM employee WHERE employeeID=:empID");
+		/*
+		if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
+			$stmt->bindParam(':userID', $_GET['userid']);
+		} else {
+			$uid = $user->getId();
+			$stmt->bindParam(':userID', $uid);
+		} */
+		$stmt->bindParam(':empID', $employeeId);
+		
+		if($stmt->execute()) {
+			$rowCount = $stmt->rowCount();
+			if($rowCount == 1) {
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$result = $result[0];
+				$stmt->closeCursor();
+				processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
+				
+				// Delete the resource
+				$stmt = $dbconn->prepare("DELETE FROM employee WHERE employeeID=:empID");
+				
+				/*
+				if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
+					$stmt->bindParam(':userID', $_GET['userid']);
+				} else {
+					$uid = $user->getId();
+					$stmt->bindParam(':userID', $uid);
+				}*/
+				$stmt->bindParam(':empID', $employeeId);
+				
+				if($stmt->execute()) {
+					header('HTTP/1.1 204 No Content');
+					exit;
+				} else {
+					header('HTTP/1.1 500 Internal Server Error');
+					exit;
+				}
+			} else {
+				processConditionalHeaders(null, $rowCount, null);
+				header('HTTP/1.1 204 No Content');
+				exit;
+			}
+		} else {
+			header('HTTP/1.1 500 Internal Server Error');
+			exit;
+		}
+	} else {
+		header('HTTP/1.1 403 Forbidden');
+		exit;
+	}
+}
+
+function getAll($HTTPverb) { 
+	$query = "SELECT * FROM employee";
 	
 	$sortBy = array("date", "headline");
 	if(isset($_GET['sort'])) {
 		if(in_array($_GET['sort'], $sortBy)) {
 			$query .= " ORDER BY ".$_GET['sort'];
 		} elseif(isset($_GET['sort']) && $_GET['sort'] == "userid") {
-			$query .= " ORDER BY userID_FK";		
+			$query .= " ORDER BY userID_FK";
 		} else {
 			header('HTTP/1.1 400 Bad Request');
 			exit;
@@ -156,39 +208,38 @@ function getAnnouncements($verb) {
 		}
 	}
 	
-	$dbconn = getDatabaseConnection();
+	$dbconn = getDBConnection();
 	$stmt = $dbconn->prepare($query);
-	if($stmt->execute()) { 
+	if($stmt->execute()) {
 		if($stmt->rowCount() == 0) {
 			header('HTTP/1.1 204 No Content');
 			exit;
 		}
-		
-		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);		
-		$aList = array();
+
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$employeeList = array();
 		foreach($results as $row) {
-			$announcement = array();
-			$announcement[] = $row['announcementID'];
-			$announcement[] = $row['userID_FK'];
-			$announcement[] = $row['date'];
-			$announcement[] = $row['headline'];
-			$announcement[] = $row['body'];
-			$announcement[] = $row['previous'];
-			$announcement[] = $row['allow_comments'];
-			$announcement[] = $row['deleted'];
-			$announcement[] = $row['etag'];
-			$announcement[] = $row['last_modified'];
-			$aList[] = $announcement;
-		}
-		$aList = Array( "Announcements" => $aList);
-		$output = json_encode($aList);
+			$employee = array();
+			$employee[] = $row['employeeID'];
+			$employee[] = $row['first_name'];
+			$employee[] = $row['last_name'];
+			$employee[] = $row['department'];
+			$employee[] = $row['full_time'];
+			$employee[] = $row['hire_date'];
+			$employee[] = $row['salary'];
+			$employee[] = $row['etag'];
+			$employee[] = $row['last_modified'];
+			$employeeList[] = $employee;			
+		}		
+		$employeeList = Array( "Employees" => $employeeList);
+		$output = json_encode($employeeList);
 		
 		// Set headers
 		header('HTTP/1.1 200 OK');
 		header('Content-Type: application/json');
 		header('Content-Length: '.strlen($output));
 		
-		if($verb === "GET") {
+		if($HTTPverb === "GET") {
 			echo $output;
 		}
 		exit;
@@ -198,9 +249,50 @@ function getAnnouncements($verb) {
 	}
 }
 
-function postAnnouncement() {
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
+function get($id, $HTTPverb) {
+	$query = "SELECT employeeID, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\") AS last_modified, last_name, first_name, full_time, hire_date, salary, etag
+			FROM employee WHERE employeeID=:empID";
+	
+	$dbconn = getDBConnection();
+	$stmt = $dbconn->prepare($query);
+	$stmt->bindParam(':empID', $id);
+	if($stmt->execute()) { 
+		$rowCount = $stmt->rowCount();
+		if($rowCount == 1) {
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$result = $result[0]; 
+			processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
+			
+			// NEED TO MOVE DATA FORMATING TO A FUNCTION
+			$output = json_encode($result);			
+			
+			header('HTTP/1.1 200 OK');
+			// NEED TO UPDATE THIS HEADER BASED ON $outputFormat
+			header('Content-Type: application/json');
+
+			// CONTENT LENGTH WILL VARY DEPENDING ON OUTPUT FORMAT
+			header('Content-Length: '.strlen($output));
+			header('Etag: '.$result['etag']);
+			header('Last-Modified: '.$result['last_modified']);			
+			
+			if($HTTPverb === "GET") {
+				echo $output;
+			}
+			exit;
+		} else {
+			processConditionalHeaders(null, $rowCount, null);
+			header('HTTP/1.1 404 Not Found');
+			exit;
+		}
+	} else {
+		header('HTTP/1.1 500 Internal Server Error');
+		exit;
+	}
+}
+
+function post() {
+	$dbconn = getDBConnection();
+	$user = lauthenticateUser($dbconn);
 	
 	$userType = $user->getType();
 	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
@@ -211,42 +303,41 @@ function postAnnouncement() {
 				$userID_FK = $_POST['userid_fk'];
 				$mflag = TRUE;
 			}
-			if(isset($_POST['headline']) && isset($_POST['body'])) {
-				$headline = trim($_POST['headline']);
-				$body = $_POST['body'];
-				if(isset($_POST['comments'])) {
-					$allowComments = $_POST['comments'];
-				} else {
-					$allowComments = null;
-				}
-				if(isset($_POST['previous'])) {
-					$previous = $_POST['previous'];
-				} else {
-					$previous = null;
-				}
+			if(isset($_POST['lastname']) && isset($_POST['firstname'])
+					&& isset($_POST['department']) && isset($_POST['fulltime'])
+					&& isset($_POST['hiredate']) && isset($_POST['salary'])) {
+				$lastName = trim($_POST['lastname']);
+				$firstName = trim($_POST['firstname']);
+				$department = trim($_POST['department']);
+				$fullTime = trim($_POST['fulltime']);
+				$hireDate = trim($_POST['hiredate']);
+				$salary = trim($_POST['salary']);
 			} else {
 				header('HTTP/1.1 400 Bad Request');
 				exit;
 			}
-
-			$stmt = $dbconn->prepare("INSERT INTO announcement
-				(userID_FK, date, headline, body, previous, allow_comments)
-				VALUES(:userID_FK, NOW(), :headline, :body, :previous, :allowComments)");	
-				
+			
+			$stmt = $dbconn->prepare("INSERT INTO employee
+				(last_name, first_name, department, full_time, hire_date, salary)
+				VALUES(:lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
+			/*
 			if($mflag) {
 				$stmt->bindParam(':userID_FK', $userID_FK);
 			} else {
 				$uid = $user->getId();
 				$stmt->bindParam(':userID_FK', $uid);
 			}
-			$stmt->bindParam(':headline', $headline);
-			$stmt->bindParam(':body', $body);
-			$stmt->bindParam(':previous', $previous);
-			$stmt->bindParam(':allowComments', $allowComments);
+			*/
+			$stmt->bindParam(':lastName', $lastName);
+			$stmt->bindParam(':firstName', $firstName);
+			$stmt->bindParam(':department', $department);
+			$stmt->bindParam(':fullTime', $fullTime);
+			$stmt->bindParam(':hireDate', $hireDate);
+			$stmt->bindParam(':salary', $salary);
 			
 			if($stmt->execute()) {
 				$i = $dbconn->lastInsertId();
-				$location = "http://".$_SERVER[HTTP_HOST].$_SERVER['REQUEST_URI'].$i;
+				$location = $_SERVER['REQUEST_URI'].$i;
 				header('HTTP/1.1 201 Created');
 				header('Content-Location: '.$location);
 				echo $location;
@@ -261,38 +352,39 @@ function postAnnouncement() {
 	}
 }
 
-function putAnnouncements() {
+function putAll() {
 	if($input = json_decode(file_get_contents("php://input"), true)) {
-		$dbconn = getDatabaseConnection();
-		$user = authenticateUser($dbconn);
+		$dbconn = getDBConnection();
+		$user = lauthenticateUser($dbconn);
 		
 		$userType = $user->getType();
 		if($userType === "MASTER" || $userType === "ADMIN") {
 			
-			if(isset($input['Announcements'])) {
-				$announcements = $input['Announcements'];
+			if(isset($input['Employees'])) {
+				$announcements = $input['Employees'];
 			} else {
 				header('HTTP/1.1 400 Bad Request');
 				exit;
 			}
 			
-			$sql = 'ALTER TABLE announcement AUTO_INCREMENT = 1; INSERT INTO announcement (userID_FK, date, headline, body,
-					 previous, allow_comments, deleted) VALUES ';
-			$count = count($announcements);
+			$sql = 'INSERT INTO employee (employeeID, last_name, first_name, department,
+					 full_time, hire_date, salary) VALUES ';
+			$count = count($employees);
 			for($i = 0; $i < $count; $i++) {
-				if(isset($announcements[$i]['Date']) && isset($announcements[$i]['Headline'])
-						&& isset($announcements[$i]['Body']) && isset($announcements[$i]['Previous'])
-						&& isset($announcements[$i]['AllowComments']) && isset($announcements[$i]['Deleted'])) {
+				if(isset($employees[$i]['employeeid']) && isset($employees[$i]['lastname'])
+						&& isset($employees[$i]['firstname']) && isset($employees[$i]['department'])
+						&& isset($employees[$i]['fulltime']) && isset($employees[$i]['hiredate'])
+						&& isset($employees[$i]['salary'])) {
 							
-							validateNumericFields($announcements[$i]);
+							validateNumericFields($employees[$i]);
 							$sql .= '(?, ?, ?, ?, ?, ?, ?)';
 							if($i < ($count - 1)) {
 								$sql .= ', ';
 							}
-				} else {
-					header('HTTP/1.1 400 Bad Request');
-					exit;
-				}
+						} else {
+							header('HTTP/1.1 400 Bad Request');
+							exit;
+						}
 			}
 			
 			try {
@@ -301,35 +393,36 @@ function putAnnouncements() {
 				} else {
 					$guid = false;
 				}
-
+				
 				// Should use transaction but can't with MyISAM
 				if($userType === "MASTER" || $userType === "ADMIN") {
 					if($guid) {
-						$stmt = $dbconn->prepare("DELETE FROM announcement WHERE userID_FK=:userID");
+						$stmt = $dbconn->prepare("DELETE FROM employee WHERE userID_FK=:userID");
 						$stmt->bindParam(':userID', $guid);
 					} else {
-						$stmt = $dbconn->prepare("DELETE FROM announcement");
-					}					
-				}			
+						$stmt = $dbconn->prepare("DELETE FROM employee");
+					}
+				}
 				
 				if($stmt->execute()) {
 					$stmt->closeCursor();
-				
+					
 					$stmt = $dbconn->prepare($sql);
-					$count = count($announcements);
+					$count = count($employees);
 					$pos = 0;
-					foreach($announcements as $a) {
+					foreach($employees as $emp) {
 						if($userId && $userType === "MASTER" || $userType === "ADMIN") {
 							$stmt->bindParam(++$pos, $guid);
 						} else {
-							$stmt->bindParam(++$pos, $a['UserID']);
+							$stmt->bindParam(++$pos, $emp['UserID']);
 						}
-						$stmt->bindParam(++$pos, $a['Date']);
-						$stmt->bindParam(++$pos, $a['Headline']);
-						$stmt->bindParam(++$pos, $a['Body']);
-						$stmt->bindParam(++$pos, $a['Previous']);
-						$stmt->bindParam(++$pos, $a['AllowComments']);
-						$stmt->bindParam(++$pos, $a['Deleted']);
+						$stmt->bindParam(++$pos, $emp['employeeID']);
+						$stmt->bindParam(++$pos, $emp['LastName']);
+						$stmt->bindParam(++$pos, $emp['FirstName']);
+						$stmt->bindParam(++$pos, $emp['Department']);
+						$stmt->bindParam(++$pos, $emp['FullTime']);
+						$stmt->bindParam(++$pos, $emp['HireDate']);
+						$stmt->bindParam(++$pos, $emp['Salary']);
 					}
 				} else {
 					header('500 Internal Server Error');
@@ -354,182 +447,127 @@ function putAnnouncements() {
 		exit;
 	}
 }
-/* END URL: /announcements/ */
 
-
-/* URL:	/announcements/{announcementID}	*/
-function deleteAnnouncement($announcementId) { 
-	$dbconn = getDatabaseConnection();
-	$user = authenticateUser($dbconn);
-	
-	$userType = $user->getType();
-	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
-		// First check record against headers
-		$stmt = $dbconn->prepare("SELECT userID_FK, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\") AS last_modified, date, headline, body, previous, allow_comments, deleted, etag
-						FROM announcement WHERE userID_FK=:userID AND announcementID=:announcementID");
-		
-		if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
-			$stmt->bindParam(':userID', $_GET['userid']);
-		} else {
-			$uid = $user->getId();
-			$stmt->bindParam(':userID', $uid);
-		}
-		$stmt->bindParam(':announcementID', $announcementId);
-		
-		if($stmt->execute()) {
-			$rowCount = $stmt->rowCount();
-			if($rowCount == 1) { 
-				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				$result = $result[0];
-				$stmt->closeCursor();
-				processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
-				
-				// Delete the resource
-				$stmt = $dbconn->prepare("DELETE FROM announcement WHERE userID_FK=:userID AND announcementID=:announcementID");
-				
-				if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
-					$stmt->bindParam(':userID', $_GET['userid']);
-				} else {
-					$uid = $user->getId();
-					$stmt->bindParam(':userID', $uid);
-				}
-				$stmt->bindParam(':announcementID', $announcementId);
-				
-				if($stmt->execute()) {
-					header('HTTP/1.1 204 No Content');
-					exit;
-				} else {
-					header('HTTP/1.1 500 Internal Server Error');
-					exit;
-				}				
-			} else {
-				processConditionalHeaders(null, $rowCount, null);
-				header('HTTP/1.1 204 No Content');
-				exit;
-			}			
-		} else {
-			header('HTTP/1.1 500 Internal Server Error');
-			exit;
-		}		
-	} else {
-		header('HTTP/1.1 403 Forbidden');
+function put($id) {
+	if(isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+		header('HTTP/1.1 412 Precondition Failed');
 		exit;
 	}
+	
+	$putVar = json_decode(file_get_contents("php://input"), true);
+	if(isset($putVar) && array_key_exists('LastName', $putVar) && array_key_exists('FirstName', $putVar)
+			&& array_key_exists('Department', $putVar) && array_key_exists('FullTime', $putVar)
+			&& array_key_exists('HireDate', $putVar) && array_key_exists('Salary', $putVar)) {header('X-zzzzwtf: '.$putVar['FullTime']);
+
+				
+				if(!is_numeric($putVar['Salary'])) {
+					header('HTTP/1.1 400 Bad Request');
+					exit;
+				}				
+				$dbconn = getDBConnection();
+				$user = lauthenticateUser($dbconn);
+				
+				$userType = $user->getType();
+				if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
+					
+					$stmt = $dbconn->prepare("SELECT * FROM employee WHERE employeeID = :empID");
+					$stmt->bindParam(':empID', $id);
+					$stmt->execute();
+					$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$results = $results[0];
+					$rowCount = $stmt->rowCount();
+					$stmt->closeCursor();
+					
+					$existed = false;
+					if($rowCount == 1) { // Update (replace) existing resource
+						processConditionalHeaders($results['etag'], $stmt->rowCount(), $results['last_modified']);
+						
+						$stmt = $dbconn->prepare("UPDATE employee SET last_name=:lastName, first_name=:firstName,
+								department=:department, full_time=:fullTime, hire_date=:hireDate, salary=:salary
+								WHERE employeeID=:empID");
+						$existed = true;
+					} else { // Create a new resource
+						processConditionalHeaders(null, 0, null);
+						
+						$stmt = $dbconn->prepare("INSERT INTO employee
+								(employeeID, last_name, first_name, department, full_time, hire_date, salary)
+								VALUES(:empID, :lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
+												
+					}
+					$stmt->bindParam(':empID', $id);	
+					$stmt->bindParam(':lastName',  $putVar['LastName']);
+					$stmt->bindParam(':firstName', $putVar['FirstName']);
+					$stmt->bindParam(':department', $putVar['Department']);
+					$stmt->bindParam(':fullTime', $putVar['FullTime']);header('X-wtf: '.$putVar['FullTime']);
+					$stmt->bindParam(':hireDate', $putVar['HireDate']);
+					$stmt->bindParam(':salary', $putVar['Salary']);
+					
+					if($stmt->execute()) {
+						if($existed) {
+							header('HTTP/1.1 204 No Content');
+						} else {
+							header('HTTP/1.1 201 Created');
+						}
+						exit;
+					} else {
+						header('HTTP/1.1 504 Internal Server Error');
+						exit;
+					}
+				}
+			} else {
+				header('HTTP/1.1 400 Bad Request');
+				exit;
+			}
 }
 
-function getAnnouncement($verb, $announcementId) {	
-	$query = "SELECT announcementID, userID_FK, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\") AS last_modified, date, headline, body, previous, allow_comments, deleted, etag
-			FROM announcement WHERE announcementID=:announcementID";
-	
-	$dbconn = getDatabaseConnection();	
-	$stmt = $dbconn->prepare($query);
-	$stmt->bindParam(':announcementID', $announcementId);
-	if($stmt->execute()) {
-		$rowCount = $stmt->rowCount();
-		if($rowCount == 1) {
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$result = $result[0];
-			processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
-			
-			$output = json_encode($result);
-			
-			header('HTTP/1.1 200 OK');
-			header('Content-Type: application/json');
-			header('Content-Length: '.strlen($output));
-			header('Etag: '.$result['etag']);
-			header('Last-Modified: '.$result['last_modified']); 
-			
-			if($verb === "GET") {
-				echo $output;
-			}
-			exit;
-		} else {
-			processConditionalHeaders(null, $rowCount, null);
-			header('HTTP/1.1 404 Not Found');
-			exit;
-		}
-	} else {
+function getDBConnection() { 
+	try {
+		$db = new Database_Connection();
+		return $db->getConnection(); 
+	} catch(PDOException $e) {
+		echo $e->getMessage();
 		header('HTTP/1.1 500 Internal Server Error');
 		exit;
 	}
 }
 
-function putAnnouncement($announcementId) {	
-	$putVar = json_decode(file_get_contents("php://input"), true);
-	if(isset($putVar) && array_key_exists('Headline', $putVar) && array_key_exists('Body', $putVar)
-			&& array_key_exists('Previous', $putVar) && array_key_exists('AllowComments', $putVar)
-			&& array_key_exists('Deleted', $putVar)) {
-				
-		validateNumericFields($putVar);
-		
-		$dbconn = getDatabaseConnection();
-		$user = authenticateUser($dbconn);
-		
-		$userType = $user->getType();
-		if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
-			
-			$stmt = $dbconn->prepare("SELECT * FROM announcement WHERE announcementID = :announcementID");
-			$stmt->bindParam(':announcementID', $announcementId);
-			$stmt->execute();
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$results = $results[0];
-			$rowCount = $stmt->rowCount();
-			$stmt->closeCursor();			
-			
-			$existed = false;
-			if($rowCount == 1) { // Update (replace) existing resource				
-				processConditionalHeaders($results['etag'], $stmt->rowCount(), $results['last_modified']);
-				
-				$stmt = $dbconn->prepare("UPDATE announcement SET date=NOW(), headline=:headline, body=:body,
-								previous=:previous, allow_comments=:allowComments, userID_FK=:userID, deleted=:deleted
-								WHERE announcementID=:announcementID");	
-				$existed = true;				
-			} else { // Create a new resource
-				processConditionalHeaders(null, 0, null);
-				
-				$stmt = $dbconn->prepare("INSERT INTO announcement
-								(announcementID, userID_FK, date, headline, body, previous, deleted, allow_comments)
-								VALUES(:announcementID, :userID, NOW(), :headline, :body, :previous, :deleted, :allowComments)");
-			}
-			
-			$uid = $user->getId();
-			$stmt->bindParam(':announcementID', $announcementId);
-			$stmt->bindParam(':userID', $uid);
-			$stmt->bindParam(':headline', $putVar['Headline']);
-			$stmt->bindParam(':body', $putVar['Body']);
-			$stmt->bindParam(':allowComments', $putVar['AllowComments']);
-			$stmt->bindParam(':previous', $putVar['Previous']);
-			$stmt->bindParam(':deleted', $putVar['Deleted']);
-			
-			if($stmt->execute()) {
-				if($existed) {
-					header('HTTP/1.1 204 No Content');
-				} else {
-					header('HTTP/1.1 201 Created');
-				}
-				exit;
-			} else {
-				header('HTTP/1.1 504 Internal Server Error');
-				exit;
-			}
-		}
-	} else {
-		header('HTTP/1.1 400 Bad Request');
+function lauthenticateUser($dbconn) {
+	$segments = @explode(':', base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6)));
+	
+	if(count($segments) == 2) {
+		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = $segments;
+	}
+	
+	if (!isset($_SERVER['PHP_AUTH_USER']) || ($_SERVER['PHP_AUTH_USER']) == "")  {
+		header('WWW-Authenticate: Basic realm="Modintro"');
+		header('HTTP/1.0 401 Unauthorized'); 
+		// echo 'Text to send if user hits Cancel button<br>';
 		exit;
+	} else {
+		$stmt = $dbconn->prepare("SELECT adminID, email, password, type FROM admin WHERE email=:email");
+		$stmt->bindParam(':email', $_SERVER['PHP_AUTH_USER']);
+		$stmt->execute();
+		
+		if($stmt->rowCount() == 1) {
+			$result = $stmt->fetch();
+			$stmt->closeCursor();
+			
+			if(password_verify($_SERVER['PHP_AUTH_PW'], $result['password'])) {
+				$user =  new User($result['name'], $_SERVER['PHP_AUTH_USER'], $result['type']);
+				return $user;
+			} else {
+				header('HTTP/1.0 401 Unauthorized');
+				exit;
+			}
+			
+		} else { // No record found
+			header('HTTP/1.0 401 Unauthorized');
+			// header('WWW-Authenticate: Basic realm="Modintro"');
+			// echo 'Text to send if user hits Cancel button<br>';
+			// echo '{ Error:"Not Found", ErrorCode: 333 }';
+			exit;
+		}
 	}
 }
 
-function validateNumericFields($a) {
-	if(!is_numeric($a['Previous']) || !is_numeric($a['AllowComments'])
-			|| !is_numeric($a['Deleted'])) {
-		header('HTTP/1.1 400 Bad Request');
-		exit;
-	}
-	if($a['Previous'] > 1 || $a['Previous'] < 0 || $a['AllowComments'] > 1
-			|| $a['AllowComments'] < 0 || $a['Deleted'] > 1 || $a['Deleted'] < 0) {
-		header('HTTP/1.1 400 Bad Request');
-		exit;
-	}
-}
-/* END URL:	/announcements/{announcementID}	*/
 ?>
