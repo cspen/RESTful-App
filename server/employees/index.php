@@ -118,14 +118,7 @@ function delete($id) {
 	if($userType === "MASTER" || $userType === "ADMIN" || $userType === "USER") {
 		// First check record against headers
 		$stmt = $dbconn->prepare("SELECT * FROM employee WHERE employeeID=:empID");
-		/*
-		if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
-			$stmt->bindParam(':userID', $_GET['userid']);
-		} else {
-			$uid = $user->getId();
-			$stmt->bindParam(':userID', $uid);
-		} */
-		$stmt->bindParam(':empID', $employeeId);
+		$stmt->bindParam(':empID', $id);
 		
 		if($stmt->execute()) {
 			$rowCount = $stmt->rowCount();
@@ -137,15 +130,7 @@ function delete($id) {
 				
 				// Delete the resource
 				$stmt = $dbconn->prepare("DELETE FROM employee WHERE employeeID=:empID");
-				
-				/*
-				if(($userType === "MASTER" || $userType === "ADMIN") && isset($_GET['userid'])) {
-					$stmt->bindParam(':userID', $_GET['userid']);
-				} else {
-					$uid = $user->getId();
-					$stmt->bindParam(':userID', $uid);
-				}*/
-				$stmt->bindParam(':empID', $employeeId);
+				$stmt->bindParam(':empID', $id);
 				
 				if($stmt->execute()) {
 					header('HTTP/1.1 204 No Content');
@@ -350,6 +335,12 @@ function post() {
 	}
 }
 
+// Removed the put function for the collection as it's not part of HTTP.
+// Put is only for a single resource, not a collection.
+// 
+
+// Put operation explained at:
+// https://tools.ietf.org/html/rfc2616#section-9.6
 function put($id) {
 	if(isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 		header('HTTP/1.1 412 Precondition Failed');
