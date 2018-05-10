@@ -24,12 +24,10 @@ if(preg_match('/^\/employees\/$/', $requestURI)) {
 			getAll($_SERVER['REQUEST_METHOD']);
 		case "OPTIONS":
 			header("HTTP/1.1 200 OK");
-			header("Allow: DELETE, GET, HEAD, POST, PUT");
+			header("Allow: DELETE, GET, HEAD, POST");
 			exit;
 		case "POST":
 			post();
-		case "PUT":
-			putAll();
 		default:
 			header("HTTP/1.1 405 Method Not Allowed");
 			header("Allow:  DELETE, GET, HEAD, OPTIONS, POST, PUT");
@@ -348,102 +346,6 @@ function post() {
 		}
 	} else {
 		header('HTTP/1.1 403 Forbidden');
-		exit;
-	}
-}
-
-function putAll() {
-	if($input = json_decode(file_get_contents("php://input"), true)) {
-		$dbconn = getDBConnection();
-		$user = lauthenticateUser($dbconn);
-		
-		$userType = $user->getType();
-		if($userType === "MASTER" || $userType === "ADMIN") {
-			
-			if(isset($input['Employees'])) {
-				$announcements = $input['Employees'];
-			} else {
-				header('HTTP/1.1 400 Bad Request');
-				exit;
-			}
-			
-			$sql = 'INSERT INTO employee (employeeID, last_name, first_name, department,
-					 full_time, hire_date, salary) VALUES ';
-			$count = count($employees);
-			for($i = 0; $i < $count; $i++) {
-				if(isset($employees[$i]['employeeid']) && isset($employees[$i]['lastname'])
-						&& isset($employees[$i]['firstname']) && isset($employees[$i]['department'])
-						&& isset($employees[$i]['fulltime']) && isset($employees[$i]['hiredate'])
-						&& isset($employees[$i]['salary'])) {
-							
-							validateNumericFields($employees[$i]);
-							$sql .= '(?, ?, ?, ?, ?, ?, ?)';
-							if($i < ($count - 1)) {
-								$sql .= ', ';
-							}
-						} else {
-							header('HTTP/1.1 400 Bad Request');
-							exit;
-						}
-			}
-			
-			try {
-				if(isset($_GET['userid'])) {
-					$guid = $_GET['userid'];
-				} else {
-					$guid = false;
-				}
-				
-				// Should use transaction but can't with MyISAM
-				if($userType === "MASTER" || $userType === "ADMIN") {
-					if($guid) {
-						$stmt = $dbconn->prepare("DELETE FROM employee WHERE userID_FK=:userID");
-						$stmt->bindParam(':userID', $guid);
-					} else {
-						$stmt = $dbconn->prepare("DELETE FROM employee");
-					}
-				}
-				
-				if($stmt->execute()) {
-					$stmt->closeCursor();
-					
-					$stmt = $dbconn->prepare($sql);
-					$count = count($employees);
-					$pos = 0;
-					foreach($employees as $emp) {
-						if($userId && $userType === "MASTER" || $userType === "ADMIN") {
-							$stmt->bindParam(++$pos, $guid);
-						} else {
-							$stmt->bindParam(++$pos, $emp['UserID']);
-						}
-						$stmt->bindParam(++$pos, $emp['employeeID']);
-						$stmt->bindParam(++$pos, $emp['LastName']);
-						$stmt->bindParam(++$pos, $emp['FirstName']);
-						$stmt->bindParam(++$pos, $emp['Department']);
-						$stmt->bindParam(++$pos, $emp['FullTime']);
-						$stmt->bindParam(++$pos, $emp['HireDate']);
-						$stmt->bindParam(++$pos, $emp['Salary']);
-					}
-				} else {
-					header('500 Internal Server Error');
-					exit;
-				}
-				
-				if($stmt->execute()) {
-					header('HTTP/1.1 204 No Content');
-				} else {
-					header('HTTP/1.1 500 Internal Server Error');
-				}
-				exit;
-			} catch(PDOException $e) {
-				echo $e->getMessage();
-			}
-		} else {
-			header('HTTP/1.1 403 Forbidden');
-			exit;
-		}
-	} else {
-		header('HTTP/1.1 400 Bad Request');
 		exit;
 	}
 }
