@@ -1,10 +1,7 @@
 <?php 
 /**
  * Functions to encode array data into
- * xml, html, or json. 
- *
- * THIS IS NOT A GENERAL ENCODER. These functions are designed
- * to accept database result sets in array form.
+ * xml, html, or json.
  */
 
 
@@ -33,8 +30,11 @@ function html_encode($data, $caption) {
 	$values = array_values($data);
 	
 	$html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
-	$html .= "<title>Title of the document</title></head><body>";
-	$html .= "<table><caption>".$caption."</caption>";
+	$html .= "<title>Title of the document</title>";
+	$html .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">";
+	$html .= "</head><body>";
+	$html .= "<table id=\"theTable\" onclick=\"clickedCell(event)\">";
+	$html .= "<caption>".$caption."</caption>";
 	$html .= "<tr>";
 	// Assemble table header
 	foreach($keys as $k) {
@@ -54,6 +54,7 @@ function html_encode($data, $caption) {
 	}
 	
 	$html .= "</table>";
+	$html .= "<script src=\"script.js\"></script>";
 	$html .= "</body></html>";
 	
 	echo $html;
