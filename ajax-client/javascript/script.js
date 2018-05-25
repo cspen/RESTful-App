@@ -3,7 +3,10 @@
  * 
  * Created By: Craig Spencer
  * Date: May 14, 2018
+ * Last Modified: May 17, 2018
  */
+
+// Table Manager
 var tm = tm || {};
 
 tm.glbs = {
@@ -69,8 +72,112 @@ tm.clickedCell = function (e) {
 			tm.glbs.flag = true;
 		}		
 	}
+};
+
+// Make AJAX an independent module
+var ajax = ajax || {};
+
+ajax.func = function(data) {
+	 alert("AJAX baby! update: " + data)
+};
+
+// Page load module
+(function() {
+	var currentDiv;
+	// Capture page link clicks
+	window.onclick = function(e) {
+		// e.stopPropagation();
+		// e.preventDefault();
+		
+		var clicked = e.target.innerHTML;
+	
+		
+		switch(clicked) {
+			case "New":
+				var pop = document.getElementById('overlay');
+				currentDiv = document.getElementById('new');
+				pop.style.display = "block";
+				currentDiv.style.display = "block";
+				break;
+			case "Refresh":
+				break;
+			case "Delete":
+				var pop = document.getElementById('overlay');
+				currentDiv = document.getElementById('delete');
+				pop.style.display = "block";
+				currentDiv.style.display = "block";
+				break;
+			case "Cancel":
+				var pop = document.getElementById('overlay');
+				pop.style.display = "none";
+				currentDiv.style.display = "none";
+		}		
+	};
+}());
+
+// Page manager for managing multiple page results
+var pm = pm || {};
+
+pm.glbs = {
+	currentPage: 1,  /* Default */
+	startPage: 1
 }
 
-tm.AJAX = function (data) {
-	alert("AJAX baby! update: " + data)
-}
+pm.updatePages = function(page) { // alert("endPage = " + endPage);
+	// Need to check with the server first
+	// in case of server or network error
+	
+	// Update the data table 
+
+	// Update page navigation
+	if(page === "rarrow") {
+		// Check if next page exists
+		var next = document.getElementById(pm.glbs.currentPage+1);
+		if(next != null) { console.log("IN IF");
+			document.getElementById(pm.glbs.currentPage).classList.remove('active');
+			pm.glbs.currentPage++;
+			document.getElementById(pm.glbs.currentPage).classList.add('active');
+		}
+	} else if(page === "larrow") {
+		var prev = document.getElementById(pm.glbs.currentPage-1);
+		if(prev != null) {
+			document.getElementById(pm.glbs.currentPage).classList.remove('active');
+			pm.glbs.currentPage--;
+			document.getElementById(pm.glbs.currentPage).classList.add('active');		
+		}
+	} else if(page === "jump") {
+		// Not implemented - intended to be a multiple page navigation
+	} else if(!isNaN(page)) { // Clicked a number
+		if(page !== pm.glbs.currentPage) {
+			document.getElementById(pm.glbs.currentPage).classList.remove('active');
+			pm.glbs.currentPage = page;
+			document.getElementById(pm.glbs.currentPage).classList.add('active');			
+		}
+	}
+	
+	if(pm.glbs.currentPage > endPage) {
+		document.getElementById(pm.glbs.startPage).style.display = "none";
+		pm.glbs.startPage++;
+		endPage++;
+		document.getElementById(endPage).style.display = "block";		
+	} else if(pm.glbs.currentPage < pm.glbs.startPage) {
+		console.log("CP = " + pm.glbs.currentPage)
+		document.getElementById(endPage).style.display = "none";
+		pm.glbs.startPage--;
+		endPage--;
+		document.getElementById(pm.glbs.startPage).style.display = "block";
+	}
+	
+	// Grey out arrow keys when reach either start or end of pages
+	if(pm.glbs.currentPage > 1) {
+		document.getElementById('larrow').style.background = "white";
+	} else {
+		document.getElementById('larrow').style.background = "lightgrey";
+	}
+	
+	if(pm.glbs.currentPage < number_of_pages) {
+		document.getElementById('rarrow').style.background = "white";
+	} else {
+		document.getElementById('rarrow').style.background = "lightgrey";
+	}	
+};
