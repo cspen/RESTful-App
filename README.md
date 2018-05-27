@@ -20,3 +20,5 @@ The Java client will request XML from the server. The data contained in the
 XML file will then be parsed into a two-dimensional array so it can be used
 in a TableModel for a JTable.
 
+Adding java client last.
+
