@@ -22,42 +22,116 @@ function xml_encode($data, $type) {
 			$xml .= '</'.$type.'>'."\n";
 		}		
 	}	
-	echo $xml;
+	return $xml;
 }
+
+
 
 function html_encode($data, $caption) {
 	$keys = array_keys($data[0]);
 	$values = array_values($data);
 	
-	$html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
-	$html .= "<title>Title of the document</title>";
-	$html .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">";
-	$html .= "</head><body>";
-	$html .= "<table id=\"theTable\" onclick=\"clickedCell(event)\">";
-	$html .= "<caption>".$caption."</caption>";
-	$html .= "<tr>";
+$html = <<<EOT
+	<!DOCTYPE html><html>
+		<head>
+			<meta charset="UTF-8">
+			<title>Title of the document</title>
+	 		<link rel="stylesheet" type="text/css" href="style.css">
+		</head>
+		<body>
+			<ul id=\"nav\">
+				<li><a href="javascript:void(0)">New</a></li>
+				<li><a href="javascript:void(0)">Delete</a></li>
+				<li><a href="javascript:void(0)">Refresh</a></li>
+			</ul>
+			<table id="theTable" onclick="tm.clickedCell(event)">
+				<caption>$caption</caption>
+				<thead><tr>
+EOT;
+	
 	// Assemble table header
 	foreach($keys as $k) {
 		$html .= "<th>".ucwords(str_replace("_", " ", $k))."</th>";
 	}
-	$html .= "</tr>";
-	// Assemble table body
-	foreach($values as $key => $value) {
-		if(is_array($value)) {
+	$html .= "</tr></thead><tbody>";
+	// Assemble table body (first 10 rows)
+	for($i = 0; $i < 10; $i++) {
+		if(is_array($values[$i])) {
 			$html .= "<tr>";
-			foreach($value as $v) {
+			foreach($values[$i] as $v) {
 				$html .= "<td>".$v."</td>";
 			}
 			$html .= "</tr>";
-		} else {
 		}
 	}
 	
-	$html .= "</table>";
-	$html .= "<script src=\"script.js\"></script>";
-	$html .= "</body></html>";
+$html .= <<<EOT
+	</tbody></table>
+	<div class="pagination">
+  		<a id="larrow" href="javascript:pm.updatePages('larrow')" style="background:lightgrey;">&laquo;</a>
+  		<a id="1" href="javascript:pm.updatePages(1)" class="active">1</a>
+  		
+EOT;
+
+	// Default is 10 results per page
+	$pages = ceil(count($data)/10);
+	$endPage = $count = 2;
 	
-	echo $html;
+	while($count <= $pages) {
+		if($count < 4) {
+			$html .= '<a id="'.$count.'" href="javascript:pm.updatePages('.$count.')">'.$count.'</a>';
+			$endPage = $count;
+		} else {
+			$html .= '<a id="'.$count.'" style="display:none;" href="javascript:pm.updatePages('.$count.')">'.$count.'</a>';			
+		}
+		$count++;
+	}
+	$html .= "<script>var number_of_pages = ".$pages."; var endPage = ".$endPage.";</script>";
+	
+	// if($pages > 4)
+	// 	$html .= '<a id="extra" href="javascript:pm.updatePages(\'jump\')">...</a>';
+	if($pages > 1)
+		$html .= '<a id="rarrow" href="javascript:pm.updatePages(\'rarrow\')">&raquo;</a>';
+
+	
+
+$html .= <<<EOT
+	</div>
+	<footer>
+		<p>Created by: Craig Spencer</p>
+		<p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a></p>
+	</footer>
+
+	<div id="overlay">
+		<div id="overlaytop">
+			<div id="new" class="overlaycontent" style="display: none;">
+				<h3>New Employee</h3>
+				<table class="overlaytable">				
+					<tr><td>Last Name:</td><td><input type="text" id="ln"></td></tr>
+					<tr><td>First Name:</td><td><input type="text" id="fn"></td></tr>
+					<tr><td>Department:</td><td><select id="dep"></select></td></tr>
+					<tr><td>Full Time:</td><td><input type="checkbox"></td></tr>
+					<tr><td>Hire Date:</td><td><input type="text"></td></tr>
+					<tr><td>Salary:</td><td><input type="text"></td></tr>
+				</table>	
+				<button id="cancel" class="button2">Cancel</button>
+				<button id="okNew" class="button2">OK</button>		
+			</div>
+			<div id="delete" class="overlaycontent" style="display: none;">
+				<h3>Delete</h3>
+				<table class="overlaytable"><tr><td>EmployeeID: </td><td><input type="text"></td></tr></table>
+				<button id="cancel" class="button2">Cancel</button>
+				<button id="okDelete" class="button2">OK</button>
+			</div>
+			
+		</div>
+	</div>
+
+	<script src="script.js"></script>
+	</body></html>
+EOT;
+	
+	return $html;
 }
 
 
