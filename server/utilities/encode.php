@@ -1,10 +1,19 @@
 <?php 
 /**
  * Functions to encode array data into
- * xml, html, or json.
+ * xml, html.
+ *
+ * @author Craig Spencer craigspencer@modintro.com
  */
 
-
+/**
+ * Convert data stored in an array into a string of
+ * xml.
+ *
+ * @param array	data to be converted to xml
+ * @param String the type of data (name of collection)
+ * @return String
+ */
 function xml_encode($data, $type) {
 	$type = ucfirst($type);
 	$xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
@@ -26,7 +35,14 @@ function xml_encode($data, $type) {
 }
 
 
-
+/**
+ * Convert data stored in an array into an html document 
+ * stored in a string.
+ *
+ * @param String $data data to be converted to HTML
+ * @param String $caption caption for the HTML table
+ * @return String
+ */
 function html_encode($data, $caption) {
 	$keys = array_keys($data[0]);
 	$values = array_values($data);
