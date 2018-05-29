@@ -74,13 +74,6 @@ tm.clickedCell = function (e) {
 	}
 };
 
-// Make AJAX an independent module
-var ajax = ajax || {};
-
-ajax.func = function(data) {
-	 alert("AJAX baby! update: " + data)
-};
-
 // Page load module
 (function() {
 	var currentDiv;
@@ -89,9 +82,7 @@ ajax.func = function(data) {
 		// e.stopPropagation();
 		// e.preventDefault();
 		
-		var clicked = e.target.innerHTML;
-	
-		
+		var clicked = e.target.innerHTML;		
 		switch(clicked) {
 			case "New":
 				var pop = document.getElementById('overlay');
@@ -111,6 +102,10 @@ ajax.func = function(data) {
 				var pop = document.getElementById('overlay');
 				pop.style.display = "none";
 				currentDiv.style.display = "none";
+				break;
+			case "OK":
+				console.log("YOU CLICKED OK " + e.target.id);
+				
 		}		
 	};
 }());
@@ -123,17 +118,35 @@ pm.glbs = {
 	startPage: 1
 }
 
-pm.updatePages = function(page) { // alert("endPage = " + endPage);
+pm.updatePages = function(page) { 
 	// Need to check with the server first
+	var nextPage = 0;
+	if(page === "rarrow") {
+		nextPage = pm.glbs.currentPage + 1;
+	} else if(page === "larrow") {
+		nextPage = pm.glbs.currentPage - 1;
+	} else {
+		nextPage = page;
+	}
+	
+	ajax.func("GET", "http://modintro.com/employees/?page=" + nextPage + "&pagesize=10",  pm.ajax.func1, page);
 	// in case of server or network error
 	
+	
+};
+
+pm.ajax = {} || ajax;
+pm.ajax.func1 = function(xhttp, page) {
+	
+	alert(xhttp.responseText);
+
 	// Update the data table 
 
 	// Update page navigation
 	if(page === "rarrow") {
 		// Check if next page exists
 		var next = document.getElementById(pm.glbs.currentPage+1);
-		if(next != null) { console.log("IN IF");
+		if(next != null) {
 			document.getElementById(pm.glbs.currentPage).classList.remove('active');
 			pm.glbs.currentPage++;
 			document.getElementById(pm.glbs.currentPage).classList.add('active');
@@ -161,7 +174,6 @@ pm.updatePages = function(page) { // alert("endPage = " + endPage);
 		endPage++;
 		document.getElementById(endPage).style.display = "block";		
 	} else if(pm.glbs.currentPage < pm.glbs.startPage) {
-		console.log("CP = " + pm.glbs.currentPage)
 		document.getElementById(endPage).style.display = "none";
 		pm.glbs.startPage--;
 		endPage--;
@@ -180,4 +192,17 @@ pm.updatePages = function(page) { // alert("endPage = " + endPage);
 	} else {
 		document.getElementById('rarrow').style.background = "lightgrey";
 	}	
+};
+
+var ajax = ajax || {};
+ajax.func = function(method, url, callbackFunc, data) {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	    	callbackFunc(this, data);
+	    }
+	};
+	xmlhttp.open(method, url, true);
+	xmlhttp.send();
+	// alert("AJAX baby! update: " + data)
 };
