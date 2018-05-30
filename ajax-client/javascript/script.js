@@ -138,9 +138,36 @@ pm.updatePages = function(page) {
 pm.ajax = {} || ajax;
 pm.ajax.func1 = function(xhttp, page) {
 	
-	alert(xhttp.responseText);
+	// Check for error
+ 	// alert(xhttp.responseText);
 
 	// Update the data table 
+		// Remove existing rows
+		var theTable = document.getElementById('theTable');
+
+		// Row zero is the column headings
+		while(theTable.rows.length > 1) {
+			theTable.deleteRow(1);
+		}
+
+		// Add new rows
+		var obj = JSON.parse(xhttp.responseText);
+		if(Array.isArray(obj)) {
+			for(var i = 0; i < obj.length; i++) {
+				var newRow = theTable.insertRow(theTable.rows.length);
+				var jrow = obj[i]; 
+				var length = Object.keys(jrow).length;
+				var keys = Object.keys(jrow); 
+				for (var j = 0; j < length; j++) {
+    					// if (jrow.hasOwnProperty(key)) {
+						// Add row to table						
+						var newCell = newRow.insertCell(-1);
+						var text = document.createTextNode(jrow[keys[j]]);
+						newCell.appendChild(text);
+					// }
+				}
+			}
+		}		
 
 	// Update page navigation
 	if(page === "rarrow") {
@@ -203,6 +230,6 @@ ajax.func = function(method, url, callbackFunc, data) {
 	    }
 	};
 	xmlhttp.open(method, url, true);
+	xmlhttp.setRequestHeader("Accept", "application/json");
 	xmlhttp.send();
-	// alert("AJAX baby! update: " + data)
 };
