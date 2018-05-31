@@ -10,10 +10,10 @@
 var tm = tm || {};
 
 tm.glbs = {
-		flag : false,
-		elem : null,
-		column : -1,
-		row : 0
+		flag : false,	// For determining if element already exists
+		elem : null,	// The element
+		column : -1,	// Table column
+		row : 0		// Table row
 }
 
 tm.clickedCell = function (e) {	
@@ -144,6 +144,9 @@ pm.ajax.func1 = function(xhttp, page) {
 	// Update the data table 
 		// Remove existing rows
 		var theTable = document.getElementById('theTable');
+
+		// Remove any active input elements in the table
+		tm.glbs.flag = false;
 
 		// Row zero is the column headings
 		while(theTable.rows.length > 1) {
