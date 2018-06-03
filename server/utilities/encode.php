@@ -51,14 +51,14 @@ $html = <<<EOT
 	<!DOCTYPE html><html>
 		<head>
 			<meta charset="UTF-8">
-			<title>Title of the document</title>
-	 		<link rel="stylesheet" type="text/css" href="style.css">
+			<title>RESTful App Demo</title>
+	 		<link rel="stylesheet" type="text/css" href="../styles/style.css">
 		</head>
 		<body>
 			<ul id=\"nav\">
 				<li><a href="javascript:void(0)">New</a></li>
 				<li><a href="javascript:void(0)">Delete</a></li>
-				<li><a href="javascript:void(0)">Refresh</a></li>
+				<li><a href="javascript:void(0)">Search</a></li>
 			</ul>
 			<table id="theTable" onclick="tm.clickedCell(event)">
 				<caption>$caption</caption>
@@ -66,16 +66,28 @@ $html = <<<EOT
 EOT;
 	
 	// Assemble table header
+	$count = 0;
 	foreach($keys as $k) {
-		$html .= "<th>".ucwords(str_replace("_", " ", $k))."</th>";
+		if($count > 6) {
+			$html .= '<th style="display:none">'.ucwords(str_replace("_", " ", $k)).'</th>';
+		} else {
+			$html .= "<th>".ucwords(str_replace("_", " ", $k))."</th>";
+		}
+		$count++;
 	}
 	$html .= "</tr></thead><tbody>";
 	// Assemble table body (first 10 rows)
 	for($i = 0; $i < 10; $i++) {
 		if(is_array($values[$i])) {
 			$html .= "<tr>";
+			$count = 0;
 			foreach($values[$i] as $v) {
-				$html .= "<td>".$v."</td>";
+				if($count > 6) {
+					$html .= '<td style="display:none">'.$v.'</td>';
+				} else {
+					$html .= "<td>".$v."</td>";
+				}
+				$count++;
 			}
 			$html .= "</tr>";
 		}
@@ -139,11 +151,16 @@ $html .= <<<EOT
 				<button id="cancel" class="button2">Cancel</button>
 				<button id="okDelete" class="button2">OK</button>
 			</div>
-			
+			<div id="search" class="overlaycontent" style="display: none;">
+				<h3>Search</h3>
+				<table class="overlaytable"><tr><td>Search Term: </td><td><input type="text"></td></tr></table>
+				<button id="cancel" class="button2">Cancel</button>
+				<button id="okDelete" class="button2">OK</button>
+			</div>			
 		</div>
 	</div>
 
-	<script src="script.js"></script>
+	<script src="../scripts/script.js"></script>
 	</body></html>
 EOT;
 	

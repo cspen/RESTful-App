@@ -72,7 +72,11 @@ tm.clickedCell = function (e) {
 				pop.style.display = "block";
 				currentDiv.style.display = "block";
 				break;
-			case "Refresh":
+			case "Search":
+				var pop = document.getElementById('overlay');
+				currentDiv = document.getElementById('search');
+				pop.style.display = "block";
+				currentDiv.style.display = "block";
 				break;
 			case "Delete":
 				var pop = document.getElementById('overlay');
