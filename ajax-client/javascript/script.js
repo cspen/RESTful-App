@@ -10,6 +10,7 @@
 var tm = tm || {};
 
 tm.glbs = {
+		oval : null,	// The original value of the cell
 		flag : false,	// For determining if element already exists
 		elem : null,	// The element
 		col : -1,	// Table column
@@ -17,15 +18,17 @@ tm.glbs = {
 }
 
 tm.clickedCell = function (e) {	
-	var table = document.getElementById("theTable");
-		
-	var elem = e.target;
-	tm.glbs.row = elem.parentNode.rowIndex;
-	tm.glbs.col = elem.cellIndex;
-	
 	// Update the table
-	if(tm.glbs.row != 0) { 		
-		if(!tm.glbs.flag) {
+	if(!tm.glbs.flag) {
+		var table = document.getElementById("theTable");
+		
+		var elem = e.target;
+		tm.glbs.row = elem.parentNode.rowIndex;
+		tm.glbs.col = elem.cellIndex;
+		
+		if(tm.glbs.row != 0 && tm.glbs.col != 0 && tm.glbs.col != 5) { 		
+		
+			tm.glbs.oval = e.target.textContent;
 			tm.glbs.elem = document.createElement("INPUT");
 			
 			// Get current content in cell and put in text input
@@ -34,12 +37,14 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem.id = "edit";
 			tm.glbs.elem.addEventListener("keyup", function(event) {
 			    event.preventDefault();
-			    if (event.keyCode === 13) {
+			    if (event.keyCode === 13) { alert("Originally: " + tm.glbs.oval);
 			    	// Here is where the AJAX call is made
 			    	// Also need to validate edits
-			    	var value = this.value;
-			    	// tm.AJAX(value);alert("cheers");
-			    	table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
+				var value = this.value;
+
+			    	// tm.AJAX(value);
+				alert("row = " + tm.glbs.row);
+				table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
 			    	// if(column === )
 			    	table.rows[tm.glbs.row].cells[tm.glbs.col].textContent = value;
 			    	tm.glbs.flag = false;
