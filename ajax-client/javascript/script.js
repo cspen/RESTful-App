@@ -26,6 +26,7 @@ tm.clickedCell = function (e) {
 		tm.glbs.row = elem.parentNode.rowIndex;
 		tm.glbs.col = elem.cellIndex;
 		
+		// Row 0 is the table column headers. Columns 0 and 5 are uneditable
 		if(tm.glbs.row != 0 && tm.glbs.col != 0 && tm.glbs.col != 5) { 		
 		
 			tm.glbs.oval = e.target.textContent;
@@ -37,13 +38,13 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem.id = "edit";
 			tm.glbs.elem.addEventListener("keyup", function(event) {
 			    event.preventDefault();
-			    if (event.keyCode === 13) { alert("Originally: " + tm.glbs.oval);
+			    if (event.keyCode === 13) { 
 			    	// Here is where the AJAX call is made
 			    	// Also need to validate edits
 				var value = this.value;
 
 			    	// tm.AJAX(value);
-				alert("row = " + tm.glbs.row);
+				
 				table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
 			    	// if(column === )
 			    	table.rows[tm.glbs.row].cells[tm.glbs.col].textContent = value;
