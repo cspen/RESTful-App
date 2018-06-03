@@ -12,34 +12,16 @@ var tm = tm || {};
 tm.glbs = {
 		flag : false,	// For determining if element already exists
 		elem : null,	// The element
-		column : -1,	// Table column
+		col : -1,	// Table column
 		row : 0		// Table row
 }
 
 tm.clickedCell = function (e) {	
 	var table = document.getElementById("theTable");
 		
-	// Get the clicked column
-	var length = document.getElementById("theTable").rows[0].cells.length;	 
-	var width = 0;
-	for(var i = 0; i < length; i++) {
-		width += table.rows[0].cells[i].offsetWidth;
-		if(e.pageX < width) {
-			tm.glbs.column = i;
-			break;
-		}
-	}
-	
-	// Get the clicked row
-	length = document.getElementById("theTable").rows.length;
-	var height = 0; 
-	for(var i = 0; i < length; i++) {
-		height += table.rows[i].offsetHeight;
-		if((e.pageY - table.offsetTop) < height) {
-			tm.glbs.row = i;
-			break;
-		}
-	}
+	var elem = e.target;
+	tm.glbs.row = elem.parentNode.rowIndex;
+	tm.glbs.col = elem.cellIndex;
 	
 	// Update the table
 	if(tm.glbs.row != 0) { 		
@@ -47,7 +29,7 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem = document.createElement("INPUT");
 			
 			// Get current content in cell and put in text input
-			tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.column].textContent;
+			tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
 			tm.glbs.elem.type = "text";
 			tm.glbs.elem.id = "edit";
 			tm.glbs.elem.addEventListener("keyup", function(event) {
@@ -57,16 +39,16 @@ tm.clickedCell = function (e) {
 			    	// Also need to validate edits
 			    	var value = this.value;
 			    	// tm.AJAX(value);alert("cheers");
-			    	table.rows[tm.glbs.row].cells[tm.glbs.column].removeChild(this);
+			    	table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
 			    	// if(column === )
-			    	table.rows[tm.glbs.row].cells[tm.glbs.column].textContent = value;
+			    	table.rows[tm.glbs.row].cells[tm.glbs.col].textContent = value;
 			    	tm.glbs.flag = false;
 			    	tm.glbs.column = -1;
 			    	tm.glbs.row = 0;
 			    }
 			});
-			table.rows[tm.glbs.row].cells[tm.glbs.column].innerHTML = "";
-			table.rows[tm.glbs.row].cells[tm.glbs.column].appendChild(tm.glbs.elem);
+			table.rows[tm.glbs.row].cells[tm.glbs.col].innerHTML = "";
+			table.rows[tm.glbs.row].cells[tm.glbs.col].appendChild(tm.glbs.elem);
 			tm.glbs.elem.focus();
 			tm.glbs.elem.select();
 			tm.glbs.flag = true;
@@ -156,7 +138,8 @@ pm.ajax.func1 = function(xhttp, page) {
 		// Add new rows
 		var obj = JSON.parse(xhttp.responseText);
 		if(Array.isArray(obj)) {
-			for(var i = 0; i < obj.length; i++) {
+			var obLength = obj.length;
+			for(var i = 0; i < obLength; i++) {
 				var newRow = theTable.insertRow(theTable.rows.length);
 				var jrow = obj[i]; 
 				var length = Object.keys(jrow).length;
@@ -167,6 +150,9 @@ pm.ajax.func1 = function(xhttp, page) {
 						var newCell = newRow.insertCell(-1);
 						var text = document.createTextNode(jrow[keys[j]]);
 						newCell.appendChild(text);
+						if(j > 6) {
+							newCell.style.display = "none";
+						}
 					// }
 				}
 			}
