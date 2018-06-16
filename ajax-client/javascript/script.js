@@ -39,14 +39,28 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem.addEventListener("keyup", function(event) {
 			    event.preventDefault();
 			    if (event.keyCode === 13) { 
-			    	// Here is where the AJAX call is made
-			    	// Also need to validate edits
+			    	// Validate edit
 				var value = this.value;
 
+				// Check that name columns do not contain numbers
+				if(tm.glbs.col == 1 || tm.glbs.col == 2) {
+					
+				} else if(tm.glbs.col = 6) { // Check that salary is numeric
+					if(isNaN(parseFloat(value)) && !isFinite(value)) {
+						alert("Salary must be a numeric value");
+						return;
+					}
+				}
+					
+				// If valid edit, update server
 			    	// tm.AJAX(value);
 				
+				// Update the table
 				table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
-			    	// if(column === )
+
+			    	if(tm.glbs.col === 6) {
+					alert("NEED TO FORMAT INPUT AFTER VALIDATION");
+				}
 			    	table.rows[tm.glbs.row].cells[tm.glbs.col].textContent = value;
 			    	tm.glbs.flag = false;
 			    	tm.glbs.column = -1;
@@ -111,7 +125,7 @@ pm.glbs = {
 }
 
 pm.updatePages = function(page) { 
-	// Need to check with the server first
+	// Determine which "page" to display
 	var nextPage = 0;
 	if(page === "rarrow") {
 		nextPage = pm.glbs.currentPage + 1;
@@ -122,13 +136,10 @@ pm.updatePages = function(page) {
 	}
 	
 	ajax.func("GET", "http://modintro.com/employees/?page=" + nextPage + "&pagesize=10",  pm.ajax.func1, page);
-	// in case of server or network error
-	
-	
 };
 
 pm.ajax = {} || ajax;
-pm.ajax.func1 = function(xhttp, page) {
+pm.ajax.func1 = function(xhttp, page) { 
 	
 	// Check for error
  	// alert(xhttp.responseText);
@@ -155,15 +166,13 @@ pm.ajax.func1 = function(xhttp, page) {
 				var length = Object.keys(jrow).length;
 				var keys = Object.keys(jrow); 
 				for (var j = 0; j < length; j++) {
-    					// if (jrow.hasOwnProperty(key)) {
-						// Add row to table						
-						var newCell = newRow.insertCell(-1);
-						var text = document.createTextNode(jrow[keys[j]]);
-						newCell.appendChild(text);
-						if(j > 6) {
-							newCell.style.display = "none";
-						}
-					// }
+    					// Add row to table						
+					var newCell = newRow.insertCell(-1);
+					var text = document.createTextNode(jrow[keys[j]]);
+					newCell.appendChild(text);
+					if(j > 6) {
+						newCell.style.display = "none";
+					}
 				}
 			}
 		}		
@@ -221,7 +230,7 @@ pm.ajax.func1 = function(xhttp, page) {
 };
 
 var ajax = ajax || {};
-ajax.func = function(method, url, callbackFunc, data) {
+ajax.func = function(method, url, callbackFunc, data) { 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
@@ -231,4 +240,37 @@ ajax.func = function(method, url, callbackFunc, data) {
 	xmlhttp.open(method, url, true);
 	xmlhttp.setRequestHeader("Accept", "application/json");
 	xmlhttp.send();
+};
+
+
+/**
+ * Helper methods that didn't fit in anywhere else
+ */
+var tools = tools || {};
+tools.isNumber = function(num) {
+	if(isNaN(parseFloat(num)) && !isFinite(num)) {
+		return false;
+	}
+	return true;
+};
+tools.format_nondecimal_currency = function(num) {
+	var len = num.length;
+	var newNum = "";
+	for(var i = 0; i < len; i++) {
+		if((len - i)%3 == 0 && i != 0)
+			newNum += ",";
+		newNum += num.charAt(i);
+	}
+	return "$" + newNum;
+};
+
+tools.strip_num_formatting = function(num) {
+	var len = num.length;
+	var newNum = "";
+	for(var i = 0; i < len; i++) {
+		var n = num.charAt(i);
+		if(isNumber(n))
+			newNum += n;
+	}
+	return newNum;
 };
