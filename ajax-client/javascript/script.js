@@ -33,7 +33,11 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem = document.createElement("INPUT");
 			
 			// Get current content in cell and put in text input
-			tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
+			if(tm.glbs.col == 6) {
+				tm.glbs.elem.value = tools.strip_num_formatting(table.rows[tm.glbs.row].cells[tm.glbs.col].textContent);
+			} else {
+				tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
+			}
 			tm.glbs.elem.type = "text";
 			tm.glbs.elem.id = "edit";
 			tm.glbs.elem.addEventListener("keyup", function(event) {
@@ -58,8 +62,11 @@ tm.clickedCell = function (e) {
 				// Update the table
 				table.rows[tm.glbs.row].cells[tm.glbs.col].removeChild(this);
 
+				// Convert Salary column to currency format
 			    	if(tm.glbs.col === 6) {
-					alert("NEED TO FORMAT INPUT AFTER VALIDATION");
+					if(tools.isNumber(value)) {
+						value = tools.format_nondecimal_currency(value);
+					}
 				}
 			    	table.rows[tm.glbs.row].cells[tm.glbs.col].textContent = value;
 			    	tm.glbs.flag = false;
@@ -168,7 +175,12 @@ pm.ajax.func1 = function(xhttp, page) {
 				for (var j = 0; j < length; j++) {
     					// Add row to table						
 					var newCell = newRow.insertCell(-1);
-					var text = document.createTextNode(jrow[keys[j]]);
+					var text = null;
+					if(j == 6) { // Format salary
+						text = document.createTextNode(tools.format_nondecimal_currency(jrow[keys[j]]));
+					} else {
+						text = document.createTextNode(jrow[keys[j]]);
+					}
 					newCell.appendChild(text);
 					if(j > 6) {
 						newCell.style.display = "none";
@@ -269,7 +281,7 @@ tools.strip_num_formatting = function(num) {
 	var newNum = "";
 	for(var i = 0; i < len; i++) {
 		var n = num.charAt(i);
-		if(isNumber(n))
+		if(tools.isNumber(n))
 			newNum += n;
 	}
 	return newNum;
