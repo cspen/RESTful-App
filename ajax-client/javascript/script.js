@@ -176,10 +176,16 @@ pm.ajax.func1 = function(xhttp, page) {
     					// Add row to table						
 					var newCell = newRow.insertCell(-1);
 					var text = null;
-					if(j == 6) { // Format salary
-						text = document.createTextNode(tools.format_nondecimal_currency(jrow[keys[j]]));
-					} else {
+					if(j != 4 && j != 6) {
 						text = document.createTextNode(jrow[keys[j]]);
+					} else if(j == 4) {
+						text = document.createElement('INPUT');
+						text.type = "checkbox";
+						if(jrow[keys[j]] == "1") {
+							text.checked = "true";							
+						} 
+					} else if(j == 6) { // Format salary
+						text = document.createTextNode(tools.format_nondecimal_currency(jrow[keys[j]]));
 					}
 					newCell.appendChild(text);
 					if(j > 6) {
