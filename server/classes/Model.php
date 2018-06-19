@@ -104,7 +104,7 @@ class Model {
 	}
 	
 	function getAll($HTTPverb) {
-		$query = "SELECT * FROM employee";
+		$query = 'SELECT employeeID, first_name, last_name, department, full_time, DATE_FORMAT(hire_date, "%Y-%m-%d") as hire_date, salary, etag, last_modified FROM employee';
 		
 		$sortBy = array("date", "headline");
 		if(isset($_GET['sort'])) {
