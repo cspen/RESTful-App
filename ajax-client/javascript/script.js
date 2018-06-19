@@ -49,8 +49,9 @@ tm.clickedCell = function (e) {
 				// Check that name columns do not contain numbers
 				if(tm.glbs.col == 1 || tm.glbs.col == 2) {
 					
-				} else if(tm.glbs.col = 6) { // Check that salary is numeric
+				} else if(tm.glbs.col == 6) { // Check that salary is numeric
 					if(isNaN(parseFloat(value)) && !isFinite(value)) {
+						// NEED TO CHANGE TO DIALOG BOX
 						alert("Salary must be a numeric value");
 						return;
 					}
