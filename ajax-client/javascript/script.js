@@ -27,16 +27,25 @@ tm.clickedCell = function (e) {
 		tm.glbs.col = elem.cellIndex;
 		
 		// Row 0 is the table column headers. Columns 0 and 5 are uneditable
-		if(tm.glbs.row != 0 && tm.glbs.col != 0 && tm.glbs.col != 5) { 		
+		if(tm.glbs.row != 0 && tm.glbs.col != 0 && tm.glbs.col != 5 && e.target.tagName != "CAPTION") { 		
 		
 			tm.glbs.oval = e.target.textContent;
-			tm.glbs.elem = document.createElement("INPUT");
+			if(tm.glbs.col != 4) {
+				tm.glbs.elem = document.createElement("INPUT");
+			} else {
+				return;
+			}
 			
 			// Get current content in cell and put in text input
-			if(tm.glbs.col == 6) {
-				tm.glbs.elem.value = tools.strip_num_formatting(table.rows[tm.glbs.row].cells[tm.glbs.col].textContent);
+			if(tm.glbs.col != 6) { 
+				if(e.target.tagName != "INPUT") {
+					tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
+				} else {
+					alert("CHECK BOX");
+					return;
+				}			
 			} else {
-				tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
+				tm.glbs.elem.value = tools.strip_num_formatting(table.rows[tm.glbs.row].cells[tm.glbs.col].textContent);				
 			}
 			tm.glbs.elem.type = "text";
 			tm.glbs.elem.id = "edit";
@@ -80,7 +89,12 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem.focus();
 			tm.glbs.elem.select();
 			tm.glbs.flag = true;
-		}		
+		} else if(tm.glbs.row == 0) { // Column header clicked
+			console.log("HEADER CLICK");
+
+			// MAKE AJAX REQUEST HERE
+			console.log("HEADER: " + table.rows[0].cells[tm.glbs.col].innerHTML);
+		}	
 	}
 };
 
