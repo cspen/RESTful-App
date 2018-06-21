@@ -3,7 +3,7 @@
  * 
  * Created By: Craig Spencer
  * Date: May 14, 2018
- * Last Modified: May 17, 2018
+ * Last Modified: June 21, 2018
  */
 
 // Table Manager
@@ -14,7 +14,14 @@ tm.glbs = {
 		flag : false,	// For determining if element already exists
 		elem : null,	// The element
 		col : -1,	// Table column
-		row : 0		// Table row
+		row : 0,	// Table row
+		// The base url for the data in the table
+		url : "http://modintro.com/employees/",	
+
+		sortByCol : "employeeID",	// Default
+		sortAsc: true,			// Default sort order (false = descending order)
+		currentPage : 1,		// Default
+		currentPageSize : 10		// Default
 }
 
 tm.clickedCell = function (e) {	
@@ -94,9 +101,15 @@ tm.clickedCell = function (e) {
 
 			// MAKE AJAX REQUEST HERE
 			console.log("HEADER: " + table.rows[0].cells[tm.glbs.col].innerHTML);
+			// ajax.func("GET", url, callbackFunc, data) { 
+
 		}	
 	}
 };
+
+
+
+
 
 // Page load module
 (function() {
@@ -138,6 +151,11 @@ tm.clickedCell = function (e) {
 	};
 }());
 
+
+
+
+
+
 // Page manager for managing multiple page results
 var pm = pm || {};
 
@@ -145,7 +163,6 @@ pm.glbs = {
 	currentPage: 1,  /* Default */
 	startPage: 1
 }
-
 pm.updatePages = function(page) { 
 	// Determine which "page" to display
 	var nextPage = 0;
@@ -157,7 +174,7 @@ pm.updatePages = function(page) {
 		nextPage = page;
 	}
 	
-	ajax.func("GET", "http://modintro.com/employees/?page=" + nextPage + "&pagesize=10",  pm.ajax.func1, page);
+	ajax.func("GET", tm.glbs.url + "?page=" + nextPage + "&pagesize=10",  pm.ajax.func1, page);
 };
 
 pm.ajax = {} || ajax;
@@ -262,6 +279,11 @@ pm.ajax.func1 = function(xhttp, page) {
 	}	
 };
 
+
+
+
+
+// Contact the server
 var ajax = ajax || {};
 ajax.func = function(method, url, callbackFunc, data) { 
 	var xmlhttp = new XMLHttpRequest();
@@ -274,6 +296,11 @@ ajax.func = function(method, url, callbackFunc, data) {
 	xmlhttp.setRequestHeader("Accept", "application/json");
 	xmlhttp.send();
 };
+
+
+
+
+
 
 
 /**
