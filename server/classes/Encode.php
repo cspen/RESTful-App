@@ -95,19 +95,19 @@ EOT;
 		
 		while($count <= $pages) {
 			if($count < 4) {
-				$html .= '<a id="'.$count.'" href="javascript:pm.updatePages('.$count.')">'.$count.'</a>';
+				$html .= '<a id="'.$count.'" href="javascript:void(0);" onclick="javascript:pm.updatePages('.$count.')">'.$count.'</a>';
 				$endPage = $count;
 			} else {
-				$html .= '<a id="'.$count.'" style="display:none;" href="javascript:pm.updatePages('.$count.')">'.$count.'</a>';
+				$html .= '<a id="'.$count.'" style="display:none;" href="javascript:void(0);" onclick="javascript:pm.updatePages('.$count.')">'.$count.'</a>';
 			}
 			$count++;
 		}
 		$html .= "<script>var number_of_pages = ".$pages."; var endPage = ".$endPage.";</script>";
 		
 		// if($pages > 4)
-		// 	$html .= '<a id="extra" href="javascript:pm.updatePages(\'jump\')">...</a>';
+		// 	$html .= '<a id="extra" href="javascript:void(0);" onclick="javascript:pm.updatePages(\'jump\')">...</a>';
 		if($pages > 1)
-			$html .= '<a id="rarrow" href="javascript:pm.updatePages(\'rarrow\')">&raquo;</a>';
+			$html .= '<a id="rarrow" href="javascript:void(0);" onclick="javascript:pm.updatePages(\'rarrow\')">&raquo;</a>';
 			
 			
 			
