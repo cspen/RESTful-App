@@ -30,7 +30,7 @@ class Encode {
 	<!DOCTYPE html><html>
 		<head>
 			<meta charset="UTF-8">
-			<title>Title of the document</title>
+			<title>$caption</title>
 	 		<link rel="stylesheet" type="text/css" href="../styles/style.css">
 		</head>
 		<body>
