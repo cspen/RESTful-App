@@ -122,6 +122,8 @@ class Model {
 				$order = $_GET['order'];
 				if($order === "desc") {
 					$query .= " DESC";
+				} else if ($order === "asc") {
+					$query .= " ASC";
 				} else {
 					header('HTTP/1.1 400 Bad Request');
 					exit;
