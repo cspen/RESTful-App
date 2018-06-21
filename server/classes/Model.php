@@ -106,7 +106,7 @@ class Model {
 	function getAll($HTTPverb) {
 		$query = 'SELECT employeeID, first_name, last_name, department, full_time, DATE_FORMAT(hire_date, "%Y-%m-%d") as hire_date, salary, etag, last_modified FROM employee';
 		
-		$sortBy = array("date", "headline");
+		$sortBy = array("employeeID", "first_name", "last_name", "department", "full_time", "hire_date", "salary");
 		if(isset($_GET['sort'])) {
 			if(in_array($_GET['sort'], $sortBy)) {
 				$query .= " ORDER BY ".$_GET['sort'];
