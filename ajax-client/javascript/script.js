@@ -19,9 +19,7 @@ tm.glbs = {
 		url : "http://modintro.com/employees/",	
 
 		sortByCol : "employeeID",	// Default
-		sortAsc: true,			// Default sort order (false = descending order)
-		currentPage : 1,		// Default
-		currentPageSize : 10		// Default
+		sortOrder: "asc"		// Default sort order (false = descending order)
 }
 
 tm.clickedCell = function (e) {	
@@ -97,11 +95,28 @@ tm.clickedCell = function (e) {
 			tm.glbs.elem.select();
 			tm.glbs.flag = true;
 		} else if(tm.glbs.row == 0) { // Column header clicked
-			console.log("HEADER CLICK");
+			// Sort by column
+			var colHead = table.rows[0].cells[tm.glbs.col].innerHTML;
 
-			// MAKE AJAX REQUEST HERE
-			console.log("HEADER: " + table.rows[0].cells[tm.glbs.col].innerHTML);
-			// ajax.func("GET", url, callbackFunc, data) { 
+			// Translate column header into db row item
+			colHead = colHead.toLowerCase();
+			colHead = colHead.replace(/ /g,"_");
+
+			if(tm.glbs.sortByCol === colHead) {
+				// Same header - change sort order
+				if(tm.glbs.sortOrder === "asc") {
+					tm.glbs.sortOrder = "desc";
+				} else {
+					tm.glbs.sortOrder = "asc";
+				}
+			} else {
+				tm.glbs.sortByCol = colHead;
+			}
+
+			// Make ajax request 
+			var request = tm.glbs.url + "?page=" + pm.glbs.currentPage + "&pagesize=10&sort=" + colHead + "&order=" + tm.glbs.sortOrder;
+			console.log(request);
+			ajax.func("GET", request, pm.ajax.func1, pm.glbs.currentPage);
 
 		}	
 	}
@@ -174,13 +189,14 @@ pm.updatePages = function(page) {
 		nextPage = page;
 	}
 	
-	ajax.func("GET", tm.glbs.url + "?page=" + nextPage + "&pagesize=10",  pm.ajax.func1, page);
+	var request = tm.glbs.url + "?page=" + nextPage + "&pagesize=10&sort=" + tm.glbs.sortByCol + "&order=" + tm.glbs.sortOrder
+	ajax.func("GET", request,  pm.ajax.func1, page);
 };
 
 pm.ajax = {} || ajax;
-pm.ajax.func1 = function(xhttp, page) { 
+pm.ajax.func1 = function(xhttp, page) {  
 	
-	// Check for error
+	// TO-DO: Check for error before modifying table
  	// alert(xhttp.responseText);
 
 	// Update the data table 
@@ -228,7 +244,7 @@ pm.ajax.func1 = function(xhttp, page) {
 		}		
 
 	// Update page navigation
-	if(page === "rarrow") {
+	if(page === "rarrow") { // Right arrow
 		// Check if next page exists
 		var next = document.getElementById(pm.glbs.currentPage+1);
 		if(next != null) {
@@ -236,7 +252,7 @@ pm.ajax.func1 = function(xhttp, page) {
 			pm.glbs.currentPage++;
 			document.getElementById(pm.glbs.currentPage).classList.add('active');
 		}
-	} else if(page === "larrow") {
+	} else if(page === "larrow") { // Left arrow
 		var prev = document.getElementById(pm.glbs.currentPage-1);
 		if(prev != null) {
 			document.getElementById(pm.glbs.currentPage).classList.remove('active');
