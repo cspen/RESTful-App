@@ -33,31 +33,40 @@ tm.clickedCell = function (e) {
 		
 		// Row 0 is the table column headers. Columns 0 and 5 are uneditable
 		if(tm.glbs.row != 0 && tm.glbs.col != 0 && tm.glbs.col != 5 && e.target.tagName != "CAPTION") { 		
-		
-			tm.glbs.oval = e.target.textContent;
-			if(tm.glbs.col != 4) {
-				tm.glbs.elem = document.createElement("INPUT");
-			} else {
+					
+			if(tm.glbs.col != 4 && (typeof tm.glbs.col != 'undefined')) {
+				if(tm.glbs.col == 3) {
+					tm.glbs.elem = tools.createDepartmentSelect("Cheers");					
+				} else {
+					tm.glbs.elem = document.createElement("INPUT");
+					tm.glbs.elem.type = "text";
+				}
+			} else { 
+				// The table cell was clicked - not the checkbox
 				return;
 			}
 			
 			// Get current content in cell and put in text input
+			tm.glbs.oval = e.target.textContent;
 			if(tm.glbs.col != 6) { 
-				if(e.target.tagName != "INPUT") {
+				if(e.target.tagName != "INPUT") { // Check that input element not already present
 					tm.glbs.elem.value = table.rows[tm.glbs.row].cells[tm.glbs.col].textContent;
 				} else {
 					alert("CHECK BOX");
-					return;
+					return;			
 				}			
 			} else {
 				tm.glbs.elem.value = tools.strip_num_formatting(table.rows[tm.glbs.row].cells[tm.glbs.col].textContent);				
 			}
-			tm.glbs.elem.type = "text";
+			
 			tm.glbs.elem.id = "edit";
-			tm.glbs.elem.addEventListener("keyup", function(event) {
-			    event.preventDefault();
-			    if (event.keyCode === 13) { 
-			    	// Validate edit
+
+			tm.glbs.elem.addEventListener("keydown", function(event) { 
+			   event.stopImmediatePropagation();
+			   event.preventDefault();
+
+			   if (event.keyCode == 13) {  
+			    	// Validate edit 
 				var value = this.value;
 
 				// Check that name columns do not contain numbers
@@ -89,10 +98,11 @@ tm.clickedCell = function (e) {
 			    	tm.glbs.row = 0;
 			    }
 			});
+
 			table.rows[tm.glbs.row].cells[tm.glbs.col].innerHTML = "";
 			table.rows[tm.glbs.row].cells[tm.glbs.col].appendChild(tm.glbs.elem);
 			tm.glbs.elem.focus();
-			tm.glbs.elem.select();
+			// tm.glbs.elem.select();
 			tm.glbs.flag = true;
 		} else if(tm.glbs.row == 0) { // Column header clicked
 			// Sort by column
@@ -111,6 +121,7 @@ tm.clickedCell = function (e) {
 				}
 			} else {
 				tm.glbs.sortByCol = colHead;
+				tm.glbs.sortOrder = "acs";
 			}
 
 			// Make ajax request 
@@ -349,4 +360,19 @@ tools.strip_num_formatting = function(num) {
 			newNum += n;
 	}
 	return newNum;
+};
+
+tools.createDepartmentSelect = function(current) {
+	var select = document.createElement("SELECT");
+
+	// TO-DO: Make ajax call for values to populate list with
+
+	for (var i = 0; i < 5; i++) {
+    		var option = document.createElement("option");
+    		option.value = "Option " + i;
+    		option.text = "Option " + i;
+    		select.appendChild(option);
+	}
+
+	return select;
 };
