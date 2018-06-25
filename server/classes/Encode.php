@@ -2,9 +2,16 @@
 
 class Encode {
 	
+	/**
+	 *
+ 	 *
+	 */
 	public static function xml_encode($data, $type) {
-		$type = ucfirst($type);
+		$type = ucfirst($type); // Upper case first letter		
+	
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+		$xml .= '<'.$type.'>'."\n";
+		$type = substr($type, 0, strlen($type)-1); // Remove plural
 		
 		foreach($data as $key => $value) {
 			if(is_array($value)) {
@@ -14,11 +21,21 @@ class Encode {
 				}
 				$xml .= '</'.$type.'>'."\n";
 			} else {
+
+				$xml .= '<'.$type.'>';
+				$xml .= $value;
+				$xml .= '</'.$type.'>'."\n";
+
+
+				/* OLD CODE 
 				$xml .= '<'.$type.'>'."\n";
 				$xml .= "\t".'<'.$key.'>'.$value.'</'.$key.'>'."\n";
 				$xml .= '</'.$type.'>'."\n";
+				*/
 			}
 		}
+		$xml .= '</'.$type.'s>'."\n";
+
 		return $xml;
 	}
 	
