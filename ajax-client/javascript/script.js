@@ -106,11 +106,15 @@ tm.clickedCell = function (e) {
 			tm.glbs.flag = true;
 		} else if(tm.glbs.row == 0) { // Column header clicked
 			// Sort by column
-			var colHead = table.rows[0].cells[tm.glbs.col].innerHTML;
+			var colHead = table.rows[0].cells[tm.glbs.col].innerHTML; 
 
 			// Translate column header into db row item
-			colHead = colHead.toLowerCase();
-			colHead = colHead.replace(/ /g,"_");
+			if(colHead === "EmployeeID") {
+				colHead = "employeeID";
+			} else {
+				colHead = colHead.toLowerCase();
+				colHead = colHead.replace(/ /g,"_");
+			}
 
 			if(tm.glbs.sortByCol === colHead) {
 				// Same header - change sort order
@@ -121,14 +125,13 @@ tm.clickedCell = function (e) {
 				}
 			} else {
 				tm.glbs.sortByCol = colHead;
-				tm.glbs.sortOrder = "acs";
+				tm.glbs.sortOrder = "asc";
 			}
 
 			// Make ajax request 
 			var request = tm.glbs.url + "?page=" + pm.glbs.currentPage + "&pagesize=10&sort=" + colHead + "&order=" + tm.glbs.sortOrder;
 			console.log(request);
-			ajax.func("GET", request, pm.ajax.func1, pm.glbs.currentPage);
-
+			ajax.request("GET", request, pm.ajax.func1, pm.glbs.currentPage);
 		}	
 	}
 };
@@ -201,11 +204,11 @@ pm.updatePages = function(page) {
 	}
 	
 	var request = tm.glbs.url + "?page=" + nextPage + "&pagesize=10&sort=" + tm.glbs.sortByCol + "&order=" + tm.glbs.sortOrder
-	ajax.func("GET", request,  pm.ajax.func1, page);
+	ajax.request("GET", request,  pm.ajax.func1, page);
 };
 
 pm.ajax = {} || ajax;
-pm.ajax.func1 = function(xhttp, page) {  
+pm.ajax.func1 = function(xhttp, page) {  console.log("AJAX METHOD");
 	
 	// TO-DO: Check for error before modifying table
  	// alert(xhttp.responseText);
@@ -312,11 +315,13 @@ pm.ajax.func1 = function(xhttp, page) {
 
 // Contact the server
 var ajax = ajax || {};
-ajax.func = function(method, url, callbackFunc, data) { 
+ajax.request = function(method, url, callbackFunc, data) { console.log("AJAX " + url);
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
 	    	callbackFunc(this, data);
+	    } else {
+		// alert("Ready State: " + this.readyState + " Status: " + this.status);
 	    }
 	};
 	xmlhttp.open(method, url, true);
@@ -366,6 +371,7 @@ tools.createDepartmentSelect = function(current) {
 	var select = document.createElement("SELECT");
 
 	// TO-DO: Make ajax call for values to populate list with
+	
 
 	for (var i = 0; i < 5; i++) {
     		var option = document.createElement("option");
