@@ -176,10 +176,10 @@ class Headers {
 	}
 	
 	public static function processConditionalHeaders($etag, $rowCount, $lastModified) {
-		$ifModSin = processIfModifiedSinceHeader();
-		$ifUnmodSin = processIfUnmodifiedSinceHeader();
-		$ifMatch = processIfMatchHeader();
-		$ifNoneMatch = processIfNoneMatchHeader();
+		$ifModSin = Headers::processIfModifiedSinceHeader();
+		$ifUnmodSin = Headers::processIfUnmodifiedSinceHeader();
+		$ifMatch = Headers::processIfMatchHeader();
+		$ifNoneMatch = Headers::processIfNoneMatchHeader();
 		
 		if($ifMatch && !$ifNoneMatch && !$ifModSin) {
 			if((in_array('*', $ifMatch) && ($rowCount == 0))) {
