@@ -2,31 +2,29 @@
  * 
  */
 
-
 /* The Table Manager */
 var tm = tm || {};
-
 tm.globals = {
-		// table : null,
 		col : -1,			// Table column
 		row : 0,			// Table row
 		active : false,		// Is a cell currently being edited
-		elem : null			// The element
+		url : "http://localhost/GEM/rest/"
 }
 
-tm.clickedCell = function(e) { alert("HELP!");
+/**
+ * 
+ */
+tm.clickedCell = function(e) {
 	if(!tm.globals.active) {
-		// Get the table
-		var table = document.getElementById("theTable");
-        
 		// Get the clicked table cell
-        var elem = e.target;
+		var elem = e.target;
         tm.globals.row = elem.parentNode.rowIndex;
         tm.globals.col = elem.cellIndex;
         
         // Column header clicked - sort by column
         if(tm.globals.row == 0) {
-        	// alert("SORT BY HEADER " + e.target.innerHTML)
+        	console.log("SORT BY HEADER " + e.target.innerHTML);
+        	return;
         } 
         
         // Uneditable columns and rows
@@ -37,51 +35,195 @@ tm.clickedCell = function(e) { alert("HELP!");
         if(e.target.type == "checkbox") {
         	e.stopImmediatePropagation();
         	e.preventDefault();        	
-        	// alert('CHECKBOX');
+        	alert('CHECKBOX');
         	return;
         } 
         
+        // Create the element for editing
         if(tm.globals.col == 3) {
-        	alert("Department");
+        	var url = "http://modintro.com/departments/";
+        	tm.createSelectElement(url, e.target.textContent);
+        	console.log("Department");
         } else {
         	if(tm.globals.col != 4)
-        		tm.createEditorElement(e.target.textContent, table);
+        		tm.createInputElement(e.target.textContent);
         }
-        
-        console.log("CLICKED: " + tm.globals.row + ", " + tm.globals.col);
-        console.log("e.target.textContent: " + e.target.textContent);
-        console.log("e.target.type: " + e.target.type);
-        console.log("e.target.tagName: " + e.target.tagName);
-        console.log();
-        tm.globals.active = true;
 	} 
 };
 
-tm.createEditorElement = function(content, table) {
+/**
+ * 
+ */
+tm.createInputElement = function(content) {
 	// Create the element
-	tm.globals.elem = document.createElement("INPUT");
-    tm.globals.elem.type = "text";
+	var input = document.createElement("INPUT");
+	input.type = "text";
     
     if(tm.globals.col == 6) {
-    	tm.globals.elem.value = tools.strip_num_formatting(content);
-    } else {
-    	tm.globals.elem.value = content;
-    }    
+    	input.value = tools.strip_num_formatting(content);
+    	input.id = "salary";
+    } else { 
+    	if(tm.globals.col == 1) {
+    		input.id = "lastName";
+    	} else if(tm.globals.col == 2) {
+    		input.id = "firstName";
+    	}
+    	input.value = content;
+    }
+    tm.setElement(input);    
+};
+
+/**
+ * 
+ */
+tm.createSelectElement = function(url, selected) {
+	ajax.request("GET", tm.globals.url + "departments/", tm.createSelectCallback, selected);
+};
+tm.createSelectCallback = function(serverResponse, selected) { 
+	
+	try {
+		var items = JSON.parse(serverResponse.responseText);
+	
+		var select = document.createElement("SELECT");
+		var length = items.length;
+		for (var i = 0; i < length; i++) {
+            var option = document.createElement("option");
+            option.value = items[i];
+            option.text = items[i];
+            if(items[i] == selected) {
+            	option.selected = true;
+            }
+            select.appendChild(option);
+		}
+		tm.setElement(select);
+	} catch(e) {
+		// TO-DO: Display error message
+	}
+};
+
+tm.setElement = function(elem) {
+	var table = document.getElementById('theTable');
+	elem.addEventListener("keydown", tm.editorEventListener);    
+    tools.removeChildren(table.rows[tm.globals.row].cells[tm.globals.col]);
+    table.rows[tm.globals.row].cells[tm.globals.col].appendChild(elem);
+    elem.focus();
     
-    tm.globals.elem.addEventListener("keydown", tools.editorEventListener);
-    table.rows[tm.globals.row].cells[tm.globals.col].innerHTML = "";
-    table.rows[tm.globals.row].cells[tm.globals.col].appendChild(tm.globals.elem);
-    tm.globals.elem.focus();
-    tm.globals.elem.select();
-    tm.globals.active = false;
-	// alert("CREATE: " + content);
+    if(elem.tagName == "INPUT") {
+    	elem.select();
+    }
+    tm.globals.active = true;
+};
+
+/**
+ * 
+ */
+tm.editorEventListener = function(event) {  	
+    if (event.keyCode == 13) {  
+    	event.stopImmediatePropagation();
+        event.preventDefault();       
+
+        // Validate edit 
+        var value = this.value;
+        if(tm.globals.col == 1 || tm.globals.col == 2) {
+        	// TO-DO: Check that name columns do not contain numbers
+            // or illegal characters
+        } else if(tm.globals.col == 6) { // Check that salary is numeric
+                if(isNaN(parseFloat(value)) && !isFinite(value)) {
+                        // TO-DO: NEED TO CHANGE TO DIALOG BOX
+                        alert("Salary must be a numeric value");
+                        return;
+                }
+        }
+        
+        var table = document.getElementById('theTable');
+        var empId = table.rows[tm.globals.row].cells[0].textContent;
+        var data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
+        console.log(data);
+        ajax.request("PUT", tm.globals.url+"employees/"+empId, tm.editorEventListenerCallback, data);
+    }
 }
+tm.editorEventListenerCallback = function(serverResponse, data) {
+	alert(serverResponse.status);
+	if(serverResponse.status == 200 || serverResponse.status == 204) {
+		var table = document.getElementById('theTable');
+         
+        // Update the table
+		var node = table.rows[tm.globals.row].cells[tm.globals.col];
+		var value = node.firstChild.value;
+		node.removeChild(node.firstChild);
+
+        // Convert Salary column to currency format
+        if(tm.globals.col === 6) {
+                if(tools.isNumber(value)) {
+                        value = tools.format_nondecimal_currency(value);
+                }
+        }
+        table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
+        tm.globals.active = false;
+        tm.globals.col = -1;
+        tm.globals.row = 0;
+	} else {
+		// TO-DO: Display error message
+	}
+};
+tm.createJSONString = function(table, row, col, value) {
+	alert(value + " ZZZZZZZZZZZZZZZ"); // **$*$*$*$*$*$*$*$
+	var data = '{ "lastname":"';	
+	if(col == "lastName") {
+		data += value + '", ';
+	} else {
+		data += table.rows[tm.globals.row].cells[1].textContent + '", ';
+	}
+	
+	data += '"firstname":"';
+	if(col === "firstName") {
+		data += value + '", ';
+	} else {
+		data += table.rows[tm.globals.row].cells[2].textContent + '", ';
+	}
+     
+	data += '"department":"';
+	if(col === "department") {
+		data += value + '", ';
+	} else {
+		data += table.rows[tm.globals.row].cells[3].textContent + '",';
+	}
+	
+	data +=	'"fulltime":"';
+	if(col === "fulltime") {
+		data += value + '", ';
+	} else {
+		if(table.rows[tm.globals.row].cells[4].childNodes[0].checked) {
+			data +=  '1", ';
+		} else {
+			data += '0", ';
+		}
+	}
+    
+    data += '"hiredate":"' + table.rows[tm.globals.row].cells[5].textContent + '", ';
+    
+    data += '"salary":"'
+    if(col === "salary") {
+    	data + value + '"  }';
+    } else {
+    	data += tools.strip_num_formatting(table.rows[tm.globals.row].cells[6].textContent) + '"  }';
+    }
+    return data;
+};
 
 
 
 
-
+/**
+ * 
+ */
 var tools = tools || {};
+tools.isNumber = function(num) {
+    if(isNaN(parseFloat(num)) && !isFinite(num)) {
+            return false;
+    }
+    return true;
+};
 tools.strip_num_formatting = function(num) {
 	var len = num.length;
     var newNum = "";
@@ -102,46 +244,26 @@ tools.format_nondecimal_currency = function(num) {
     }
     return "$" + newNum;
 };
-tools.editorEventListener = function(event) {         
-		var table = document.getElementById('theTable');
-		
-        if (event.keyCode == 13) {  
-        	event.stopImmediatePropagation();
-            event.preventDefault();
-        	
-            // Validate edit 
-            var value = this.value;
-
-             // Check that name columns do not contain numbers
-             if(tm.globals.col == 1 || tm.globals.col == 2) {
-                     
-             } else if(tm.globals.col == 6) { // Check that salary is numeric
-                     if(isNaN(parseFloat(value)) && !isFinite(value)) {
-                             // NEED TO CHANGE TO DIALOG BOX
-                             alert("Salary must be a numeric value");
-                             return;
-                     }
-             }
-                     
-             // If valid edit, update server
-             // tm.AJAX(value);
-             
-             // Update the table
-             table.rows[tm.globals.row].cells[tm.globals.col].removeChild(this);
-
-             // Convert Salary column to currency format
-             if(tm.globals.col === 6) {
-                     if(tools.isNumber(value)) {
-                             value = tools.format_nondecimal_currency(value);
-                     }
-             }
-             table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
-             tm.globals.active = false;
-             tm.globals.col = -1;
-             tm.globals.row = 0;
-         }
+tools.removeChildren = function(parent) {
+	while (parent.firstChild) {
+	    parent.removeChild(parent.firstChild);
+	}
 };
 
-
-
-
+//Contact the server
+var ajax = ajax || {};
+ajax.request = function(method, url, callbackFunc, data) { console.log("AJAX " + url);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                callbackFunc(this, data);
+            } 
+        };
+        xmlhttp.open(method, url, true);
+        xmlhttp.setRequestHeader("Accept", "application/json");
+        if(method == "PUT" || method == "POST") {
+        	xmlhttp.send(data);
+        } else {
+        	xmlhttp.send();
+        }
+};
