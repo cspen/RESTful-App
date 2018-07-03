@@ -74,17 +74,16 @@ tm.createInputElement = function(content) {
 };
 
 /**
- * 
+ * Create a select list with the selected option.
  */
 tm.createSelectElement = function(url, selected) {
 	ajax.request("GET", tm.globals.url + "departments/", tm.createSelectCallback, selected);
 };
-tm.createSelectCallback = function(serverResponse, selected) { 
-	
+tm.createSelectCallback = function(serverResponse, selected) {	
 	try {
-		var items = JSON.parse(serverResponse.responseText);
-	
+		var items = JSON.parse(serverResponse.responseText);	
 		var select = document.createElement("SELECT");
+		select.id = "department";
 		var length = items.length;
 		for (var i = 0; i < length; i++) {
             var option = document.createElement("option");
@@ -96,8 +95,10 @@ tm.createSelectCallback = function(serverResponse, selected) {
             select.appendChild(option);
 		}
 		tm.setElement(select);
+		select.addEventListener("keydown", tm.editorEventListener);    
 	} catch(e) {
 		// TO-DO: Display error message
+		
 	}
 };
 
@@ -137,7 +138,15 @@ tm.editorEventListener = function(event) {
         
         var table = document.getElementById('theTable');
         var empId = table.rows[tm.globals.row].cells[0].textContent;
-        var data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
+        
+        var data = null;
+        if(this.id == "department") { // Select list
+        	var value = this.options[this.selectedIndex].value;
+        	data = tm.createJSONString(table, tm.globals.row, this.id, value);
+        } else {
+        	data = data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
+        }
+        
         console.log(data);
         ajax.request("PUT", tm.globals.url+"employees/"+empId, tm.editorEventListenerCallback, data);
     }
@@ -166,31 +175,32 @@ tm.editorEventListenerCallback = function(serverResponse, data) {
 		// TO-DO: Display error message
 	}
 };
-tm.createJSONString = function(table, row, col, value) {
-	alert(value + " ZZZZZZZZZZZZZZZ"); // **$*$*$*$*$*$*$*$
+tm.createJSONString = function(table, row, colName, value) {
+	alert(value + " ZZZZZZZZZZZZZZZ " + colName); // **$*$*$*$*$*$*$*$
 	var data = '{ "lastname":"';	
-	if(col == "lastName") {
+	if(colName == "lastName") {
 		data += value + '", ';
 	} else {
 		data += table.rows[tm.globals.row].cells[1].textContent + '", ';
 	}
 	
 	data += '"firstname":"';
-	if(col === "firstName") {
+	if(colName === "firstName") {
 		data += value + '", ';
 	} else {
 		data += table.rows[tm.globals.row].cells[2].textContent + '", ';
 	}
      
 	data += '"department":"';
-	if(col === "department") {
+	if(colName === "department") {
 		data += value + '", ';
 	} else {
 		data += table.rows[tm.globals.row].cells[3].textContent + '",';
 	}
 	
 	data +=	'"fulltime":"';
-	if(col === "fulltime") {
+	if(colName === "fulltime") {
+		alert("VALUE = " + value);
 		data += value + '", ';
 	} else {
 		if(table.rows[tm.globals.row].cells[4].childNodes[0].checked) {
@@ -200,11 +210,12 @@ tm.createJSONString = function(table, row, col, value) {
 		}
 	}
     
+	// Hire date column is not editable
     data += '"hiredate":"' + table.rows[tm.globals.row].cells[5].textContent + '", ';
     
     data += '"salary":"'
-    if(col === "salary") {
-    	data + value + '"  }';
+    if(colName === "salary") {
+    	data += tools.strip_num_formatting(value) + '"  }';
     } else {
     	data += tools.strip_num_formatting(table.rows[tm.globals.row].cells[6].textContent) + '"  }';
     }
