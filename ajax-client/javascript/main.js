@@ -8,7 +8,8 @@ tm.globals = {
 		col : -1,			// Table column
 		row : 0,			// Table row
 		active : false,		// Is a cell currently being edited
-		url : "http://localhost/GEM/rest/"
+		url : "http://localhost/GEM/rest/",
+		cbox : null
 }
 
 /**
@@ -34,8 +35,15 @@ tm.clickedCell = function(e) {
         // Handle checkbox click - full time column
         if(e.target.type == "checkbox") {
         	e.stopImmediatePropagation();
-        	e.preventDefault();        	
-        	alert('CHECKBOX');
+        	e.preventDefault();
+        	tm.globals.row = elem.parentNode.parentNode.rowIndex;
+        	tm.globals.cbox = e.target;
+        	
+        	var table = document.getElementById('theTable');
+        	var empId = table.rows[tm.globals.row].cells[0].textContent;  
+        	var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked);
+        	ajax.request("PUT", tm.globals.url+"employees/"+empId, tm.checkboxCallback, data);
+        	
         	return;
         } 
         
@@ -97,8 +105,7 @@ tm.createSelectCallback = function(serverResponse, selected) {
 		tm.setElement(select);
 		select.addEventListener("keydown", tm.editorEventListener);    
 	} catch(e) {
-		// TO-DO: Display error message
-		
+		// TO-DO: Display error message		
 	}
 };
 
@@ -118,7 +125,7 @@ tm.setElement = function(elem) {
 /**
  * 
  */
-tm.editorEventListener = function(event) {  	
+tm.editorEventListener = function(event) {  	alert("TAG: " + event.target.tagName);
     if (event.keyCode == 13) {  
     	event.stopImmediatePropagation();
         event.preventDefault();       
@@ -144,7 +151,7 @@ tm.editorEventListener = function(event) {
         	var value = this.options[this.selectedIndex].value;
         	data = tm.createJSONString(table, tm.globals.row, this.id, value);
         } else {
-        	data = data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
+        	data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
         }
         
         console.log(data);
@@ -175,6 +182,18 @@ tm.editorEventListenerCallback = function(serverResponse, data) {
 		// TO-DO: Display error message
 	}
 };
+tm.checkboxCallback = function(serverResponse, data) {
+	if(serverResponse.status == "200" || serverResponse.status == "204") {
+		if(tm.globals.cbox.checked) {
+			tm.globals.cbox.checked = false;
+		} else {
+			tm.globals.cbox.checked = true;
+		}
+	} else {
+		// TO-DO: Handle error
+	}
+	console.log("FFF " + serverResponse.responseURL);
+}
 tm.createJSONString = function(table, row, colName, value) {
 	alert(value + " ZZZZZZZZZZZZZZZ " + colName); // **$*$*$*$*$*$*$*$
 	var data = '{ "lastname":"';	
@@ -195,13 +214,17 @@ tm.createJSONString = function(table, row, colName, value) {
 	if(colName === "department") {
 		data += value + '", ';
 	} else {
-		data += table.rows[tm.globals.row].cells[3].textContent + '",';
+		data += table.rows[tm.globals.row].cells[3].textContent + '", ';
 	}
 	
 	data +=	'"fulltime":"';
 	if(colName === "fulltime") {
 		alert("VALUE = " + value);
-		data += value + '", ';
+		if(value) {
+			data += 1 + '", ';
+		} else {
+			data += 0 + '", ';
+		}
 	} else {
 		if(table.rows[tm.globals.row].cells[4].childNodes[0].checked) {
 			data +=  '1", ';
@@ -271,7 +294,9 @@ ajax.request = function(method, url, callbackFunc, data) { console.log("AJAX " +
             } 
         };
         xmlhttp.open(method, url, true);
-        xmlhttp.setRequestHeader("Accept", "application/json");
+        if(method == "GET") {
+        	xmlhttp.setRequestHeader("Accept", "application/json");
+        }
         if(method == "PUT" || method == "POST") {
         	xmlhttp.send(data);
         } else {
