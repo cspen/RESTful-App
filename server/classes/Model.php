@@ -148,9 +148,10 @@ class Model {
 	function get($id, $HTTPverb) {
 		$query = "SELECT * FROM employee WHERE employeeID=:empID";
 		
-		$dbconn = getDatabaseConnection();
+		$db = new DBConnection();
+		$dbconn = $db->getConnection();
 		$stmt = $dbconn->prepare($query);
-		$stmt->bindParam(':empID', $employeeId);
+		$stmt->bindParam(':empID', $id);
 		if($stmt->execute()) {
 			$rowCount = $stmt->rowCount();
 			if($rowCount == 1) {
@@ -168,7 +169,7 @@ class Model {
 				header('Last-Modified: '.$result['last_modified']);
 				header('HTTP/1.1 200 OK');
 				
-				if($verb === "GET") {
+				if($HTTPverb === "GET") {
 					echo $output;
 				}
 				exit;
