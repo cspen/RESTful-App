@@ -159,7 +159,6 @@ tm.editorEventListener = function(event) {  	alert("TAG: " + event.target.tagNam
     }
 }
 tm.editorEventListenerCallback = function(serverResponse, data) {
-	alert(serverResponse.status);
 	if(serverResponse.status == 200 || serverResponse.status == 204) {
 		var table = document.getElementById('theTable');
          
@@ -180,6 +179,7 @@ tm.editorEventListenerCallback = function(serverResponse, data) {
         tm.globals.row = 0;
 	} else {
 		// TO-DO: Display error message
+		// Check for 412 status
 	}
 };
 tm.checkboxCallback = function(serverResponse, data) {
@@ -191,11 +191,10 @@ tm.checkboxCallback = function(serverResponse, data) {
 		}
 	} else {
 		// TO-DO: Handle error
+		// Check for 412 status
 	}
-	console.log("FFF " + serverResponse.responseURL);
 }
 tm.createJSONString = function(table, row, colName, value) {
-	alert(value + " ZZZZZZZZZZZZZZZ " + colName); // **$*$*$*$*$*$*$*$
 	var data = '{ "lastname":"';	
 	if(colName == "lastName") {
 		data += value + '", ';
