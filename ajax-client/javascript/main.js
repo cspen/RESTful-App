@@ -125,7 +125,7 @@ tm.setElement = function(elem) {
 /**
  * 
  */
-tm.editorEventListener = function(event) {  	alert("TAG: " + event.target.tagName);
+tm.editorEventListener = function(event) {
     if (event.keyCode == 13) {  
     	event.stopImmediatePropagation();
         event.preventDefault();       
@@ -133,8 +133,12 @@ tm.editorEventListener = function(event) {  	alert("TAG: " + event.target.tagNam
         // Validate edit 
         var value = this.value;
         if(tm.globals.col == 1 || tm.globals.col == 2) {
-        	// TO-DO: Check that name columns do not contain numbers
-            // or illegal characters
+        	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
+        	if(value.match(exp)) {
+        		// TO-DO: NEET TO CHANGE TO DIALOG BOX
+        		alert("First and last name fields must contain only letters");
+        		return;
+        	}
         } else if(tm.globals.col == 6) { // Check that salary is numeric
                 if(isNaN(parseFloat(value)) && !isFinite(value)) {
                         // TO-DO: NEED TO CHANGE TO DIALOG BOX
@@ -218,7 +222,6 @@ tm.createJSONString = function(table, row, colName, value) {
 	
 	data +=	'"fulltime":"';
 	if(colName === "fulltime") {
-		alert("VALUE = " + value);
 		if(value) {
 			data += 1 + '", ';
 		} else {
