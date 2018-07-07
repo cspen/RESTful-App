@@ -93,7 +93,9 @@ class Model {
 	}
 	
 	function getAll($HTTPverb) {
-		$query = "SELECT * FROM employee";
+		$query = "SELECT employeeID, last_name, first_name, department,
+			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
+			salary, etag, last_modified FROM employee";
 		
 		$sortBy = array("date", "headline");
 		if(isset($_GET['sort'])) {
@@ -146,7 +148,9 @@ class Model {
 	}
 	
 	function get($id, $HTTPverb) {
-		$query = "SELECT * FROM employee WHERE employeeID=:empID";
+		$query = "SELECT employeeID, last_name, first_name, department,
+			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
+			salary, etag, last_modified FROM employee WHERE employeeID=:empID";
 		
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
@@ -298,6 +302,7 @@ class Model {
 			}
 		} else {
 			header('HTTP/1.1 400 Bad Request');
+			echo 'FUCKED UP';
 			exit;
 		}
 	}
