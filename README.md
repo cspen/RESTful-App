@@ -22,3 +22,24 @@ in a TableModel for a JTable.
 
 Adding java client last.
 
+Thoughts
+	-Single AJAX method-
+	I read it was considered good practice (or DRY) to have a single
+	method for AJAX and route all AJAX requests through that method.
+	I'm finding it difficult to set headers with this framework. To set
+	headers you must pass both the header name and header data to the
+	AJAX method. It would be easier to not use a single AJAX method, 
+	setting the headers and other fields for each unique request within
+	the method for handling the event.
+
+	Currently I'm designing the system to utilize three methods for each
+	request. The first method acts as an event handler and calls the AJAX
+	method, the second method makes the AJAX request, and the third method
+	updates the DOM. The third method is the callback method passed to the
+	AJAX method. Here is the current design:
+
+	Human clicks something -> EventHandler -> AJAX -> AJAXcallback
+
+	By not using a single AJAX method not only would it be easier to
+	set request headers and other information unique to each AJAX call
+	but it will also reduce the method chain from three to two.
