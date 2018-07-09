@@ -85,7 +85,8 @@ tm.createInputElement = function(content) {
  * Create a select list with the selected option.
  */
 tm.createSelectElement = function(url, selected) {
-	ajax.request("GET", tm.globals.url + "departments/", tm.createSelectCallback, selected);
+	ajax.request("GET", tm.globals.url + "departments/",
+			tm.createSelectCallback, selected, null, null);
 };
 tm.createSelectCallback = function(serverResponse, selected) {	
 	try {
@@ -158,8 +159,19 @@ tm.editorEventListener = function(event) {
         	data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
         }
         
+        // TO-DO: Get etag and last_modified header values from table
+        var etag = table.rows[tm.globals.row].cells[7].textContent;
+        var lsmod = table.rows[tm.globals.row].cells[8].textContent;
+        
         console.log(data);
-        ajax.request("PUT", tm.globals.url+"employees/"+empId, tm.editorEventListenerCallback, data);
+        console.log("ETAG: " + etag);
+        console.log("LAST MODIFIED: " + lsmod);
+        console.log("");
+        ajax.request("PUT", tm.globals.url+"employees/"+empId,
+        		tm.editorEventListenerCallback, data, etag, lsmod);
+    } else if(event.keyCode == 27) {
+    	// TO-DO: Implement an escape/cancel edit feature
+    	alert("NO ESCAPE!");
     }
 }
 tm.editorEventListenerCallback = function(serverResponse, data) {
@@ -184,6 +196,7 @@ tm.editorEventListenerCallback = function(serverResponse, data) {
 	} else {
 		// TO-DO: Display error message
 		// Check for 412 status
+		if(serverResponse.status == "412") alert("412");
 	}
 };
 tm.checkboxCallback = function(serverResponse, data) {
@@ -196,6 +209,7 @@ tm.checkboxCallback = function(serverResponse, data) {
 	} else {
 		// TO-DO: Handle error
 		// Check for 412 status
+		if(serverResponse.status == "412") alert("412");
 	}
 }
 tm.createJSONString = function(table, row, colName, value) {
@@ -288,7 +302,8 @@ tools.removeChildren = function(parent) {
 
 //Contact the server
 var ajax = ajax || {};
-ajax.request = function(method, url, callbackFunc, data) { console.log("AJAX " + url);
+ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
+	console.log("AJAX " + url);
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
@@ -296,12 +311,18 @@ ajax.request = function(method, url, callbackFunc, data) { console.log("AJAX " +
             } 
         };
         xmlhttp.open(method, url, true);
+         
+        if(etag) {
+        	xmlhttp.setRequestHeader("Etag", etag);
+        }
+        if(lastMod) {
+        	xmlhttp.setRequestHeader("If-Unmodified-Since", lastMod);
+        }
+        
         if(method == "GET") {
         	xmlhttp.setRequestHeader("Accept", "application/json");
-        }
-        if(method == "PUT" || method == "POST") {
-        	xmlhttp.send(data);
-        } else {
         	xmlhttp.send();
+        } else if(method == "PUT" || method == "POST") {
+        	xmlhttp.send(data);
         }
 };
