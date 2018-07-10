@@ -174,7 +174,7 @@ tm.editorEventListener = function(event) {
     	alert("NO ESCAPE!");
     }
 }
-tm.editorEventListenerCallback = function(serverResponse, data) {
+tm.editorEventListenerCallback = function(serverResponse, data, url) {
 	if(serverResponse.status == 200 || serverResponse.status == 204) {
 		var table = document.getElementById('theTable');
          
@@ -190,16 +190,20 @@ tm.editorEventListenerCallback = function(serverResponse, data) {
                 }
         }
         table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
+        
+        // NEED TO UPDATE ETAG AND LAST MODIFIED FEILDS
+        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
+        
         tm.globals.active = false;
         tm.globals.col = -1;
         tm.globals.row = 0;
 	} else {
 		// TO-DO: Display error message
-		// Check for 412 status
+		// Check for 412 status - record on server newer than on client
 		if(serverResponse.status == "412") alert("412");
 	}
 };
-tm.checkboxCallback = function(serverResponse, data) {
+tm.checkboxCallback = function(serverResponse, data, url) {
 	if(serverResponse.status == "200" || serverResponse.status == "204") {
 		if(tm.globals.cbox.checked) {
 			tm.globals.cbox.checked = false;
@@ -211,7 +215,11 @@ tm.checkboxCallback = function(serverResponse, data) {
 		// Check for 412 status
 		if(serverResponse.status == "412") alert("412");
 	}
-}
+};
+tm.updateHeaderFields = function(serverResponse, data, url) {
+	alert("SR: " + url);
+	console.log("RESPONSE: " + serverResponse.responseText);
+};
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
 	if(colName == "lastName") {
@@ -307,7 +315,9 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
-                callbackFunc(this, data);
+                callbackFunc(this, data, url);
+                // NOTE: could use xmlHTTPrequest.responseURL but
+                // it's not available on all browsers
             } 
         };
         xmlhttp.open(method, url, true);
