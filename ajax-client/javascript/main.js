@@ -193,10 +193,6 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
         
         // NEED TO UPDATE ETAG AND LAST MODIFIED FEILDS
         ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
-        
-        tm.globals.active = false;
-        tm.globals.col = -1;
-        tm.globals.row = 0;
 	} else {
 		// TO-DO: Display error message
 		// Check for 412 status - record on server newer than on client
@@ -210,15 +206,28 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		} else {
 			tm.globals.cbox.checked = true;
 		}
+		
+		 // NEED TO UPDATE ETAG AND LAST MODIFIED FEILDS
+        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else {
 		// TO-DO: Handle error
 		// Check for 412 status
 		if(serverResponse.status == "412") alert("412");
+		// Need to inform human and update row
 	}
 };
 tm.updateHeaderFields = function(serverResponse, data, url) {
-	alert("SR: " + url);
+	alert("SR: " + serverResponse.getResponseHeader("Last-Modified"));
 	console.log("RESPONSE: " + serverResponse.responseText);
+	
+	// Update table
+	var table = document.getElementById('theTable');
+	table.rows[tm.globals.row].cells[7].textContent = serverResponse.getResponseHeader("Etag");
+	table.rows[tm.globals.row].cells[8].textContent = serverResponse.getResponseHeader("Last-Modified");
+	
+	tm.globals.active = false;
+    tm.globals.col = -1;
+    tm.globals.row = 0;
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
