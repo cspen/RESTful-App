@@ -7,7 +7,7 @@ var tm = tm || {};
 tm.globals = {
 		col : -1,			// Table column
 		row : 0,			// Table row
-		active : false,		// Is a cell currently being edited
+		active : null,		// Is a cell currently being edited
 		url : "http://localhost/GEM/rest/",
 		cbox : null
 }
@@ -16,7 +16,7 @@ tm.globals = {
  * 
  */
 tm.clickedCell = function(e) {
-	if(!tm.globals.active) {
+	if(tm.globals.active == null) {
 		// Get the clicked table cell
 		var elem = e.target;
         tm.globals.row = elem.parentNode.rowIndex;
@@ -48,13 +48,16 @@ tm.clickedCell = function(e) {
         } 
         
         // Create the element for editing
+        var curVal = e.target.textContent;
         if(tm.globals.col == 3) {
         	var url = "http://modintro.com/departments/";
-        	tm.createSelectElement(url, e.target.textContent);
+        	tm.createSelectElement(url, curVal);
         } else {
         	if(tm.globals.col != 4)
-        		tm.createInputElement(e.target.textContent);
+        		tm.createInputElement(curVal);
         }
+        
+        tm.globals.active = curVal;
 	} 
 };
 
@@ -119,7 +122,7 @@ tm.setElement = function(elem) {
     if(elem.tagName == "INPUT") {
     	elem.select();
     }
-    tm.globals.active = true;
+    
 };
 
 /**
@@ -132,6 +135,13 @@ tm.editorEventListener = function(event) {
 
         // Validate edit 
         var value = this.value;
+        if(value == "") {
+        	// TO-DO: Need to cache the original value
+        	// and replace it in the event of an enter
+        	// press with an empty field.
+        	alert("EMPTY FIELD");
+        }        
+        
         if(tm.globals.col == 1 || tm.globals.col == 2) {
         	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
         	if(value.match(exp)) {
@@ -152,8 +162,8 @@ tm.editorEventListener = function(event) {
         
         var data = null;
         if(this.id == "department") { // Select list
-        	var value = this.options[this.selectedIndex].value;
-        	data = tm.createJSONString(table, tm.globals.row, this.id, value);
+        	var v = this.options[this.selectedIndex].value;
+        	data = tm.createJSONString(table, tm.globals.row, this.id, v);
         } else {
         	data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
         }
@@ -165,8 +175,12 @@ tm.editorEventListener = function(event) {
         ajax.request("PUT", tm.globals.url+"employees/"+empId,
         		tm.editorEventListenerCallback, data, etag, lsmod);
     } else if(event.keyCode == 27) {
-    	// TO-DO: Implement an escape/cancel edit feature
-    	alert("NO ESCAPE!");
+    	// Escape key pressed
+    	var table = document.getElementById('theTable');
+    	var node = table.rows[tm.globals.row].cells[tm.globals.col];
+		node.removeChild(node.firstChild);
+		node.textContent = tm.globals.active;
+		tm.globals.active = null;
     }
 }
 tm.editorEventListenerCallback = function(serverResponse, data, url) {
@@ -217,7 +231,7 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 	table.rows[tm.globals.row].cells[7].textContent = serverResponse.getResponseHeader("Etag");
 	table.rows[tm.globals.row].cells[8].textContent = serverResponse.getResponseHeader("Last-Modified");
 	
-	tm.globals.active = false;
+	tm.globals.active = null;
     tm.globals.col = -1;
     tm.globals.row = 0;
 };
