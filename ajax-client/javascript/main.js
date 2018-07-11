@@ -51,7 +51,6 @@ tm.clickedCell = function(e) {
         if(tm.globals.col == 3) {
         	var url = "http://modintro.com/departments/";
         	tm.createSelectElement(url, e.target.textContent);
-        	console.log("Department");
         } else {
         	if(tm.globals.col != 4)
         		tm.createInputElement(e.target.textContent);
@@ -163,10 +162,6 @@ tm.editorEventListener = function(event) {
         var etag = table.rows[tm.globals.row].cells[7].textContent;
         var lsmod = table.rows[tm.globals.row].cells[8].textContent;
         
-        console.log(data);
-        console.log("ETAG: " + etag);
-        console.log("LAST MODIFIED: " + lsmod);
-        console.log("");
         ajax.request("PUT", tm.globals.url+"employees/"+empId,
         		tm.editorEventListenerCallback, data, etag, lsmod);
     } else if(event.keyCode == 27) {
@@ -217,9 +212,6 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 	}
 };
 tm.updateHeaderFields = function(serverResponse, data, url) {
-	alert("SR: " + serverResponse.getResponseHeader("Last-Modified"));
-	console.log("RESPONSE: " + serverResponse.responseText);
-	
 	// Update table
 	var table = document.getElementById('theTable');
 	table.rows[tm.globals.row].cells[7].textContent = serverResponse.getResponseHeader("Etag");
