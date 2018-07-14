@@ -42,7 +42,10 @@ tm.clickedCell = function(e) {
         	var table = document.getElementById('theTable');
         	var empId = table.rows[tm.globals.row].cells[0].textContent;  
         	var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked);
-        	ajax.request("PUT", tm.globals.url+"employees/"+empId, tm.checkboxCallback, data);
+        	var etag = table.rows[tm.globals.row].cells[7].textContent;
+            var lsmod = table.rows[tm.globals.row].cells[8].textContent;
+        	ajax.request("PUT", tm.globals.url+"employees/"+empId,
+        			tm.checkboxCallback, data, etag, lsmod);
         	
         	return;
         } 
@@ -135,11 +138,15 @@ tm.editorEventListener = function(event) {
 
         // Validate edit 
         var value = this.value;
+        var table = document.getElementById('theTable');
+        
         if(value == "") {
-        	// TO-DO: Need to cache the original value
-        	// and replace it in the event of an enter
-        	// press with an empty field.
-        	alert("EMPTY FIELD");
+        	// If input field is empty, replace original content
+        	table.rows[tm.globals.row].cells[tm.globals.col].textContent = tm.globals.active;
+        	tm.globals.row = -1;
+        	tm.globals.col = 0;
+        	tm.globals.active = null;
+        	return;
         }        
         
         if(tm.globals.col == 1 || tm.globals.col == 2) {
@@ -157,7 +164,6 @@ tm.editorEventListener = function(event) {
                 }
         }
         
-        var table = document.getElementById('theTable');
         var empId = table.rows[tm.globals.row].cells[0].textContent;
         
         var data = null;
@@ -168,7 +174,7 @@ tm.editorEventListener = function(event) {
         	data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
         }
         
-        // TO-DO: Get etag and last_modified header values from table
+        // Get etag and last_modified header values from table (hidden columns)
         var etag = table.rows[tm.globals.row].cells[7].textContent;
         var lsmod = table.rows[tm.globals.row].cells[8].textContent;
         
@@ -200,12 +206,14 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
         }
         table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
         
-        // NEED TO UPDATE ETAG AND LAST MODIFIED FEILDS
-        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
+        // UPDATE ETAG AND LAST MODIFIED FEILDS
+       ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else {
-		// TO-DO: Display error message
-		// Check for 412 status - record on server newer than on client
-		if(serverResponse.status == "412") alert("412");
+		// TO-DO: Display error message $#$#$#$#$#$#%@%@%@%@%@%@^!^!^!^!^
+		if(serverResponse.status == "412") {
+			// TO-DO: Change to dialog box
+			alert("Unable to update - More recent copy on server");
+		}
 	}
 };
 tm.checkboxCallback = function(serverResponse, data, url) {
@@ -216,12 +224,17 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 			tm.globals.cbox.checked = true;
 		}
 		
-		 // NEED TO UPDATE ETAG AND LAST MODIFIED FEILDS
-        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
-	} else {
-		// TO-DO: Handle error
+		 // UPDATE ETAG AND LAST MODIFIED FEILDS
+		ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
+	} else { 
+		// TO-DO: Handle error ************#$#$#$#$#$#$#$#$#$#$#$
 		// Check for 412 status
-		if(serverResponse.status == "412") alert("412");
+		if(serverResponse.status == "412") {
+			alert("CBCB: " + serverResponse.status);
+			
+			// Update the row
+			ajax.request("GET", url, tm.updateRow, null, null, null);
+		}
 		// Need to inform human and update row
 	}
 };
@@ -234,6 +247,9 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 	tm.globals.active = null;
     tm.globals.col = -1;
     tm.globals.row = 0;
+};
+tm.updateRow = function(serverResponse, data, url) {
+	
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
@@ -326,7 +342,7 @@ tools.removeChildren = function(parent) {
 //Contact the server
 var ajax = ajax || {};
 ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
-	console.log("AJAX " + url);
+	console.log("AJAX " + url + ", ETAG: " + etag + ", LASTMOD: " + lastMod);
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
