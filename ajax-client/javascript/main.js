@@ -212,7 +212,9 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
 		// TO-DO: Display error message $#$#$#$#$#$#%@%@%@%@%@%@^!^!^!^!^
 		if(serverResponse.status == "412") {
 			// TO-DO: Change to dialog box
-			alert("Unable to update - More recent copy on server");
+			// alert("Unable to update - More recent copy on server");
+			// Update the row
+			ajax.request("GET", url, tm.updateRow, null, null, null);
 		}
 	}
 };
@@ -230,13 +232,14 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		// TO-DO: Handle error ************#$#$#$#$#$#$#$#$#$#$#$
 		// Check for 412 status
 		if(serverResponse.status == "412") {
-			alert("CBCB: " + serverResponse.status);
+			// alert("CBCB: " + serverResponse.status);
 			
 			// Update the row
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		}
 		// Need to inform human and update row
 	}
+	return;
 };
 tm.updateHeaderFields = function(serverResponse, data, url) {
 	// Update table
@@ -249,7 +252,49 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
     tm.globals.row = 0;
 };
 tm.updateRow = function(serverResponse, data, url) {
-	
+	if(serverResponse.status == "200") {
+		var obj = JSON.parse(serverResponse.responseText);
+		var table = document.getElementById('theTable');
+		var node = table.rows[tm.globals.row].cells[tm.globals.col];
+		node.removeChild(node.firstChild);
+		
+		var i = 0;
+		for(var key in obj) { 
+			if(key === "full_time") {
+				if(obj[key]) {
+					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
+				} else {
+					table.rows[tm.globals.row].cells[i].firstChild.checked = false;
+				}
+			} else {
+				if(key === "salary") {
+					table.rows[tm.globals.row].cells[i].textContent =
+						tools.format_nondecimal_currency(obj[key]);
+				} else { 
+					table.rows[tm.globals.row].cells[i].textContent = obj[key];
+				}				
+			} 
+			i++;
+		}
+		/*
+		// Fade out (needs to be in own function)
+		var ofs = 0;  // initial opacity
+		var element = table.rows[tm.globals.row];
+		var bgnd = element.style.backgroundColor;
+		// alert(" * * * * " + bgn);
+	    var timer = setInterval(function () {
+	        if (ofs >= 1){
+	        	element.style.backgroundColor = bgnd;
+	            clearInterval(timer);
+	            return;
+	        }
+	        element.style.backgroundColor = 'rgba(0,0,0,'+Math.abs(Math.sin(ofs))+')';
+	        ofs += 0.01;
+	    }, 100)
+	    */
+	} else {
+		alert("ERROR UR");
+	}
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
