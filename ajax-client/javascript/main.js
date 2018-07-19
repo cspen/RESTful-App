@@ -37,6 +37,7 @@ tm.clickedCell = function(e) {
         	e.stopImmediatePropagation();
         	e.preventDefault();
         	tm.globals.row = elem.parentNode.parentNode.rowIndex;
+        	tm.globals.col = elem.parentNode.cellIndex;
         	tm.globals.cbox = e.target;
         	
         	var table = document.getElementById('theTable');
@@ -45,8 +46,7 @@ tm.clickedCell = function(e) {
         	var etag = table.rows[tm.globals.row].cells[7].textContent;
             var lsmod = table.rows[tm.globals.row].cells[8].textContent;
         	ajax.request("PUT", tm.globals.url+"employees/"+empId,
-        			tm.checkboxCallback, data, etag, lsmod);
-        	
+        			tm.checkboxCallback, data, etag, lsmod);        	
         	return;
         } 
         
@@ -58,8 +58,7 @@ tm.clickedCell = function(e) {
         } else {
         	if(tm.globals.col != 4)
         		tm.createInputElement(curVal);
-        }
-        
+        }        
         tm.globals.active = curVal;
 	} 
 };
@@ -209,12 +208,13 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
         // UPDATE ETAG AND LAST MODIFIED FEILDS
        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else {
-		// TO-DO: Display error message $#$#$#$#$#$#%@%@%@%@%@%@^!^!^!^!^
 		if(serverResponse.status == "412") {
 			// TO-DO: Change to dialog box
 			// alert("Unable to update - More recent copy on server");
 			// Update the row
 			ajax.request("GET", url, tm.updateRow, null, null, null);
+		} else {
+			
 		}
 	}
 };
@@ -229,18 +229,21 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		 // UPDATE ETAG AND LAST MODIFIED FEILDS
 		ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else { 
-		// TO-DO: Handle error ************#$#$#$#$#$#$#$#$#$#$#$
 		// Check for 412 status
 		if(serverResponse.status == "412") {
-			// alert("CBCB: " + serverResponse.status);
-			
 			// Update the row
+			console.log("row: " + tm.globals.row + ", col: " + tm.globals.col);        	
 			ajax.request("GET", url, tm.updateRow, null, null, null);
+		} else {
+			alert("STATUS " + serverResponse.status);
 		}
-		// Need to inform human and update row
 	}
 	return;
 };
+
+/**
+ * Called when row is updated.
+ */
 tm.updateHeaderFields = function(serverResponse, data, url) {
 	// Update table
 	var table = document.getElementById('theTable');
@@ -251,12 +254,16 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
     tm.globals.col = -1;
     tm.globals.row = 0;
 };
+
+/**
+ * Called when row on server is "fresher" than
+ * row on this client after an attempted edit.
+ */
 tm.updateRow = function(serverResponse, data, url) {
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
+		console.log("RPS: " + serverResponse.responseText);
 		var table = document.getElementById('theTable');
-		var node = table.rows[tm.globals.row].cells[tm.globals.col];
-		node.removeChild(node.firstChild);
 		
 		var i = 0;
 		for(var key in obj) { 
@@ -276,22 +283,24 @@ tm.updateRow = function(serverResponse, data, url) {
 			} 
 			i++;
 		}
-		/*
+		
 		// Fade out (needs to be in own function)
 		var ofs = 0;  // initial opacity
 		var element = table.rows[tm.globals.row];
 		var bgnd = element.style.backgroundColor;
-		// alert(" * * * * " + bgn);
-	    var timer = setInterval(function () {
+		var timer = setInterval(function () {
 	        if (ofs >= 1){
 	        	element.style.backgroundColor = bgnd;
 	            clearInterval(timer);
 	            return;
 	        }
-	        element.style.backgroundColor = 'rgba(0,0,0,'+Math.abs(Math.sin(ofs))+')';
-	        ofs += 0.01;
-	    }, 100)
-	    */
+	        element.style.backgroundColor = 'rgba(51,153,255,'+Math.abs(Math.sin(ofs))+')';
+	        ofs += 0.05;
+	    }, 100);
+	    
+		tm.globals.active = null;
+	    tm.globals.col = -1;
+	    tm.globals.row = 0;
 	} else {
 		alert("ERROR UR");
 	}
