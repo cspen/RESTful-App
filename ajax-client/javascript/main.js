@@ -284,19 +284,9 @@ tm.updateRow = function(serverResponse, data, url) {
 			i++;
 		}
 		
-		// Fade out (needs to be in own function)
-		var ofs = 0;  // initial opacity
+		// Highlight updated row
 		var element = table.rows[tm.globals.row];
-		var bgnd = element.style.backgroundColor;
-		var timer = setInterval(function () {
-	        if (ofs >= 1){
-	        	element.style.backgroundColor = bgnd;
-	            clearInterval(timer);
-	            return;
-	        }
-	        element.style.backgroundColor = 'rgba(51,153,255,'+Math.abs(Math.sin(ofs))+')';
-	        ofs += 0.05;
-	    }, 100);
+		tools.highlightElem(element);
 	    
 		tm.globals.active = null;
 	    tm.globals.col = -1;
@@ -391,6 +381,19 @@ tools.removeChildren = function(parent) {
 	while (parent.firstChild) {
 	    parent.removeChild(parent.firstChild);
 	}
+};
+tools.highlightElem = function(elem) {
+	var ofs = 0;  // initial opacity	
+	var bgnd = elem.style.backgroundColor;
+	var timer = setInterval(function () {
+        if (ofs >= 1){
+        	elem.style.backgroundColor = bgnd;
+            clearInterval(timer);
+            return;
+        }
+        elem.style.backgroundColor = 'rgba(51,153,255,'+Math.abs(Math.sin(ofs))+')';
+        ofs += 0.05;
+    }, 100);
 };
 
 //Contact the server
