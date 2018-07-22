@@ -9,7 +9,9 @@ tm.globals = {
 		row : 0,			// Table row
 		active : null,		// Is a cell currently being edited
 		url : "http://localhost/GEM/rest/",
-		cbox : null
+		cbox : null,
+		sortBy : "employeeID",
+		currentPage : 1
 }
 
 /**
@@ -25,6 +27,35 @@ tm.clickedCell = function(e) {
         // Column header clicked - sort by column
         if(tm.globals.row == 0) {
         	console.log("SORT BY HEADER " + e.target.innerHTML);
+        	var table = document.getElementById('theTable');
+        	var colHead = table.rows[0].cells[tm.globals.col].innerHTML;
+        	
+        	// Translate column header into db row item
+            if(colHead === "EmployeeID") {
+                    colHead = "employeeID";
+            } else {
+                    colHead = colHead.toLowerCase();
+                    colHead = colHead.replace(/ /g,"_");
+            }
+
+            if(tm.globals.sortByCol === colHead) {
+                    // Same header - change sort order
+                    if(tm.globals.sortOrder === "asc") {
+                            tm.globals.sortOrder = "desc";
+                    } else {
+                            tm.globals.sortOrder = "asc";
+                    }
+            } else {
+                    tm.globals.sortByCol = colHead;
+                    tm.globals.sortOrder = "asc";
+            }
+            
+            // Make ajax request 
+            var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
+            		colHead + "&order=" + tm.globals.sortOrder;
+            console.log("\n" + request + "\n");
+            ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);
+        	 
         	return;
         } 
         
@@ -240,6 +271,107 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 	}
 	return;
 };
+tm.colCallBack = function(xhttp, page) {  
+    
+    // TO-DO: Check for error before modifying table
+    // alert(xhttp.responseText);
+
+    // Update the data table 
+            // Remove existing rows
+            var theTable = document.getElementById('theTable');
+
+            // Remove any active input elements in the table
+            tm.globals.flag = false;
+
+            // Row zero is the column headings
+            while(theTable.rows.length > 1) {
+                    theTable.deleteRow(1);
+            }
+
+            // Add new rows
+            alert("X: " + xhttp.responseText);
+            var obj = JSON.parse(xhttp.responseText);
+            if(Array.isArray(obj)) {
+                    var obLength = obj.length;
+                    for(var i = 0; i < obLength; i++) {
+                            var newRow = theTable.insertRow(theTable.rows.length);
+                            var jrow = obj[i]; 
+                            var length = Object.keys(jrow).length;
+                            var keys = Object.keys(jrow); 
+                            for (var j = 0; j < length; j++) {
+                                    // Add row to table                                             
+                                    var newCell = newRow.insertCell(-1);
+                                    var text = null;
+                                    if(j != 4 && j != 6) {
+                                            text = document.createTextNode(jrow[keys[j]]);
+                                    } else if(j == 4) {
+                                            text = document.createElement('INPUT');
+                                            text.type = "checkbox";
+                                            if(jrow[keys[j]] == "1") {
+                                                    text.checked = "true";                                                  
+                                            } 
+                                    } else if(j == 6) { // Format salary
+                                            text = document.createTextNode(tools.format_nondecimal_currency(jrow[keys[j]]));
+                                    }
+                                    newCell.appendChild(text);
+                                    if(j > 6) {
+                                            newCell.style.display = "none";
+                                    }
+                            }
+                    }
+            }               
+
+    // Update page navigation
+    if(page === "rarrow") { // Right arrow
+            // Check if next page exists
+            var next = document.getElementById(pm.glbs.currentPage+1);
+            if(next != null) {
+                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
+                    pm.glbs.currentPage++;
+                    document.getElementById(pm.glbs.currentPage).classList.add('active');
+            }
+    } else if(page === "larrow") { // Left arrow
+            var prev = document.getElementById(pm.glbs.currentPage-1);
+            if(prev != null) {
+                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
+                    pm.glbs.currentPage--;
+                    document.getElementById(pm.glbs.currentPage).classList.add('active');           
+            }
+    } else if(page === "jump") {
+            // Not implemented - intended to be a multiple page navigation
+    } else if(!isNaN(page)) { // Clicked a number
+            if(page !== pm.glbs.currentPage) {
+                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
+                    pm.glbs.currentPage = page;
+                    document.getElementById(pm.glbs.currentPage).classList.add('active');                   
+            }
+    }
+    
+    if(pm.glbs.currentPage > endPage) {
+            document.getElementById(pm.glbs.startPage).style.display = "none";
+            pm.glbs.startPage++;
+            endPage++;
+            document.getElementById(endPage).style.display = "block";               
+    } else if(pm.glbs.currentPage < pm.glbs.startPage) {
+            document.getElementById(endPage).style.display = "none";
+            pm.glbs.startPage--;
+            endPage--;
+            document.getElementById(pm.glbs.startPage).style.display = "block";
+    }
+    
+    // Grey out arrow keys when reach either start or end of pages
+    if(pm.glbs.currentPage > 1) {
+            document.getElementById('larrow').style.background = "white";
+    } else {
+            document.getElementById('larrow').style.background = "lightgrey";
+    }
+    
+    if(pm.glbs.currentPage < number_of_pages) {
+            document.getElementById('rarrow').style.background = "white";
+    } else {
+            document.getElementById('rarrow').style.background = "lightgrey";
+    }       
+};
 
 /**
  * Called when row is updated.
@@ -343,6 +475,14 @@ tm.createJSONString = function(table, row, colName, value) {
     }
     return data;
 };
+
+
+
+
+
+
+
+
 
 
 
