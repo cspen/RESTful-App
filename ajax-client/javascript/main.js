@@ -289,7 +289,6 @@ tm.colCallBack = function(xhttp, page) {
             }
 
             // Add new rows
-            alert("X: " + xhttp.responseText);
             var obj = JSON.parse(xhttp.responseText);
             if(Array.isArray(obj)) {
                     var obLength = obj.length;
@@ -324,49 +323,49 @@ tm.colCallBack = function(xhttp, page) {
     // Update page navigation
     if(page === "rarrow") { // Right arrow
             // Check if next page exists
-            var next = document.getElementById(pm.glbs.currentPage+1);
+            var next = document.getElementById(tm.globals.currentPage+1);
             if(next != null) {
-                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
-                    pm.glbs.currentPage++;
+                    document.getElementById(tm.globals.currentPage).classList.remove('active');
+                    tm.globals.currentPage++;
                     document.getElementById(pm.glbs.currentPage).classList.add('active');
             }
     } else if(page === "larrow") { // Left arrow
-            var prev = document.getElementById(pm.glbs.currentPage-1);
+            var prev = document.getElementById(tm.globals.currentPage-1);
             if(prev != null) {
-                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
-                    pm.glbs.currentPage--;
-                    document.getElementById(pm.glbs.currentPage).classList.add('active');           
+                    document.getElementById(tm.globals.currentPage).classList.remove('active');
+                    tm.globals.currentPage--;
+                    document.getElementById(tm.globals.currentPage).classList.add('active');           
             }
     } else if(page === "jump") {
             // Not implemented - intended to be a multiple page navigation
     } else if(!isNaN(page)) { // Clicked a number
-            if(page !== pm.glbs.currentPage) {
-                    document.getElementById(pm.glbs.currentPage).classList.remove('active');
-                    pm.glbs.currentPage = page;
-                    document.getElementById(pm.glbs.currentPage).classList.add('active');                   
+            if(page !== tm.globals.currentPage) {
+                    document.getElementById(tm.globals.currentPage).classList.remove('active');
+                    tm.globals.currentPage = page;
+                    document.getElementById(tm.globals.currentPage).classList.add('active');                   
             }
     }
     
-    if(pm.glbs.currentPage > endPage) {
-            document.getElementById(pm.glbs.startPage).style.display = "none";
-            pm.glbs.startPage++;
+    if(tm.globals.currentPage > endPage) {
+            document.getElementById(tm.globals.startPage).style.display = "none";
+            tm.globals.startPage++;
             endPage++;
             document.getElementById(endPage).style.display = "block";               
-    } else if(pm.glbs.currentPage < pm.glbs.startPage) {
+    } else if(tm.globals.currentPage < tm.globals.startPage) {
             document.getElementById(endPage).style.display = "none";
-            pm.glbs.startPage--;
+            tm.globals.startPage--;
             endPage--;
-            document.getElementById(pm.glbs.startPage).style.display = "block";
+            document.getElementById(tm.globals.startPage).style.display = "block";
     }
     
     // Grey out arrow keys when reach either start or end of pages
-    if(pm.glbs.currentPage > 1) {
+    if(tm.globals.currentPage > 1) {
             document.getElementById('larrow').style.background = "white";
     } else {
             document.getElementById('larrow').style.background = "lightgrey";
     }
     
-    if(pm.glbs.currentPage < number_of_pages) {
+    if(tm.globals.currentPage < number_of_pages) {
             document.getElementById('rarrow').style.background = "white";
     } else {
             document.getElementById('rarrow').style.background = "lightgrey";
@@ -550,10 +549,10 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         };
         xmlhttp.open(method, url, true);
          
-        if(etag) {
+        if(etag != null) {
         	xmlhttp.setRequestHeader("Etag", etag);
         }
-        if(lastMod) {
+        if(lastMod != null) {
         	xmlhttp.setRequestHeader("If-Unmodified-Since", lastMod);
         }
         
