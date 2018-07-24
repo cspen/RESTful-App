@@ -59,7 +59,11 @@ class Model {
 		$dbconn = $db->getConnection();
 		
 		// First check record against headers
-		$stmt = $dbconn->prepare("SELECT * FROM employee WHERE employeeID=:empID");
+		$query = "SELECT employeeID, last_name, first_name, department,
+			full_time, hire_date, salary, etag,
+			DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
+			AS last_modified FROM employee WHERE employeeID=:empID";
+		$stmt = $dbconn->prepare($query);
 		$stmt->bindParam(':empID', $employeeId);
 			
 		if($stmt->execute()) {
@@ -95,9 +99,11 @@ class Model {
 	function getAll($HTTPverb) {
 		$query = "SELECT employeeID, last_name, first_name, department,
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
-			salary, etag, last_modified FROM employee";
+			salary, etag, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
+			AS last_modified FROM employee";
 		
-		$sortBy = array("date", "headline");
+		$sortBy = array("employeeID", "last_name", "first_name", "department",
+				"full_time", "salary", "hire_date");
 		if(isset($_GET['sort'])) {
 			if(in_array($_GET['sort'], $sortBy)) {
 				$query .= " ORDER BY ".$_GET['sort'];
@@ -150,7 +156,8 @@ class Model {
 	function get($id, $HTTPverb) {
 		$query = "SELECT employeeID, last_name, first_name, department,
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
-			salary, etag, last_modified FROM employee WHERE employeeID=:empID";
+			salary, etag, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
+			AS last_modified FROM employee WHERE employeeID=:empID";
 		
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
