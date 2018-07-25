@@ -54,8 +54,7 @@ tm.clickedCell = function(e) {
             var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
             		colHead + "&order=" + tm.globals.sortOrder;
             console.log("\n" + request + "\n");
-            ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);
-        	 
+            ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
         	return;
         } 
         
@@ -272,7 +271,7 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 	return;
 };
 tm.colCallBack = function(xhttp, page) {  
-    
+
     // TO-DO: Check for error before modifying table
     // alert(xhttp.responseText);
 
@@ -281,7 +280,7 @@ tm.colCallBack = function(xhttp, page) {
             var theTable = document.getElementById('theTable');
 
             // Remove any active input elements in the table
-            tm.globals.flag = false;
+            tm.globals.active = null;
 
             // Row zero is the column headings
             while(theTable.rows.length > 1) {
@@ -290,11 +289,11 @@ tm.colCallBack = function(xhttp, page) {
 
             // Add new rows
             var obj = JSON.parse(xhttp.responseText);
-            if(Array.isArray(obj)) {
-                    var obLength = obj.length;
+            if(Array.isArray(obj.Employees)) {
+                    var obLength = obj.Employees.length;
                     for(var i = 0; i < obLength; i++) {
                             var newRow = theTable.insertRow(theTable.rows.length);
-                            var jrow = obj[i]; 
+                            var jrow = obj.Employees[i]; 
                             var length = Object.keys(jrow).length;
                             var keys = Object.keys(jrow); 
                             for (var j = 0; j < length; j++) {
@@ -319,7 +318,7 @@ tm.colCallBack = function(xhttp, page) {
                             }
                     }
             }               
-
+                    console.log("BATMAN");
     // Update page navigation
     if(page === "rarrow") { // Right arrow
             // Check if next page exists
@@ -369,7 +368,7 @@ tm.colCallBack = function(xhttp, page) {
             document.getElementById('rarrow').style.background = "white";
     } else {
             document.getElementById('rarrow').style.background = "lightgrey";
-    }       
+    }
 };
 
 /**
@@ -534,6 +533,14 @@ tools.highlightElem = function(elem) {
         ofs += 0.05;
     }, 100);
 };
+
+
+
+
+
+
+
+
 
 //Contact the server
 var ajax = ajax || {};
