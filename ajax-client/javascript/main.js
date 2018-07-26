@@ -11,7 +11,9 @@ tm.globals = {
 		url : "http://localhost/GEM/rest/",
 		cbox : null,
 		sortBy : "employeeID",
-		currentPage : 1
+		sortOrder : "asc",
+		currentPage : 1,
+		startPage : 1
 }
 
 /**
@@ -424,6 +426,20 @@ tm.updateRow = function(serverResponse, data, url) {
 	} else {
 		alert("ERROR UR");
 	}
+};
+tm.updatePages = function(page) { 
+    // Determine which "page" to display
+    var nextPage = 0;
+    if(page === "rarrow") {
+            nextPage = tm.globals.currentPage + 1;
+    } else if(page === "larrow") {
+            nextPage = tm.globals.currentPage - 1;
+    } else {
+            nextPage = page;
+    }
+    
+    var request = tm.globals.url + "?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
+    ajax.request("GET", request,  tm.ajax.func1, page, null, null);
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
