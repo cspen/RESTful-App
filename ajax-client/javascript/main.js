@@ -10,7 +10,7 @@ tm.globals = {
 		active : null,		// Is a cell currently being edited
 		url : "http://localhost/GEM/rest/",
 		cbox : null,
-		sortBy : "employeeID",
+		sortByCol : "employeeID",
 		sortOrder : "asc",
 		currentPage : 1,
 		startPage : 1
@@ -320,7 +320,6 @@ tm.colCallBack = function(xhttp, page) {
                             }
                     }
             }               
-                    console.log("BATMAN");
     // Update page navigation
     if(page === "rarrow") { // Right arrow
             // Check if next page exists
@@ -328,7 +327,7 @@ tm.colCallBack = function(xhttp, page) {
             if(next != null) {
                     document.getElementById(tm.globals.currentPage).classList.remove('active');
                     tm.globals.currentPage++;
-                    document.getElementById(pm.glbs.currentPage).classList.add('active');
+                    document.getElementById(tm.globals.currentPage).classList.add('active');
             }
     } else if(page === "larrow") { // Left arrow
             var prev = document.getElementById(tm.globals.currentPage-1);
@@ -438,8 +437,8 @@ tm.updatePages = function(page) {
             nextPage = page;
     }
     
-    var request = tm.globals.url + "?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
-    ajax.request("GET", request,  tm.ajax.func1, page, null, null);
+    var request = tm.globals.url + "employees/?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
+    ajax.request("GET", request,  tm.colCallBack, page, null, null);
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
