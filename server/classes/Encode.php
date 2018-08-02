@@ -55,10 +55,12 @@ class Encode {
                 </head>
                 <body>
                         <ul id=\"nav\">
-                                <li><a href="javascript:void(0)">New</a></li>
-                                <li><a href="javascript:void(0)">Delete</a></li>
-                                <li><a href="javascript:void(0)">Search</a></li>
+                                <li><a href="javascript:tm.newRow()">New</a></li>
+                                <li><a href="javascript:tm.deleteRow()">Delete</a></li>
+                                <li><a href="javascript:tm.search()">Search</a></li>
+								<li style="float: right"><a href="javascript:tm.help()">Help</a></li>
                         </ul>
+						
                         <table id="theTable" onclick="tm.clickedCell(event)">
                                 <caption>$caption</caption>
                                 <thead><tr>
