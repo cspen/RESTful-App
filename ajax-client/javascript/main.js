@@ -489,6 +489,26 @@ tm.createJSONString = function(table, row, colName, value) {
     return data;
 };
 
+/**
+ * New menu item 
+ */
+tm.newRow = function(event) {
+	alert('You clicked New');
+};
+
+tm.deleteRow = function(event) {
+	alert('You clicked Delete');
+};
+
+tm.search = function(event) {
+	alert('You clicked search');
+}
+
+tm.help = function(event) {
+	alert('You clicked Help');
+}
+
+
 
 
 
