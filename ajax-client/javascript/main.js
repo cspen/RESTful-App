@@ -13,7 +13,8 @@ tm.globals = {
 		sortByCol : "employeeID",
 		sortOrder : "asc",
 		currentPage : 1,
-		startPage : 1
+		startPage : 1,
+		currentDiv : null	// For pop-overs
 }
 
 /**
@@ -494,27 +495,39 @@ tm.createJSONString = function(table, row, colName, value) {
  */
 tm.newRow = function(event) {
 	var pop = document.getElementById('overlay');
-    currentDiv = document.getElementById('new');
+	tm.globals.currentDiv = document.getElementById('new');
     pop.style.display = "block";
-    currentDiv.style.display = "block";
+    tm.globals.currentDiv.style.display = "block";
+};
+tm.newRowSubmit = function(event) {
+	alert('NEW ROW SUBMITTED');
+};
+tm.newRowCallback = function(event) {
+	
 };
 
 tm.deleteRow = function(event) {
 	var pop = document.getElementById('overlay');
-    currentDiv = document.getElementById('delete');
+	tm.globals.currentDiv = document.getElementById('delete');
     pop.style.display = "block";
-    currentDiv.style.display = "block";
+    tm.globals.currentDiv.style.display = "block";
 };
 
 tm.search = function(event) {
 	var pop = document.getElementById('overlay');
-    currentDiv = document.getElementById('search');
+    tm.globals.currentDiv = document.getElementById('search');
     pop.style.display = "block";
-    currentDiv.style.display = "block";
+    tm.globals.currentDiv.style.display = "block";
 }
 
 tm.help = function(event) {
 	alert('You clicked Help');
+}
+
+tm.cancel = function(event) {
+	var pop = document.getElementById('overlay');
+    pop.style.display = "none";
+    tm.globals.currentDiv.style.display = "none";
 }
 
 
