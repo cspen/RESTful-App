@@ -493,15 +493,24 @@ tm.createJSONString = function(table, row, colName, value) {
  * New menu item 
  */
 tm.newRow = function(event) {
-	alert('You clicked New');
+	var pop = document.getElementById('overlay');
+    currentDiv = document.getElementById('new');
+    pop.style.display = "block";
+    currentDiv.style.display = "block";
 };
 
 tm.deleteRow = function(event) {
-	alert('You clicked Delete');
+	var pop = document.getElementById('overlay');
+    currentDiv = document.getElementById('delete');
+    pop.style.display = "block";
+    currentDiv.style.display = "block";
 };
 
 tm.search = function(event) {
-	alert('You clicked search');
+	var pop = document.getElementById('overlay');
+    currentDiv = document.getElementById('search');
+    pop.style.display = "block";
+    currentDiv.style.display = "block";
 }
 
 tm.help = function(event) {
