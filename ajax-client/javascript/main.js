@@ -172,8 +172,8 @@ tm.editorEventListener = function(event) {
         var value = this.value;
         var table = document.getElementById('theTable');
         
-        if(value == "") {
-        	// If input field is empty, replace original content
+        if(value == "" || value === tm.globals.active) {
+        	// If input field is empty or hasn't changed, return the original content
         	table.rows[tm.globals.row].cells[tm.globals.col].textContent = tm.globals.active;
         	tm.globals.row = -1;
         	tm.globals.col = 0;
@@ -501,9 +501,18 @@ tm.newRow = function(event) {
 };
 tm.newRowSubmit = function(event) {
 	alert('NEW ROW SUBMITTED');
+	// TO-DO: Validate Form input
+	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
+	// Get form values
+	// Validate form values
+	// 
+	if(value.match(exp)) {
+		
+	}
+	// Make ajax call or display error
 };
-tm.newRowCallback = function(event) {
-	
+tm.newRowCallback = function(xhttp, data) {
+	// TO-DO: Update table or display error message
 };
 
 tm.deleteRow = function(event) {
