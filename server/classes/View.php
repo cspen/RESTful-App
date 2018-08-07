@@ -10,16 +10,16 @@ class View {
 		$this->outputFormat = $outputFormat;
 	}
 	
-	public function respond($results) {
+	public function respond($results, $options) {
 		$output = null;
 		switch($this->outputFormat) {
 			case "application/json":
-				// $elist = array($results);
-				$output = json_encode($results);
+				$elist = array("Employees" => $results);
+				$output = json_encode($elist);
 				header('Content-Type: application/json');
 				break;
 			case "text/html":
-				$output = Encode::html_encode($results, "Employees");
+				$output = Encode::html_encode($results, "Employees", $options);
 				header('Content-Type: text/html');
 				break;
 			case "application/xml": 

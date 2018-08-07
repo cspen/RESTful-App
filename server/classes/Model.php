@@ -148,7 +148,16 @@ class Model {
 				exit;
 			}			
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$this->view->respond($results);
+
+			// Get list options for newItem form
+			// Not a good way to do this but I
+			// did think of this situation before hand
+			$stmt->closeCursor();
+			$stmt = $dbconn->prepare("SELECT DISTINCT department FROM employee");
+			$stmt->execute();
+			$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			$this->view->respond($results, $options);
 		} else {
 			header('HTTP/1.1 500 Internal Server Error');
 			exit;
