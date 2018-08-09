@@ -502,23 +502,33 @@ tm.newRow = function(event) {
 tm.newRowSubmit = function(event) {
 	alert('NEW ROW SUBMITTED');
 	// TO-DO: Validate Form input
-	var lname = document.getElementById('');
-	var fname = document.getElementById('');
-	var dept = document.getElementById('');
-	var ftime = docuement.getElementById('');
-	var hdate = document.getElementById('');
-	var salary = document.getElementById('');
+	var lname = document.getElementById('newlname').value;
+	var fname = document.getElementById('newfname').value;
+	var dept = document.getElementById('newdept').value;
+	var ftime = document.getElementById('newftime').value;
+	var year = document.getElementById('newyear').value;
+	var month = document.getElementById('newmonth').value;
+	var day = document.getElementById('newday').value;
+	var salary = document.getElementById('newsalary').value;
+	alert('BONEHEAD');
 	
-	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
-	// Get form values
-	// Validate form values
-	// 
-	if(value.match(exp)) {
-		
-	}
+	if(tm.validateRow(lname, fname, salary)) {
+		alert('A-Okay');
+	} 
 	// Make ajax call or display error
 };
 tm.validateRow = function(lname, fname, salary) {
+	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
+	
+	if(!lname.match(exp)) {
+		alert('Last name must contain letters only');
+	}
+	if(!fname.match(exp)) {
+		alert('First name must contain letters only');
+	}
+	if(!tools.isNumber(salary)) {
+		alert('Salary must contain only numbers');
+	}
 	
 }
 tm.newRowCallback = function(xhttp, data) {
