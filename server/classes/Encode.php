@@ -39,7 +39,7 @@ class Encode {
                 return $xml;
         }
         
-        public static function html_encode($data, $caption) {
+        public static function html_encode($data, $caption, $options) {
                 $keys = array_keys($data[0]);
                 $values = array_values($data);
                 
@@ -145,26 +145,56 @@ EOT;
                         <div id="new" class="overlaycontent" style="display: none;">
                                 <h3>New Employee</h3>
                                 <table class="overlaytable">
-                                        <tr><td>Last Name:</td><td><input type="text" id="ln"></td></tr>
-                                        <tr><td>First Name:</td><td><input type="text" id="fn"></td></tr>
-                                        <tr><td>Department:</td><td><select id="dep"></select></td></tr>
-                                        <tr><td>Full Time:</td><td><input type="checkbox"></td></tr>
-                                        <tr><td>Hire Date:</td><td><input type="text"></td></tr>
-                                        <tr><td>Salary:</td><td><input type="text"></td></tr>
+                                        <tr><td>Last Name:</td><td><input type="text" id="newlname"></td></tr>
+                                        <tr><td>First Name:</td><td><input type="text" id="newfname"></td></tr>
+                                        <tr><td>Department:</td><td><select id="newdept">
+EOT;
+
+           	// Need to add options to select list
+           	foreach($options as $opt) {
+           			$html .= '<option>'.$opt['department'].'</option>';
+           	}
+                
+$html .= <<< EOT
+
+										</select></td></tr>
+                                        <tr><td>Full Time:</td><td><input type="checkbox" id="newftime"></td></tr>
+                                        <tr><td>Hire Date:</td><td>
+										<select id="newyear">
+											
+EOT;
+
+			for($i = date("Y") - 75; $i <= date("Y"); $i++) {
+				$html  .= '<option>'.$i.'</option>';
+			}
+			$html .= '</select> - <select id="newmonth">';
+			for($i = 1; $i <= 12; $i++) {
+				$html  .= '<option>'.$i.'</option>';
+			}
+			$html .= '</select> - <select id="newday">';
+			for($i = 1; $i <= 31; $i++) {
+				$html  .= '<option>'.$i.'</option>';
+			}
+			$html .= '</select>';
+
+$html .= <<< EOT
+
+										</td></tr>
+                                        <tr><td>Salary:</td><td><input type="text" id="newsalary"></td></tr>
                                 </table>
-                                <button id="cancel" class="button2">Cancel</button>
-                                <button id="okNew" class="button2">OK</button>
+                                <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
+                                <button id="okNew" class="button2" onclick="javascript:tm.newRowSubmit()">OK</button>
                         </div>
                         <div id="delete" class="overlaycontent" style="display: none;">
                                 <h3>Delete</h3>
                                 <table class="overlaytable"><tr><td>EmployeeID: </td><td><input type="text"></td></tr></table>
-                                <button id="cancel" class="button2">Cancel</button>
+                                <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2">OK</button>
                         </div>
                         <div id="search" class="overlaycontent" style="display: none;">
                                 <h3>Search</h3>
                                 <table class="overlaytable"><tr><td>Search: </td><td><input type="text"></td></tr></table>
-                                <button id="cancel" class="button2">Cancel</button>
+                                <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2">OK</button>
                         </div>                                  
                 </div>
