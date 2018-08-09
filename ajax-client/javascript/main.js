@@ -502,6 +502,13 @@ tm.newRow = function(event) {
 tm.newRowSubmit = function(event) {
 	alert('NEW ROW SUBMITTED');
 	// TO-DO: Validate Form input
+	var lname = document.getElementById('');
+	var fname = document.getElementById('');
+	var dept = document.getElementById('');
+	var ftime = docuement.getElementById('');
+	var hdate = document.getElementById('');
+	var salary = document.getElementById('');
+	
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
 	// Get form values
 	// Validate form values
@@ -511,6 +518,9 @@ tm.newRowSubmit = function(event) {
 	}
 	// Make ajax call or display error
 };
+tm.validateRow = function(lname, fname, salary) {
+	
+}
 tm.newRowCallback = function(xhttp, data) {
 	// TO-DO: Update table or display error message
 };
