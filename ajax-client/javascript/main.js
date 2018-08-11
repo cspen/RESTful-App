@@ -500,8 +500,6 @@ tm.newRow = function(event) {
     tm.globals.currentDiv.style.display = "block";
 };
 tm.newRowSubmit = function(event) {
-	alert('NEW ROW SUBMITTED');
-	// TO-DO: Validate Form input
 	var lname = document.getElementById('newlname').value;
 	var fname = document.getElementById('newfname').value;
 	var dept = document.getElementById('newdept').value;
@@ -510,7 +508,6 @@ tm.newRowSubmit = function(event) {
 	var month = document.getElementById('newmonth').value;
 	var day = document.getElementById('newday').value;
 	var salary = document.getElementById('newsalary').value;
-	alert('BONEHEAD');
 	
 	if(tm.validateRow(lname, fname, salary)) {
 		alert('A-Okay');
@@ -520,16 +517,31 @@ tm.newRowSubmit = function(event) {
 tm.validateRow = function(lname, fname, salary) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
 	
-	if(!lname.match(exp)) {
+	if(lname === "") {
+		alert('Please enter a last name');
+		return false;
+	} else if(lname.match(exp)) {
 		alert('Last name must contain letters only');
-	}
-	if(!fname.match(exp)) {
-		alert('First name must contain letters only');
-	}
-	if(!tools.isNumber(salary)) {
-		alert('Salary must contain only numbers');
+		return false;
 	}
 	
+	if(fname.match(exp)) {
+		alert('First name must contain letters only');
+		return false;
+	} else if(fname === "") {
+		alert('Please enter a first name');
+		return false;
+	} 
+	
+	if(!tools.isNumber(salary)) {
+		alert('Salary must contain only numbers');
+		return false;
+	} else if(salary === "") {
+		alert('Please enter a salary amount');
+		return false;
+	} 
+	
+	return true;	
 }
 tm.newRowCallback = function(xhttp, data) {
 	// TO-DO: Update table or display error message
