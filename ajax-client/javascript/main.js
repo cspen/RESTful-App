@@ -631,6 +631,27 @@ tools.highlightElem = function(elem) {
         ofs += 0.05;
     }, 100);
 };
+tools.validateDate = function(year, month, day) {
+	if(year < 1000 || year > 3000) {
+		return false;
+	}
+	
+	if(month < 1 || month > 12) {
+		return false;
+	} 
+	
+	var daysInMonth = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+    // Adjust for leap years
+    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+        daysInMonth[1] = 29;
+    
+    if(day < 1 || day > daysInMonth[month-1]) {
+    	return false;
+    }
+    
+    return true;
+};
 
 
 
