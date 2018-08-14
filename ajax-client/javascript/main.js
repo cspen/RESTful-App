@@ -509,12 +509,14 @@ tm.newRowSubmit = function(event) {
 	var day = document.getElementById('newday').value;
 	var salary = document.getElementById('newsalary').value;
 	
-	if(tm.validateRow(lname, fname, salary)) {
-		alert('A-Okay');
+	if(tm.validateRow(lname, fname, salary, year, month, day)) {
+		if(tools.validateDate(year, month, day)) {
+			alert('A-Okay');
+		}
 	} 
 	// Make ajax call or display error
 };
-tm.validateRow = function(lname, fname, salary) {
+tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
 	
 	if(lname === "") {
@@ -532,6 +534,11 @@ tm.validateRow = function(lname, fname, salary) {
 		alert('Please enter a first name');
 		return false;
 	} 
+	
+	if(!tools.validateDate(year, month, day)) {
+		alert('Please enter a valid date');
+		return false;
+	}
 	
 	if(!tools.isNumber(salary)) {
 		alert('Salary must contain only numbers');
