@@ -1,4 +1,8 @@
-USE db736128965;
+# USE db736128965;
+
+DROP DATABASE restapp;
+CREATE DATABASE restapp;
+USE restapp;
 
 SET NAMES 'utf8' COLLATE 'utf8_general_ci';
 
@@ -22,10 +26,10 @@ CREATE TABLE employee (
 	first_name			TINYTEXT NOT NULL,
 	department			TINYTEXT NOT NULL,
 	full_time			BOOLEAN DEFAULT 0,
-	hire_date			TIMESTAMP NOT NULL,
+	hire_date			DATE NOT NULL,
 	salary				INT UNSIGNED NOT NULL,
 	etag				VARCHAR(32),
-	last_modified		TIMESTAMP,
+	last_modified			TIMESTAMP,
 	
 	PRIMARY KEY(employeeID)	
 )
@@ -50,7 +54,7 @@ CREATE TRIGGER insert_employee BEFORE INSERT ON employee
 delimiter ;
 
 
-INSERT INTO employee (last_name, first_name, department, full_time, hire_date, salary)
+INSERT INTO employee (first_name, last_name, department, full_time, hire_date, salary)
 VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
 ("Tina", "Hobart", "Administration", false, "2007-11-08", "25000"),
 ("Jeff", "Simms", "Management", true, "1999-11-11", "75000"),
@@ -60,6 +64,45 @@ VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
 ("Bob", "Slob", "Administration", true, "2000-07-22", "40000"),
 ("Charles", "Shock", "Sales", true, "1999-05-02", "60000"),
 ("Alan", "Plesky", "Sales", false, "2010-10-15", "30000"),
-("Mike", "Smith", "Sales", false, "2018-02-20", "30000");
+("Mike", "Smith", "Sales", false, "2018-02-20", "30000"),
+
+("Sally", "Mosh", "Marketing", true, "1999-09-18", "50000"),
+("Ronald", "McDonald", "Administration", false, "2007-11-08", "25000"),
+("Gene", "Simmons", "Management", true, "1999-11-11", "75000"),
+("Rebecca", "Royce", "Technology", true, "1999-07-11", "100000"),
+("Sally", "Williams", "Customer Service", true, "2000-01-27", "20000"),
+("Barf", "Burger", "Accounting", true, "1999-10-11", "50000"),
+("Jerry", "Flagflop", "Administration", true, "2000-07-22", "40000"),
+("Murry", "Melnick", "Sales", true, "1999-05-02", "60000"),
+("Bertha", "Biggins", "Sales", false, "2010-10-15", "30000"),
+("Tony", "Macarni", "Sales", false, "2018-02-20", "30000"),
+
+("Maggie", "Melon", "Marketing", true, "1999-09-18", "50000"),
+("Jack", "Ripper", "Administration", false, "2007-11-08", "25000"),
+("Shirly", "Mays", "Management", true, "1999-11-11", "75000"),
+("Louis", "Melchik", "Technology", true, "1999-07-11", "100000"),
+("Brian", "Williams", "Customer Service", true, "2000-01-27", "20000"),
+("Lara", "Farthammer", "Accounting", true, "1999-10-11", "50000"),
+("Carry", "Franks", "Administration", true, "2000-07-22", "40000"),
+("Melanie", "Bowman", "Sales", true, "1999-05-02", "60000"),
+("Cindy", "Zhora", "Sales", false, "2010-10-15", "30000"),
+("Mark", "Medows", "Sales", false, "2018-02-20", "30000"),
+
+("Logan", "Miller", "Marketing", true, "1999-09-18", "50000"),
+("Wendy", "Banner", "Administration", false, "2007-11-08", "25000"),
+("Paul", "Stanley", "Management", true, "1999-11-11", "75000"),
+("Peter", "Criss", "Technology", true, "1999-07-11", "100000"),
+("Guy", "Smiley", "Customer Service", true, "2000-01-27", "20000"),
+("Jared", "Miles", "Accounting", true, "1999-10-11", "50000"),
+("Kim", "Naggins", "Administration", true, "2000-07-22", "40000"),
+("Vanessa", "Sweet", "Sales", true, "1999-05-02", "60000"),
+("Poppi", "Pooper", "Sales", false, "2010-10-15", "30000"),
+("Emanuel", "Garcia", "Sales", false, "2018-02-20", "30000"),
+
+("Roger", "Milkit", "Marketing", true, "1999-09-18", "50000"),
+("Sam", "Moejoe", "Administration", false, "2007-11-08", "25000"),
+("Walter", "Burnhard", "Management", true, "1999-11-11", "75000"),
+("Pat", "Baboney", "Technology", true, "1999-07-11", "100000"),
+("Melissa", "Juniper", "Customer Service", true, "2000-01-27", "20000");
 
 INSERT INTO admin (name, password, email, type) VALUES ('admin', 'password', 'admin@email.com', 'MASTER');
