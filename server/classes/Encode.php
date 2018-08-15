@@ -144,6 +144,7 @@ EOT;
                 <div id="overlaytop">
                         <div id="new" class="overlaycontent" style="display: none;">
                                 <h3>New Employee</h3>
+								<form id="newRowForm" action="javascript:void(0);">
                                 <table class="overlaytable">
                                         <tr><td>Last Name:</td><td><input type="text" id="newlname"></td></tr>
                                         <tr><td>First Name:</td><td><input type="text" id="newfname"></td></tr>
@@ -169,11 +170,19 @@ EOT;
 			}
 			$html .= '</select> - <select id="newmonth">';
 			for($i = 1; $i <= 12; $i++) {
-				$html  .= '<option>'.$i.'</option>';
+				if($i < 10) {
+					$html  .= '<option>0'.$i.'</option>';
+				} else {
+					$html  .= '<option>'.$i.'</option>';
+				}
 			}
 			$html .= '</select> - <select id="newday">';
 			for($i = 1; $i <= 31; $i++) {
-				$html  .= '<option>'.$i.'</option>';
+				if($i < 10) {
+					$html  .= '<option>0'.$i.'</option>';
+				} else {
+					$html  .= '<option>'.$i.'</option>';
+				}
 			}
 			$html .= '</select>';
 
@@ -184,6 +193,7 @@ $html .= <<< EOT
                                 </table>
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okNew" class="button2" onclick="javascript:tm.newRowSubmit()">OK</button>
+								</form>
                         </div>
                         <div id="delete" class="overlaycontent" style="display: none;">
                                 <h3>Delete</h3>
