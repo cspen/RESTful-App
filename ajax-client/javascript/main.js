@@ -525,9 +525,14 @@ tm.newRowSubmit = function(event) {
 	} 	
 };
 tm.newRowCallback = function(xhttp, data, url) {
-	
-	// reset form
 	document.getElementById('newRowForm').reset();
+	tm.cancel();
+	if(xhttp.status == "201") {
+		alert('Success! - The record has been created');
+	} else {
+		alert('Error - The new record could not be created');
+	}
+	
 	
 	
 };
