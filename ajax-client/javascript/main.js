@@ -503,18 +503,33 @@ tm.newRowSubmit = function(event) {
 	var lname = document.getElementById('newlname').value;
 	var fname = document.getElementById('newfname').value;
 	var dept = document.getElementById('newdept').value;
-	var ftime = document.getElementById('newftime').value;
+	var ftime = document.getElementById('newftime').checked;
 	var year = document.getElementById('newyear').value;
 	var month = document.getElementById('newmonth').value;
 	var day = document.getElementById('newday').value;
 	var salary = document.getElementById('newsalary').value;
 	
+	var hdate = year + "-" + month + "-" + day;
+	console.log("FTIME: " + ftime);
+	if(ftime == true) {
+		ftime = 1;
+	} else {
+		ftime = 0;
+	}
+	
 	if(tm.validateRow(lname, fname, salary, year, month, day)) {
-		if(tools.validateDate(year, month, day)) {
-			alert('A-Okay');
-		}
-	} 
-	// Make ajax call or display error
+		var data = "lname=" + lname + "&fname=" + fname + "&dept=" + dept;
+		data += "&ftime=" + ftime + "&hdate=" + hdate + "&salary=" + salary;
+		console.log(data);
+		ajax.request("POST", tm.globals.url + "employees/", tm.newRowCallback, data, null, null);
+	} 	
+};
+tm.newRowCallback = function(xhttp, data, url) {
+	
+	// reset form
+	document.getElementById('newRowForm').reset();
+	
+	
 };
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
@@ -549,9 +564,6 @@ tm.validateRow = function(lname, fname, salary, year, month, day) {
 	} 
 	
 	return true;	
-}
-tm.newRowCallback = function(xhttp, data) {
-	// TO-DO: Update table or display error message
 };
 
 tm.deleteRow = function(event) {
@@ -675,7 +687,7 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
-                callbackFunc(this, data, url);
+            	callbackFunc(this, data, url);
                 // NOTE: could use xmlHTTPrequest.responseURL but
                 // it's not available on all browsers
             } 
@@ -692,7 +704,10 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         if(method == "GET") {
         	xmlhttp.setRequestHeader("Accept", "application/json");
         	xmlhttp.send();
-        } else if(method == "PUT" || method == "POST") {
+        } else if(method == "PUT" || method == "POST") { 
+        	if(method == "POST") {
+        		xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        	}
         	xmlhttp.send(data);
         }
 };
