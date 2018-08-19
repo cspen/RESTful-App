@@ -274,7 +274,9 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 	return;
 };
 tm.colCallBack = function(xhttp, page) {  
-
+		if(xhttp.status == "204") {
+			return;
+		}
     // TO-DO: Check for error before modifying table
     // alert(xhttp.responseText);
 
@@ -291,7 +293,7 @@ tm.colCallBack = function(xhttp, page) {
             }
 
             // Add new rows
-            alert(xhttp.repsonseText);
+            // alert(xhttp.repsonseText);
             var obj = JSON.parse(xhttp.responseText);
             if(Array.isArray(obj.Employees)) {
                     var obLength = obj.Employees.length;
@@ -538,10 +540,7 @@ tm.newRowCallback = function(xhttp, data, url) {
 		alert('Success! - The record has been created');
 	} else {
 		alert('Error - The new record could not be created');
-	}
-	
-	
-	
+	}	
 };
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
