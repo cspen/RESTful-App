@@ -291,6 +291,7 @@ tm.colCallBack = function(xhttp, page) {
             }
 
             // Add new rows
+            alert(xhttp.repsonseText);
             var obj = JSON.parse(xhttp.responseText);
             if(Array.isArray(obj.Employees)) {
                     var obLength = obj.Employees.length;
@@ -331,7 +332,7 @@ tm.colCallBack = function(xhttp, page) {
                     document.getElementById(tm.globals.currentPage).classList.add('active');
             }
     } else if(page === "larrow") { // Left arrow
-            var prev = document.getElementById(tm.globals.currentPage-1);
+    	var prev = document.getElementById(tm.globals.currentPage-1);
             if(prev != null) {
                     document.getElementById(tm.globals.currentPage).classList.remove('active');
                     tm.globals.currentPage--;
@@ -433,13 +434,19 @@ tm.updatePages = function(page) {
     if(page === "rarrow") {
             nextPage = tm.globals.currentPage + 1;
     } else if(page === "larrow") {
+    	if(tm.globals.currentPage != 1) {
             nextPage = tm.globals.currentPage - 1;
+    	} else {
+    		nextPage = tm.globals.currentPage;
+    	}
     } else {
             nextPage = page;
     }
     
-    var request = tm.globals.url + "employees/?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
-    ajax.request("GET", request,  tm.colCallBack, page, null, null);
+    if(nextPage != tm.globals.currentPage) {
+    	var request = tm.globals.url + "employees/?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
+    	ajax.request("GET", request,  tm.colCallBack, page, null, null);
+    }
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
