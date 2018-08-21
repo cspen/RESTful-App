@@ -583,6 +583,12 @@ tm.deleteRow = function(event) {
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
 };
+tm.deleteRowSubmit = function(event) {
+	
+};
+tm.deleteRowCallback = function(xhttp, data, url) {
+	
+};
 
 tm.search = function(event) {
 	var pop = document.getElementById('overlay');
