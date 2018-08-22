@@ -584,10 +584,19 @@ tm.deleteRow = function(event) {
     tm.globals.currentDiv.style.display = "block";
 };
 tm.deleteRowSubmit = function(event) {
-	
+	var empId = document.getElementById('deleteInput').value;
+	if(tools.isNumber(empId)) {
+		// Need to get the etag and last modified values
+		// to ensure the correct record is being deleted
+		var etag = null;
+		var lastMod = null;
+		ajax.request("DELETE", tm.globals.url + "employees/" + empId, tm.deleteRowCallback, null, etag, lastMod);
+	} else {
+		alert("EmployeeID must be a numeric value");
+	}
 };
 tm.deleteRowCallback = function(xhttp, data, url) {
-	
+	alert('CALLBACK FUNC');
 };
 
 tm.search = function(event) {
@@ -704,6 +713,7 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
+            	
             	callbackFunc(this, data, url);
                 // NOTE: could use xmlHTTPrequest.responseURL but
                 // it's not available on all browsers
@@ -726,5 +736,7 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
         		xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         	}
         	xmlhttp.send(data);
+        } else if(method == "DELETE") {
+        	xmlhttp.send();
         }
 };
