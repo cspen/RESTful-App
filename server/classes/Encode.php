@@ -199,7 +199,7 @@ $html .= <<< EOT
                                 <h3>Delete</h3>
                                 <table class="overlaytable"><tr><td>EmployeeID: </td><td><input type="text"></td></tr></table>
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
-                                <button id="okDelete" class="button2">OK</button>
+                                <button id="okDelete" class="button2" onclick="javascript:tm.deleteRowSubmit();">OK</button>
                         </div>
                         <div id="search" class="overlaycontent" style="display: none;">
                                 <h3>Search</h3>
