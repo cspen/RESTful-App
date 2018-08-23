@@ -64,7 +64,7 @@ class Model {
 			DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
 			AS last_modified FROM employee WHERE employeeID=:empID";
 		$stmt = $dbconn->prepare($query);
-		$stmt->bindParam(':empID', $employeeId);
+		$stmt->bindParam(':empID', $id);
 			
 		if($stmt->execute()) {
 			$rowCount = $stmt->rowCount();
@@ -76,7 +76,7 @@ class Model {
 					
 				// Delete the resource
 				$stmt = $dbconn->prepare("DELETE FROM employee WHERE employeeID=:empID");
-				$stmt->bindParam(':empID', $employeeId);
+				$stmt->bindParam(':empID', $id);
 					
 				if($stmt->execute()) {
 					header('HTTP/1.1 204 No Content');
@@ -86,7 +86,7 @@ class Model {
 					exit;
 				}
 			} else {
-				Headers::processConditionalHeaders(null, $rowCount, null);
+				// Headers::processConditionalHeaders(null, $rowCount, null);
 				header('HTTP/1.1 204 No Content');
 				exit;
 			}
@@ -211,20 +211,23 @@ class Model {
 		$dbconn = $db->getConnection();
 		
 		if(!empty($_POST)) {
-			$mflag = FALSE;
-			if(($userType === "MASTER" || $userType === "ADMIN") && isset($_POST['userid_fk'])) {
+			// $mflag = FALSE;
+			/* if(($userType === "MASTER" || $userType === "ADMIN") && isset($_POST['userid_fk'])) {
 				$userID_FK = $_POST['userid_fk'];
 				$mflag = TRUE;
-			}
-			if(isset($_POST['lastname']) && isset($_POST['firstname'])
-				&& isset($_POST['department']) && isset($_POST['fulltime'])
-				&& isset($_POST['hiredate']) && isset($_POST['salary'])) {
-				$lastName = trim($_POST['lastname']);
-				$firstName = trim($_POST['firstname']);
-				$deparment = trim($_POST['department']);
-				$fullTime = trim($_POST['fulltime']);
-				$hireDate = trim($_POST['hiredate']);
+			} */
+			if(isset($_POST['lname']) && isset($_POST['fname'])
+				&& isset($_POST['dept']) && isset($_POST['ftime'])
+				&& isset($_POST['hdate']) && isset($_POST['salary'])) {
+				$lastName = trim($_POST['lname']);
+				$firstName = trim($_POST['fname']);
+				$department = trim($_POST['dept']);
+				$fullTime = trim($_POST['ftime']);
+				$hireDate = trim($_POST['hdate']);
 				$salary = trim($_POST['salary']);
+				
+				$this->validatePostData($lastName, $firstName, $department,
+						$fullTime, $hireDate, $salary);
 			} else {
 				header('HTTP/1.1 400 Bad Request');
 				exit;
@@ -233,29 +236,36 @@ class Model {
 			$stmt = $dbconn->prepare("INSERT INTO employee
 				(last_name, first_name, department, full_time, hire_date, salary)
 				VALUES(:lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
-						
+			/*		
 			if($mflag) {
 				$stmt->bindParam(':userID_FK', $userID_FK);
 			} else {
 				$uid = $user->getId();
 				$stmt->bindParam(':userID_FK', $uid);
-			}
+			}*/
 			$stmt->bindParam(':lastName', $lastName);
 			$stmt->bindParam(':firstName', $firstName);
 			$stmt->bindParam(':department', $department);
 			$stmt->bindParam(':fullTime', $fullTime);
 			$stmt->bindParam(':hireDate', $hireDate);
 			$stmt->bindParam(':salary', $salary);
+			
+			
 						
 			if($stmt->execute()) {
 				$i = $dbconn->lastInsertId();
 				$location = $_SERVER['REQUEST_URI'].$i;
+				header('HTTP/1.1 201 Created');
 				header('Content-Location: '.$location);
 				echo $location;
+				exit;
 			} else {
 				header('HTTP/1.1 500 Internal Server Error');
 				exit;
 			}
+		} else {
+			header('HTTP/1.1 400 Bad Request');
+			exit;
 		}
 	}
 	
@@ -320,7 +330,6 @@ class Model {
 			}
 		} else {
 			header('HTTP/1.1 400 Bad Request');
-			echo 'FUCKED UP';
 			exit;
 		}
 	}
@@ -330,6 +339,17 @@ class Model {
 			header('HTTP/1.1 400 Bad Request');
 			exit;
 		}
+	}
+	
+	function validatePostData($lastName, $firstName, $department,
+			$fullTime, $hireDate, $salary) {
+		
+		if($fullTime != 0 && $fullTime != 1) {
+			header('HTTP/1.1 400 Bad Request');
+			exit;
+		}
+		
+		// if($hireDate)
 	}
 	
 }
