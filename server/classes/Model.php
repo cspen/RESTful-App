@@ -144,20 +144,23 @@ class Model {
 		$stmt = $dbconn->prepare($query);
 		if($stmt->execute()) { 
 			if($stmt->rowCount() == 0) {
-				header('HTTP/1.1 204 No Content');
+				// header('HTTP/1.1 204 No Content');
+				
 				exit;
 			}			
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+			
 			// Get list options for newItem form
 			// Not a good way to do this but I
-			// did think of this situation before hand
+			// didn't think of this situation before hand
+			/*
 			$stmt->closeCursor();
 			$stmt = $dbconn->prepare("SELECT DISTINCT department FROM employee");
 			$stmt->execute();
 			$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			*/
 			
-			$this->view->respond($results, $options);
+			$this->view->respond($results);
 		} else {
 			header('HTTP/1.1 500 Internal Server Error');
 			exit;
