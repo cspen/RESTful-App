@@ -35,6 +35,15 @@ CREATE TABLE employee (
 )
 ENGINE = MyISAM;
 
+create table departments (
+	deptID				INT UNSIGNED AUTO_INCREMENT NOT NULL,
+	title				TINYTEXT NOT NULL,
+	description			TINYTEXT,
+
+	PRIMARY KEY(deptID)
+)
+ENGINE = MyISAM;
+
 delimiter |
 CREATE TRIGGER update_employee BEFORE UPDATE ON employee
 	FOR EACH ROW
@@ -104,5 +113,9 @@ VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
 ("Walter", "Burnhard", "Management", true, "1999-11-11", "75000"),
 ("Pat", "Baboney", "Technology", true, "1999-07-11", "100000"),
 ("Melissa", "Juniper", "Customer Service", true, "2000-01-27", "20000");
+
+INSERT INTO departments (title) VALUES ("Accounting"), ("Administration"),
+	("Customer Service"), ("Management"), ("Marketing"), ("Sales"),
+	("Technology");
 
 INSERT INTO admin (name, password, email, type) VALUES ('admin', 'password', 'admin@email.com', 'MASTER');
