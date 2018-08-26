@@ -503,6 +503,19 @@ tm.createJSONString = function(table, row, colName, value) {
  * New menu item 
  */
 tm.newRow = function(event) {
+	// Need to check if cached department list is
+	// most recent
+	var etag = null; // Etag for cached departments list
+	var lmod = null; // Last modified date of cached department list
+	
+	// Make ajax call with etag and lmod
+	// If server returns newer list, cache it
+	etag = null;
+	lmod = null;
+	tm.globals.deptList = null;
+	
+	// Now update list in newRow form	
+	
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('new');
     pop.style.display = "block";
@@ -583,9 +596,9 @@ tm.deleteRow = function(event) {
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
 };
-tm.deleteRowSubmit = function(event) {
+tm.deleteRowSubmit = function(event) { console.log('DRS FUNC');
 	var empId = document.getElementById('deleteInput').value;
-	if(tools.isNumber(empId)) {
+	if(empId != "" && tools.isNumber(empId)) { alert("IN IF");
 		// Need to get the etag and last modified values
 		// to ensure the correct record is being deleted
 		var etag = null;
@@ -596,7 +609,12 @@ tm.deleteRowSubmit = function(event) {
 	}
 };
 tm.deleteRowCallback = function(xhttp, data, url) {
-	alert('CALLBACK FUNC');
+	if(xhttp.status == "204") {
+		document.getElementById('deleteInput').value = "";
+		tm.cancel();
+	} else {
+	}
+	
 };
 
 tm.search = function(event) {
