@@ -14,7 +14,10 @@ tm.globals = {
 		sortOrder : "asc",
 		currentPage : 1,
 		startPage : 1,
-		currentDiv : null	// For pop-overs
+		currentDiv : null,	// For pop-overs
+		deptList : null,	// Department list for new row form
+		dlEtag : null,		// Etag for department list
+		dlLastMod : null,	// Last-Modified for department list
 }
 
 /**
@@ -505,16 +508,19 @@ tm.createJSONString = function(table, row, colName, value) {
 tm.newRow = function(event) {
 	// Need to check if cached department list is
 	// most recent
-	var etag = null; // Etag for cached departments list
-	var lmod = null; // Last modified date of cached department list
 	
 	// Make ajax call with etag and lmod
-	// If server returns newer list, cache it
-	etag = null;
-	lmod = null;
-	tm.globals.deptList = null;
+	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
+			null, tm.globals.dlEtag, tm.globals.dlLastMod);
+};
+tm.newRowFormCallback = function(xhttp, url) {
 	
-	// Now update list in newRow form	
+	// If list on server changed...
+	if(xhttp.status == "200") {
+		tm.globals.deptList = xhttp.text;
+		tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
+		tm.globals.dlLastMod = xhttp.getResponseHeader('');
+	}
 	
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('new');
