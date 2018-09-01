@@ -43,3 +43,12 @@ Thoughts
 	By not using a single AJAX method not only would it be easier to
 	set request headers and other information unique to each AJAX call
 	but it will also reduce the method chain from three to two.
+
+
+UPDATE 2018-08-31
+	I've decided to not implement a search feature because the current
+	architecture is too weak. I didn't have a search feature in mind 
+	initially. To implement search, I would need a search feature on the
+	server. Also, the client javascript application would need some sort
+	of screen manager to allow toggling between the data table and the
+	search results.
