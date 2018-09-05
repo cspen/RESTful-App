@@ -89,7 +89,7 @@ tm.clickedCell = function(e) {
         // Create the element for editing
         var curVal = e.target.textContent;
         if(tm.globals.col == 3) {
-        	var url = "http://modintro.com/departments/";
+        	var url = "http://localhost/GEM/rest/departments/";
         	tm.createSelectElement(url, curVal);
         } else {
         	if(tm.globals.col != 4)
@@ -124,28 +124,28 @@ tm.createInputElement = function(content) {
 /**
  * Create a select list with the selected option.
  */
-tm.createSelectElement = function(url, selected) {
+tm.createSelectElement = function(url, selected) { 
 	ajax.request("GET", tm.globals.url + "departments/",
 			tm.createSelectCallback, selected, null, null);
 };
-tm.createSelectCallback = function(serverResponse, selected) {	
+tm.createSelectCallback = function(serverResponse, selected) {
 	try {
 		var items = JSON.parse(serverResponse.responseText);	
 		var select = document.createElement("SELECT");
 		select.id = "department";
-		var length = items.length;
+		var length = items['Departments'].length;
 		for (var i = 0; i < length; i++) {
             var option = document.createElement("option");
-            option.value = items[i];
-            option.text = items[i];
-            if(items[i] == selected) {
+            option.value = items['Departments'][i];
+            option.text = items['Departments'][i];
+            if(items['Departments'][i] == selected) {
             	option.selected = true;
             }
             select.appendChild(option);
 		}
 		tm.setElement(select);
 		select.addEventListener("keydown", tm.editorEventListener);    
-	} catch(e) {
+	} catch(e) { alert(e);
 		// TO-DO: Display error message		
 	}
 };
@@ -296,7 +296,7 @@ tm.colCallBack = function(xhttp, page) {
             }
 
             // Add new rows
-            // alert(xhttp.repsonseText);
+            // alert(xhttp.repsonseText + " STATUS: " + xhttp.status);
             var obj = JSON.parse(xhttp.responseText);
             if(Array.isArray(obj.Employees)) {
                     var obLength = obj.Employees.length;
@@ -510,17 +510,32 @@ tm.newRow = function(event) {
 	// most recent
 	
 	// Make ajax call with etag and lmod
+	console.log(tm.globals.url + "departments/");
 	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
 			null, tm.globals.dlEtag, tm.globals.dlLastMod);
 };
 tm.newRowFormCallback = function(xhttp, url) {
-	
+	var list = null;
 	// If list on server changed...
-	if(xhttp.status == "200") {
-		tm.globals.deptList = xhttp.text;
-		tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
-		tm.globals.dlLastMod = xhttp.getResponseHeader('');
+	if(xhttp.status == "200") { 
+		list = JSON.parse(xhttp.responseText);
+		tm.globals.deptList = list;
+		if(tm.globals.dlEtag != null)
+			tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
+		if(tm.globals.dlLastMod != null)
+			tm.globals.dlLastMod = xhttp.getResponseHeader('Last-Modified');		
+	} else {
+		list = tm.globals.deptList;
 	}
+	
+	var dlist = document.getElementById('newdept');
+	var length = list['Departments'].length;
+	for (var i = 0; i < length; i++) {
+        var option = document.createElement("option");
+        option.value = list['Departments'][i];
+        option.text = list['Departments'][i];
+        dlist.appendChild(option);
+	}	
 	
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('new');
