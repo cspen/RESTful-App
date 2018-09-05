@@ -39,7 +39,7 @@ class Encode {
                 return $xml;
         }
         
-        public static function html_encode($data, $caption, $options) {
+        public static function html_encode($data, $caption) {
                 $keys = array_keys($data[0]);
                 $values = array_values($data);
                 
@@ -57,7 +57,7 @@ class Encode {
                         <ul id=\"nav\">
                                 <li><a href="javascript:tm.newRow()">New</a></li>
                                 <li><a href="javascript:tm.deleteRow()">Delete</a></li>
-                                <li><a href="javascript:tm.search()">Search</a></li>
+                                <!-- <li><a href="javascript:tm.search()">Search</a></li> -->
 								<li style="float: right"><a href="javascript:tm.help()">Help</a></li>
                         </ul>
 						
@@ -149,15 +149,6 @@ EOT;
                                         <tr><td>Last Name:</td><td><input type="text" id="newlname"></td></tr>
                                         <tr><td>First Name:</td><td><input type="text" id="newfname"></td></tr>
                                         <tr><td>Department:</td><td><select id="newdept">
-EOT;
-
-           	// Need to add options to select list
-           	foreach($options as $opt) {
-           			$html .= '<option>'.$opt['department'].'</option>';
-           	}
-                
-$html .= <<< EOT
-
 										</select></td></tr>
                                         <tr><td>Full Time:</td><td><input type="checkbox" id="newftime"></td></tr>
                                         <tr><td>Hire Date:</td><td>
@@ -197,7 +188,7 @@ $html .= <<< EOT
                         </div>
                         <div id="delete" class="overlaycontent" style="display: none;">
                                 <h3>Delete</h3>
-                                <table class="overlaytable"><tr><td>EmployeeID: </td><td><input type="text"></td></tr></table>
+                                <table class="overlaytable"><tr><td>EmployeeID: </td><td><input type="text" id="deleteInput"></td></tr></table>
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2" onclick="javascript:tm.deleteRowSubmit();">OK</button>
                         </div>
