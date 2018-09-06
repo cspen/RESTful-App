@@ -136,8 +136,11 @@ EOT;
                 $html .= <<<EOT
         </div>
         <footer>
-                <p>Created by: Craig Spencer</p>
-                <p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a></p>
+                <p><a href="https://github.com/cspen/">Source Code</a></p>
+				 <p>Created by: Craig Spencer</p>
+                <p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a>
+					 | <a href="https://linkedin.com/">LinkedIn</a> |
+					<a href="">Github</a></p>
         </footer>
                                         
         <div id="overlay">
@@ -197,7 +200,25 @@ $html .= <<< EOT
                                 <table class="overlaytable"><tr><td>Search: </td><td><input type="text"></td></tr></table>
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2">OK</button>
-                        </div>                                  
+                        </div>
+						<div id="help" class="overlaycontent" style="display: none;">
+								<div id="helpdisplay">
+                                <h2>Help</h2>
+								<hr>
+								<h3>Edit a Cell</h3>
+								<p>To edit cell...</p>
+
+								<h3>Sort by Column</h3>
+								<p>To sort by column...</p>
+
+								<h3>Create a New Record</h3>
+								<p>To create a new record...</p>
+
+								<h3>Delete a Record</h3>
+								<p>To delete a record...</p>
+								</div>
+                                <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
+                        </div>                                 
                 </div>
         </div>
                                         
