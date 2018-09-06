@@ -520,10 +520,8 @@ tm.newRowFormCallback = function(xhttp, url) {
 	if(xhttp.status == "200") { 
 		list = JSON.parse(xhttp.responseText);
 		tm.globals.deptList = list;
-		if(tm.globals.dlEtag != null)
-			tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
-		if(tm.globals.dlLastMod != null)
-			tm.globals.dlLastMod = xhttp.getResponseHeader('Last-Modified');		
+		tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
+		tm.globals.dlLastMod = xhttp.getResponseHeader('Last-Modified');		
 	} else {
 		list = tm.globals.deptList;
 	}
@@ -638,22 +636,26 @@ tm.deleteRowCallback = function(xhttp, data, url) {
 	
 };
 
+// This feature not implemented
 tm.search = function(event) {
 	var pop = document.getElementById('overlay');
     tm.globals.currentDiv = document.getElementById('search');
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
-}
+};
 
 tm.help = function(event) {
-	alert('You clicked Help');
-}
+	var pop = document.getElementById('overlay');
+    tm.globals.currentDiv = document.getElementById('help');
+    pop.style.display = "block";
+    tm.globals.currentDiv.style.display = "block";
+};
 
 tm.cancel = function(event) {
 	var pop = document.getElementById('overlay');
     pop.style.display = "none";
     tm.globals.currentDiv.style.display = "none";
-}
+};
 
 
 
