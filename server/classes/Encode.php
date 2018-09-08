@@ -206,16 +206,23 @@ $html .= <<< EOT
                                 <h2>Help</h2>
 								<hr>
 								<h3>Edit a Cell</h3>
-								<p>To edit cell...</p>
+								<p>To edit a cell click the cell you wish to edit. If the
+								cell is editable an input </p>
 
 								<h3>Sort by Column</h3>
-								<p>To sort by column...</p>
+								<p>To sort by column single click the column header you wish to
+								sort by. Single click the column header again to sort in 
+								opposite order.</p>
 
 								<h3>Create a New Record</h3>
-								<p>To create a new record...</p>
+								<p>To create a new record click "New" on the menu bar. The new item
+								dialog box appears. Complete the "new record" form. Click the submit
+								button.</p>
+
 
 								<h3>Delete a Record</h3>
-								<p>To delete a record...</p>
+								<p>To delete a record click "Delete" on the menu bar. The delete item
+								dialog box appears. Complete the "delete" form. Click the submit button.</p>
 								</div>
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                         </div>                                 
