@@ -201,13 +201,17 @@ $html .= <<< EOT
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2">OK</button>
                         </div>
-						<div id="help" class="overlaycontent scrollable" style="display: none;">
-								<div id="helpdisplay">
+						<div id="help" class="overlaycontent" style="display: none;">
+								<div id="helpdisplay" class="scrollable">
                                 <h2>Help</h2>
 								<hr>
 								<h3>Edit a Cell</h3>
 								<p>To edit a cell click the cell you wish to edit. If the
-								cell is editable an input </p>
+								cell is editable an input element will appear. Make the
+								desired changes then press the "Enter" button. If the record
+								on the server has been updated the change will not occur and
+								the row will be highlighted in blue. Press esc to
+								abort making any changes.</p>
 
 								<h3>Sort by Column</h3>
 								<p>To sort by column single click the column header you wish to
@@ -218,7 +222,6 @@ $html .= <<< EOT
 								<p>To create a new record click "New" on the menu bar. The new item
 								dialog box appears. Complete the "new record" form. Click the submit
 								button.</p>
-
 
 								<h3>Delete a Record</h3>
 								<p>To delete a record click "Delete" on the menu bar. The delete item
