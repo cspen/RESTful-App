@@ -97,6 +97,11 @@ footer p {
 	overflow-x: auto; 
 }
 
+.scrollable {
+	height: 300px;
+	overflow-y: auto;
+}
+
 .overlaytable {
 	text-align: left;
 	border: 1px solid grey;

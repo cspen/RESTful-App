@@ -201,7 +201,7 @@ $html .= <<< EOT
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                                 <button id="okDelete" class="button2">OK</button>
                         </div>
-						<div id="help" class="overlaycontent" style="display: none;">
+						<div id="help" class="overlaycontent scrollable" style="display: none;">
 								<div id="helpdisplay">
                                 <h2>Help</h2>
 								<hr>
