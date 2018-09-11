@@ -10,7 +10,7 @@ class View {
 		$this->outputFormat = $outputFormat;
 	}
 	
-	public function respond($results, $options) {
+	public function respond($results) {
 		$output = null;
 		switch($this->outputFormat) {
 			case "application/json":
@@ -19,7 +19,7 @@ class View {
 				header('Content-Type: application/json');
 				break;
 			case "text/html":
-				$output = Encode::html_encode($results, "Employees", $options);
+				$output = Encode::html_encode($results, "Employees");
 				header('Content-Type: text/html');
 				break;
 			case "application/xml": 
@@ -40,5 +40,9 @@ class View {
 			echo $output;
 		}
 		exit;		
+	}
+	
+	public function outputFormat() {
+		return $this->outputFormat;
 	}
 }
