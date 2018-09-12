@@ -40,8 +40,6 @@ class Encode {
         }
         
         public static function html_encode($data, $caption) {
-                $keys = array_keys($data[0]);
-                $values = array_values($data);
                 
                 $html = <<<EOT
         <!DOCTYPE html><html>
@@ -66,17 +64,22 @@ class Encode {
                                 <thead><tr>
 EOT;
                 
-                // Assemble table header
-                foreach($keys as $k) {
+                
+                if(count($data) > 0) {                	
+                	// Assemble table header
+                	$keys = array_keys($data[0]);
+               	 	$values = array_values($data);
+                
+                	foreach($keys as $k) {
                         if($k === "etag" || $k === "last_modified") {
                                 $html .= '<th style="display:none">'.ucwords(str_replace("_", " ", $k)).'</th>';
                         } else {
                                 $html .= "<th>".ucwords(str_replace("_", " ", $k))."</th>";
                         }
-                }
-                $html .= "</tr></thead><tbody>";
-                // Assemble table body (first 10 rows)
-                for($i = 0; $i < 10; $i++) {
+                	}
+                	$html .= "</tr></thead><tbody>";
+                	// Assemble table body (first 10 rows)
+                	for($i = 0; $i < 10; $i++) {
                         if(is_array($values[$i])) {
                                 $html .= "<tr>";
 
@@ -101,6 +104,7 @@ EOT;
                                 }                               
                                 $html .= "</tr>";
                         }
+                	}
                 }
                 
                 $html .= <<<EOT
