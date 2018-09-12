@@ -79,8 +79,9 @@ EOT;
                 	}
                 	$html .= "</tr></thead><tbody>";
                 	// Assemble table body (first 10 rows)
-                	for($i = 0; $i < 10; $i++) {
-                        if(is_array($values[$i])) {
+                	$vcount = count($values);
+                	for($i = 0; $i < $vcount; $i++) { 
+                		if(is_array($values[$i])) {
                                 $html .= "<tr>";
 
                                 $count = 0; // Hide etag and last_modified values
