@@ -569,7 +569,10 @@ tm.newRowCallback = function(xhttp, data, url) {
 	document.getElementById('newRowForm').reset();
 	tm.cancel();
 	if(xhttp.status == "201") {
-		alert('Success! - The record has been created');
+		alert('Success! - The record has been created' + xhttp.responseText);
+		// Need to make another ajax call to get the updated record from
+		// the server and update the table
+		
 	} else {
 		alert('Error - The new record could not be created');
 	}	
