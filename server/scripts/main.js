@@ -577,6 +577,10 @@ tm.newRowCallback = function(xhttp, data, url) {
 		alert('Error - The new record could not be created');
 	}	
 };
+tm.addNewRow = function(xhttp, data, url) {
+	// Add new row to top of table
+	// If table has 10 rows, delete bottom row
+};
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
 	
