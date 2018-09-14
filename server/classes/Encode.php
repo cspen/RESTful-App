@@ -78,8 +78,12 @@ EOT;
                         }
                 	}
                 	$html .= "</tr></thead><tbody>";
-                	// Assemble table body (first 10 rows)
+                	// Assemble table body (first 10 rows only)
                 	$vcount = count($values);
+                	if($vcount > 10) {
+                		$vcount = 10;
+                	}
+                	
                 	for($i = 0; $i < $vcount; $i++) { 
                 		if(is_array($values[$i])) {
                                 $html .= "<tr>";

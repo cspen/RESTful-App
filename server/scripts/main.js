@@ -400,7 +400,6 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 tm.updateRow = function(serverResponse, data, url) {
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
-		console.log("RPS: " + serverResponse.responseText);
 		var table = document.getElementById('theTable');
 		
 		var i = 0;
@@ -579,13 +578,37 @@ tm.newRowCallback = function(xhttp, data, url) {
 };
 tm.addNewRowCallback = function(xhttp, data, url) {
 	var rowData = JSON.parse(xhttp.responseText);
+	var table = document.getElementById('theTable');
 	// Add new row to top of table
-	// If table has 10 rows, delete bottom row
+	var row = table.insertRow(1); // row 0 is the table header
+	var i = 0;
+	for (var key in rowData) {
+	    if (rowData.hasOwnProperty(key)) { 
+	        var cell = row.insertCell(i);
+	        if(key == "full_time") {
+	        	var checkbox = document.createElement('input');
+	        	checkbox.type = "checkbox";
+	        	if(rowData[key] == 1) {
+	        		checkbox.checked;
+	        	} 
+	        	cell.appendChild(checkbox);
+	        } else {
+	        	cell.innerHTML = rowData[key];
+	        }
+	        
+	        if(key == "etag" || key == "last_modified") {
+	        	cell.style.display = "none";
+	        }
+	        i++;
+	    }
+	}
 	
-	
-	
-	
-	
+	// If table has 10 rows, delete last row
+	var rowCount = document.getElementById('theTable').rows.length;
+	console.log("ROW COUNT " + rowCount);
+	if(rowCount >= 10) {
+		table.deleteRow(11);
+	}	
 };
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
