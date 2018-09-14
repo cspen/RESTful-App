@@ -569,17 +569,23 @@ tm.newRowCallback = function(xhttp, data, url) {
 	document.getElementById('newRowForm').reset();
 	tm.cancel();
 	if(xhttp.status == "201") {
-		alert('Success! - The record has been created' + xhttp.responseText);
+		alert('Success! - The record has been created');
 		// Need to make another ajax call to get the updated record from
 		// the server and update the table
-		
+		ajax.request("GET", xhttp.responseText, tm.addNewRowCallback, null, null, null);
 	} else {
 		alert('Error - The new record could not be created');
 	}	
 };
-tm.addNewRow = function(xhttp, data, url) {
+tm.addNewRowCallback = function(xhttp, data, url) {
+	var rowData = JSON.parse(xhttp.responseText);
 	// Add new row to top of table
 	// If table has 10 rows, delete bottom row
+	
+	
+	
+	
+	
 };
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
