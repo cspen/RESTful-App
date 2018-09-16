@@ -32,7 +32,6 @@ tm.clickedCell = function(e) {
         
         // Column header clicked - sort by column
         if(tm.globals.row == 0) {
-        	console.log("SORT BY HEADER " + e.target.innerHTML);
         	var table = document.getElementById('theTable');
         	var colHead = table.rows[0].cells[tm.globals.col].innerHTML;
         	
@@ -59,7 +58,6 @@ tm.clickedCell = function(e) {
             // Make ajax request 
             var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
             		colHead + "&order=" + tm.globals.sortOrder;
-            console.log("\n" + request + "\n");
             ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
         	return;
         } 
@@ -268,7 +266,6 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		// Check for 412 status
 		if(serverResponse.status == "412") {
 			// Update the row
-			console.log("row: " + tm.globals.row + ", col: " + tm.globals.col);        	
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		} else {
 			alert("STATUS " + serverResponse.status);
@@ -509,7 +506,6 @@ tm.newRow = function(event) {
 	// most recent
 	
 	// Make ajax call with etag and lmod
-	console.log(tm.globals.url + "departments/");
 	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
 			null, tm.globals.dlEtag, tm.globals.dlLastMod);
 };
@@ -520,26 +516,26 @@ tm.newRowFormCallback = function(xhttp, url) {
 		list = JSON.parse(xhttp.responseText);
 		tm.globals.deptList = list;
 		tm.globals.dlEtag = xhttp.getResponseHeader('Etag');
-		tm.globals.dlLastMod = xhttp.getResponseHeader('Last-Modified');		
-	} else {
-		list = tm.globals.deptList;
-	}
-	
-	var dlist = document.getElementById('newdept');
-	var length = list['Departments'].length;
-	for (var i = 0; i < length; i++) {
-        var option = document.createElement("option");
-        option.value = list['Departments'][i];
-        option.text = list['Departments'][i];
-        dlist.appendChild(option);
-	}	
-	
+		tm.globals.dlLastMod = xhttp.getResponseHeader('Last-Modified');
+		
+		var dlist = document.getElementById('newdept');
+		while(dlist.length > 0) {
+			dlist.remove(dlist.length-1);
+		}
+		var length = list['Departments'].length;
+		for (var i = 0; i < length; i++) {
+	        var option = document.createElement("option");
+	        option.value = list['Departments'][i];
+	        option.text = list['Departments'][i];
+	        dlist.appendChild(option);
+		}	
+	} 	
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('new');
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
 };
-tm.newRowSubmit = function(event) {
+tm.newRowSubmit = function(event) { alert("SUBMIT");
 	var lname = document.getElementById('newlname').value;
 	var fname = document.getElementById('newfname').value;
 	var dept = document.getElementById('newdept').value;
@@ -550,7 +546,6 @@ tm.newRowSubmit = function(event) {
 	var salary = document.getElementById('newsalary').value;
 	
 	var hdate = year + "-" + month + "-" + day;
-	console.log("FTIME: " + ftime);
 	if(ftime == true) {
 		ftime = 1;
 	} else {
@@ -560,7 +555,6 @@ tm.newRowSubmit = function(event) {
 	if(tm.validateRow(lname, fname, salary, year, month, day)) {
 		var data = "lname=" + lname + "&fname=" + fname + "&dept=" + dept;
 		data += "&ftime=" + ftime + "&hdate=" + hdate + "&salary=" + salary;
-		console.log(data);
 		ajax.request("POST", tm.globals.url + "employees/", tm.newRowCallback, data, null, null);
 	} 	
 };
@@ -605,7 +599,6 @@ tm.addNewRowCallback = function(xhttp, data, url) {
 	
 	// If table has 10 rows, delete last row
 	var rowCount = document.getElementById('theTable').rows.length;
-	console.log("ROW COUNT " + rowCount);
 	if(rowCount >= 10) {
 		table.deleteRow(11);
 	}	
@@ -651,7 +644,7 @@ tm.deleteRow = function(event) {
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
 };
-tm.deleteRowSubmit = function(event) { console.log('DRS FUNC');
+tm.deleteRowSubmit = function(event) {
 	var empId = document.getElementById('deleteInput').value;
 	if(empId != "" && tools.isNumber(empId)) { alert("IN IF");
 		// Need to get the etag and last modified values
@@ -786,34 +779,32 @@ tools.validateDate = function(year, month, day) {
 //Contact the server
 var ajax = ajax || {};
 ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
-	console.log("AJAX " + url + ", ETAG: " + etag + ", LASTMOD: " + lastMod);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4) {
-            	
-            	callbackFunc(this, data, url);
-                // NOTE: could use xmlHTTPrequest.responseURL but
-                // it's not available on all browsers
-            } 
-        };
-        xmlhttp.open(method, url, true);
+	var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4) {
+    	callbackFunc(this, data, url);
+        // NOTE: could use xmlHTTPrequest.responseURL but
+        // it's not available on all browsers
+        } 
+    };
+    xmlhttp.open(method, url, true);
          
-        if(etag != null) {
-        	xmlhttp.setRequestHeader("Etag", etag);
-        }
-        if(lastMod != null) {
-        	xmlhttp.setRequestHeader("If-Unmodified-Since", lastMod);
-        }
+    if(etag != null) {
+       	xmlhttp.setRequestHeader("Etag", etag);
+    }
+    if(lastMod != null) {
+      	xmlhttp.setRequestHeader("If-Unmodified-Since", lastMod);
+    }
         
-        if(method == "GET") {
-        	xmlhttp.setRequestHeader("Accept", "application/json");
-        	xmlhttp.send();
-        } else if(method == "PUT" || method == "POST") { 
-        	if(method == "POST") {
-        		xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        	}
-        	xmlhttp.send(data);
-        } else if(method == "DELETE") {
-        	xmlhttp.send();
-        }
+    if(method == "GET") {
+       	xmlhttp.setRequestHeader("Accept", "application/json");
+       	xmlhttp.send();
+    } else if(method == "PUT" || method == "POST") { 
+       	if(method == "POST") {
+       		xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+       	}
+       	xmlhttp.send(data);
+    } else if(method == "DELETE") {
+       	xmlhttp.send();
+    }
 };

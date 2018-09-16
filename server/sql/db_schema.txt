@@ -29,13 +29,15 @@ CREATE TABLE employee (
 	hire_date			DATE NOT NULL,
 	salary				INT UNSIGNED NOT NULL,
 	etag				VARCHAR(32),
-	last_modified			TIMESTAMP,
+	last_modified		TIMESTAMP,
 	
 	PRIMARY KEY(employeeID)	
 )
 ENGINE = MyISAM;
 
-create table departments (
+# This table for app GUI
+# Should be in seperate GUI database
+CREATE TABLE departments (
 	deptID				INT UNSIGNED AUTO_INCREMENT NOT NULL,
 	title				TINYTEXT NOT NULL,
 	description			TINYTEXT,
@@ -44,7 +46,32 @@ create table departments (
 )
 ENGINE = MyISAM;
 
+CREATE TABLE metadata (
+	tableID				INT UNSIGNED AUTO_INCREMENT NOT NULL,
+	table_name			VARCHAR(255) NOT NULL,
+	etag				VARCHAR(32) NOT NULL DEFAULT 0,
+	last_modified 		TIMESTAMP NOT NULL DEFAULT NOW(),
+	
+	PRIMARY KEY(tableID)
+)
+ENGINE = MyISAM;
+	
+
 delimiter |
+CREATE TRIGGER update_department AFTER UPDATE ON departments
+	FOR EACH ROW
+		BEGIN
+			CALL update_metadata_proc("metadata");
+		END;
+|
+
+CREATE PROCEDURE update_metadata_proc(IN name VARCHAR(50))
+	BEGIN
+		UPDATE metadata SET last_modified = NOW(), etag = MD5(FLOOR(RAND() * 100))
+		WHERE table_name = name;
+	END
+|
+
 CREATE TRIGGER update_employee BEFORE UPDATE ON employee
 	FOR EACH ROW
 		BEGIN			
@@ -53,7 +80,7 @@ CREATE TRIGGER update_employee BEFORE UPDATE ON employee
 		END;
 |
 
-CREATE TRIGGER insert_employee BEFORE INSERT ON employee
+CREATE TRIGGER insert_employee BEFORE UPDATE ON employee
 	FOR EACH ROW
 		BEGIN			
 			SET NEW.last_modified=NOW();
@@ -117,5 +144,7 @@ VALUES ("Bob", "Slob", "Marketing", true, "1999-09-18", "50000"),
 INSERT INTO departments (title) VALUES ("Accounting"), ("Administration"),
 	("Customer Service"), ("Management"), ("Marketing"), ("Sales"),
 	("Technology");
+	
+INSERT INTO metadata (table_name) VALUES("departments");
 
 INSERT INTO admin (name, password, email, type) VALUES ('admin', 'password', 'admin@email.com', 'MASTER');
