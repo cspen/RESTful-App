@@ -429,7 +429,7 @@ tm.updateRow = function(serverResponse, data, url) {
 		alert("ERROR UR");
 	}
 };
-tm.updatePages = function(page) { 
+tm.updatePages = function(page) {
     // Determine which "page" to display
     var nextPage = 0;
     if(page === "rarrow") {
@@ -444,10 +444,11 @@ tm.updatePages = function(page) {
             nextPage = page;
     }
     
-    if(nextPage != tm.globals.currentPage) {
+    
+    // if(nextPage != tm.globals.currentPage) {
     	var request = tm.globals.url + "employees/?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
     	ajax.request("GET", request,  tm.colCallBack, page, null, null);
-    }
+    // }
 };
 tm.createJSONString = function(table, row, colName, value) {
 	var data = '{ "lastname":"';	
@@ -646,7 +647,7 @@ tm.deleteRow = function(event) {
 };
 tm.deleteRowSubmit = function(event) {
 	var empId = document.getElementById('deleteInput').value;
-	if(empId != "" && tools.isNumber(empId)) { alert("IN IF");
+	if(empId != "" && tools.isNumber(empId)) {
 		// Need to get the etag and last modified values
 		// to ensure the correct record is being deleted
 		var etag = null;
@@ -656,13 +657,14 @@ tm.deleteRowSubmit = function(event) {
 		alert("EmployeeID must be a numeric value");
 	}
 };
-tm.deleteRowCallback = function(xhttp, data, url) {
+tm.deleteRowCallback = function(xhttp, data, url) { 
 	if(xhttp.status == "204") {
 		document.getElementById('deleteInput').value = "";
 		tm.cancel();
-	} else {
-	}
-	
+		
+		// Update the table.
+		tm.updatePages(tm.globals.currentPage);
+	} 	
 };
 
 // This feature not implemented
