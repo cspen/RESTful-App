@@ -80,7 +80,7 @@ CREATE TRIGGER update_employee BEFORE UPDATE ON employee
 		END;
 |
 
-CREATE TRIGGER insert_employee BEFORE UPDATE ON employee
+CREATE TRIGGER insert_employee BEFORE INSERT ON employee
 	FOR EACH ROW
 		BEGIN			
 			SET NEW.last_modified=NOW();

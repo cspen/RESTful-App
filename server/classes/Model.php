@@ -143,24 +143,13 @@ class Model {
 		$dbconn = $db->getConnection();
 		$stmt = $dbconn->prepare($query);
 		if($stmt->execute()) { 
-			if($stmt->rowCount() == 0) {
-				// header('HTTP/1.1 204 No Content');
-				
+			if($stmt->rowCount() == 0 && $this->view->outputFormat() != "text/html") {
+				header('HTTP/1.1 204 No Content');				
 				exit;
 			}			
 			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
-			// Get list options for newItem form
-			// Not a good way to do this but I
-			// didn't think of this situation before hand
-			/*
-			$stmt->closeCursor();
-			$stmt = $dbconn->prepare("SELECT DISTINCT department FROM employee");
-			$stmt->execute();
-			$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			*/
-			
-			$this->view->respond($results);
+			$this->view->respond($results, "Employees");
 		} else {
 			header('HTTP/1.1 500 Internal Server Error');
 			exit;
@@ -184,20 +173,7 @@ class Model {
 				$result = $result[0];
 				Headers::processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
 				
-				// ****** NEED TO MOVE DATA FORMATING TO A FUNCTION
-				$output = json_encode($result);
-				
-				// ***** NEED TO UPDATE THIS HEADER BASED ON $outputFormat
-				header('Content-Type: application/json');
-				header('Content-Length: '.strlen($output));
-				header('Etag: '.$result['etag']);
-				header('Last-Modified: '.$result['last_modified']);
-				header('HTTP/1.1 200 OK');
-				
-				if($HTTPverb === "GET") {
-					echo $output;
-				}
-				exit;
+				$this->view->respond($result, "Employee");
 			} else {
 				Headers::processConditionalHeaders(null, $rowCount, null);
 				header('HTTP/1.1 404 Not Found');
