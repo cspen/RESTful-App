@@ -21,21 +21,18 @@ class Encode {
                                 }
                                 $xml .= '</'.$type.'>'."\n";
                         } else {
-
-                                $xml .= '<'.$type.'>';
-                                $xml .= $value;
-                                $xml .= '</'.$type.'>'."\n";
-
-
-                                /* OLD CODE 
-                                $xml .= '<'.$type.'>'."\n";
-                                $xml .= "\t".'<'.$key.'>'.$value.'</'.$key.'>'."\n";
-                                $xml .= '</'.$type.'>'."\n";
-                                */
+				if(is_numeric($key)) {
+					$xml .= '<'.$type.'>';
+                                	$xml .= $value;
+                                	$xml .= '</'.$type.'>'."\n";
+				} else {
+					$xml .= '<'.$key.'>';
+                                	$xml .= $value;
+                                	$xml .= '</'.$key.'>'."\n";
+				}
                         }
                 }
                 $xml .= '</'.$type.'s>'."\n";
-
                 return $xml;
         }
         

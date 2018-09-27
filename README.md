@@ -20,7 +20,8 @@ The single page application (SPA) is coded in HTML5, CSS3, and Javascript.
 The javascript is in a module design but I think a object/prototype design
 would be better.
 
-There is also a Java Swing client but that code is in another repository.
+There is also a Java Swing client but that code is in another repository:
+https://github.com/cspen/Java-Client
  
 
 
