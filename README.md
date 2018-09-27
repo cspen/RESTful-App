@@ -1,26 +1,40 @@
 # RESTful-App
 Multi-client RESTful web service application
 
-This is a test application before building a much larger
-and more robust application to be hosted at modintro.com.
+The point of this application is for me to learn single page application (SAP)
+architecture, RESTful Web Services, Responsive Web Design, and AJAX. I am
+also hoping to extract some general functionality to create a reusable
+framework for editable html tables.
 
-The point of this application is to develop a set of functions
+The Server:
+The server coded in PHP with a MySQL database. The server is a
+RESTful Web Service (HTTP Protocol) according to RFC 2616.
+https://tools.ietf.org/html/rfc2616
+
+The server architecture is Model-View-Controller (MVC) pattern with
+Object Oriented Design (OOD).
+
+
+The HTML/CSS/Javascript Client:
+The single page application (SPA) is coded in HTML5, CSS3, and Javascript.
+The javascript is in a module design but I think a object/prototype design
+would be better.
+
+There is also a Java Swing client but that code is in another repository.
+ 
+
+
+Launching the single page application (SPA):
+The client will initially request an HTML document via the HTTP Accept request
+header. This HTML document will contain the SPA which consists of HTML, CSS and
+Javascript. Once the client loads the SPA all further server requests will be
+made via AJAX and will request a JSON response from the server via the HTTP
+Accept request header.
+
+A feature of this application is a set of functions
 for providing different data formats for web server responses.
 That is, to format database result sets into json, xml, html,
-csv, and so on.
-
-Another reason for this application is to develop a way of kickstarting
-a single page application (SPA). The client will initially request an HTML
-document via the HTTP Accept request header. This HTML document will contain
-the SPA which consists of HTML, CSS and Javascript. Once the client loads the
-SPA all further server requests will be made via AJAX and will request a JSON
-response from the server via the HTTP Accept request header.
-
-The Java client will request XML from the server. The data contained in the
-XML file will then be parsed into a two-dimensional array so it can be used
-in a TableModel for a JTable.
-
-Adding java client last.
+and soon to be added, csv.
 
 Thoughts
 	-Single AJAX method-
@@ -32,20 +46,23 @@ Thoughts
 	setting the headers and other fields for each unique request within
 	the method for handling the event.
 
-	Currently I'm designing the system to utilize three methods for each
-	request. The first method acts as an event handler and calls the AJAX
-	method, the second method makes the AJAX request, and the third method
-	updates the DOM. The third method is the callback method passed to the
-	AJAX method. Here is the current design:
+	- Design - 
+	Currently I'm designing the system to utilize three functions for each
+	request. The first function acts as an event handler/controller and
+	calls the second function, the second function makes the AJAX request,
+	and the third function handles the server response, displays any error
+	messages, and updates the DOM. The third method is the callback
+	method passed to the AJAX (second) function. Here is the current
+	design:
 
 	Human clicks something -> EventHandler -> AJAX -> AJAXcallback
 
 	By not using a single AJAX method not only would it be easier to
 	set request headers and other information unique to each AJAX call
-	but it will also reduce the method chain from three to two.
+	but it will also reduce the function chain from three to two.
 
 
-UPDATE 2018-08-31
+	- not featured - 
 	I've decided to not implement a search feature because the current
 	architecture is too weak. I didn't have a search feature in mind 
 	initially. To implement search, I would need a search feature on the
