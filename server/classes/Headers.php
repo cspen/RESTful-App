@@ -175,17 +175,17 @@ class Headers {
 		}
 	}
 	
-	public static function processConditionalHeaders($etag, $rowCount, $lastModified) {
+	public static function processConditionalHeaders( $rowCount, $etag, $lastModified) {
 		$ifModSin = Headers::processIfModifiedSinceHeader();
 		$ifUnmodSin = Headers::processIfUnmodifiedSinceHeader();
 		$ifMatch = Headers::processIfMatchHeader();
 		$ifNoneMatch = Headers::processIfNoneMatchHeader();
-		
+				
 		if($ifMatch && !$ifNoneMatch && !$ifModSin) {
-			if((in_array('*', $ifMatch) && ($rowCount == 0))) {
+			if((in_array("*", $ifMatch) && ($rowCount == 0))) {
 				header('HTTP/1.1 412 Precondition Failed');
 				exit;
-			}  elseif(!in_array($etag, $ifMatch)) {
+			} elseif(!in_array($etag, $ifMatch)) {
 				header('HTTP/1.1 412 Precondition Failed');
 				exit;
 			}
@@ -195,6 +195,9 @@ class Headers {
 					header('HTTP/1.1 304 Not Modified');
 					header('Etag: '.$etag);
 					header('Last-Modified: '.$lastModified);
+					exit;
+				} else {
+					header('HTTP/1.1 412 Precondition Failed');
 					exit;
 				}
 			}
