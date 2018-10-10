@@ -72,7 +72,7 @@ class Model {
 				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				$result = $result[0];
 				$stmt->closeCursor();
-				Headers::processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
+				Headers::processConditionalHeaders($rowCount, $result['etag'], $result['last_modified']);
 					
 				// Delete the resource
 				$stmt = $dbconn->prepare("DELETE FROM employee WHERE employeeID=:empID");
@@ -156,7 +156,7 @@ class Model {
 		}
 	}
 	
-	function get($id, $HTTPverb) {
+	function get($id, $HTTPverb) { 
 		$query = "SELECT employeeID, last_name, first_name, department,
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
 			salary, etag, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
@@ -171,7 +171,7 @@ class Model {
 			if($rowCount == 1) {
 				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				$result = $result[0];
-				Headers::processConditionalHeaders($result['etag'], $rowCount, $result['last_modified']);
+				Headers::processConditionalHeaders($rowCount, $result['etag'], $result['last_modified']);
 				
 				$this->view->respond($result, "Employee");
 			} else {
@@ -268,14 +268,14 @@ class Model {
 			$stmt->bindParam(':empID', $id);
 			$stmt->execute();
 			
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$results = $results[0];
+			// $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			// $results = $results[0];
 			$rowCount = $stmt->rowCount();
 			$stmt->closeCursor();
 						
 			$flag = false;
 			if($rowCount == 1) { // Update (replace) existing resource
-				Headers::processConditionalHeaders($results['etag'], $stmt->rowCount(), $results['last_modified']);
+				Headers::processConditionalHeaders($stmt->rowCount(), $results['etag'], $results['last_modified']);
 							
 				$stmt = $dbconn->prepare("UPDATE employee SET last_name=:lastName, first_name=:firstName,
 					department=:department, full_time=:fullTime, hire_date=:hireDate, salary=:salary
