@@ -1,8 +1,33 @@
 # RESTful-App
-Multi-client RESTful web service application
+RESTful web service application with HTML client
 
-The point of this application is for me to learn single page application (SAP)
-architecture, RESTful Web Services, Responsive Web Design, and AJAX. I am
+![alt text](https://github.com/cspen/RESTful-App)
+
+
+## What the Application Does
+	### The Server
+	The server provides sample employee records and allows CRUD operations
+	on those records.
+
+	### The HTML Client
+	Any client who makes a request to the server with HTML indicated in the accept
+	header will receive an HTML page that provides the data in an editable
+ 	HTML table. The table allows for sorting by column and CRUD operations.
+
+	### The Java Swing Client
+	A Java Swing application that connects to the server and provides
+	the same functionality as the HTML client is available at
+
+## The Application Design
+	### The Server
+
+	### The HTML Client
+	The HTML client application uses a single page application (SAP)
+	architecture, Responsive Web Design, and AJAX.
+
+## Notes and Additional Thoughts
+The client application uses a single page application (SAP)
+architecture conncting to a RESTful Web Service Server, Responsive Web Design, and AJAX. I am
 also hoping to extract some general functionality to create a reusable
 framework for editable html tables.
 
