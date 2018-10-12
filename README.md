@@ -1,30 +1,28 @@
 # RESTful-App
 RESTful web service application with HTML client
 
-![alt text](https://github.com/cspen/RESTful-App)
+![Screenshot](https://github.com/cspen/RESTful-App/blob/master/screenshot.png)
 
 
 ## What the Application Does
-	### The Server
-	The server provides sample employee records and allows CRUD operations
-	on those records.
+### The Server
+The server provides sample employee records and allows CRUD operations
+on those records.
 
-	### The HTML Client
-	Any client who makes a request to the server with HTML indicated in the accept
-	header will receive an HTML page that provides the data in an editable
- 	HTML table. The table allows for sorting by column and CRUD operations.
+### The HTML Client
+Any client who makes a request to the server with HTML indicated in the accept
+header will receive an HTML page that provides the data in an editable
+HTML table. The table allows for sorting by column and CRUD operations.
 
-	### The Java Swing Client
-	A Java Swing application that connects to the server and provides
-	the same functionality as the HTML client is available at
+### The Java Swing Client
+A Java Swing application that connects to the server and provides
+the same functionality as the HTML client is available at
 
 ## The Application Design
-	### The Server
-
-	### The HTML Client
-	The HTML client application uses a single page application (SAP)
-	architecture, Responsive Web Design, and AJAX.
-
+### The Server
+### The HTML Client
+The HTML client application uses a single page application (SAP)
+architecture, Responsive Web Design, and AJAX.
 ## Notes and Additional Thoughts
 The client application uses a single page application (SAP)
 architecture conncting to a RESTful Web Service Server, Responsive Web Design, and AJAX. I am
@@ -63,35 +61,34 @@ That is, to format database result sets into json, xml, html,
 and soon to be added, csv.
 
 Thoughts
-	-Single AJAX method-
-	I read it was considered good practice (or DRY) to have a single
-	method for AJAX and route all AJAX requests through that method.
-	I'm finding it difficult to set headers with this framework. To set
-	headers you must pass both the header name and header data to the
-	AJAX method. It would be easier to not use a single AJAX method, 
-	setting the headers and other fields for each unique request within
-	the method for handling the event.
+-Single AJAX method-
+I read it was considered good practice (or DRY) to have a single
+method for AJAX and route all AJAX requests through that method.
+I'm finding it difficult to set headers with this framework. To set
+headers you must pass both the header name and header data to the
+AJAX method. It would be easier to not use a single AJAX method, 
+setting the headers and other fields for each unique request within
+the method for handling the event.
 
-	- Design - 
-	Currently I'm designing the system to utilize three functions for each
-	request. The first function acts as an event handler/controller and
-	calls the second function, the second function makes the AJAX request,
-	and the third function handles the server response, displays any error
-	messages, and updates the DOM. The third method is the callback
-	method passed to the AJAX (second) function. Here is the current
-	design:
+* Design
+Currently I'm designing the system to utilize three functions for each
+request. The first function acts as an event handler/controller and
+calls the second function, the second function makes the AJAX request,
+and the third function handles the server response, displays any error
+messages, and updates the DOM. The third method is the callback
+method passed to the AJAX (second) function. Here is the current
+design:
 
-	Human clicks something -> EventHandler -> AJAX -> AJAXcallback
+Human clicks something -> EventHandler -> AJAX -> AJAXcallback
 
-	By not using a single AJAX method not only would it be easier to
-	set request headers and other information unique to each AJAX call
-	but it will also reduce the function chain from three to two.
+By not using a single AJAX method not only would it be easier to
+set request headers and other information unique to each AJAX call
+but it will also reduce the function chain from three to two.
 
-
-	- not featured - 
-	I've decided to not implement a search feature because the current
-	architecture is too weak. I didn't have a search feature in mind 
-	initially. To implement search, I would need a search feature on the
-	server. Also, the client javascript application would need some sort
-	of screen manager to allow toggling between the data table and the
-	search results.
+- not featured
+I've decided to not implement a search feature because the current
+architecture is too weak. I didn't have a search feature in mind 
+initially. To implement search, I would need a search feature on the
+server. Also, the client javascript application would need some sort
+of screen manager to allow toggling between the data table and the
+search results.
