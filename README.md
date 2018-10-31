@@ -5,24 +5,32 @@ RESTful web service application with HTML client
 
 
 ## What the Application Does
-### The Server
-The server provides sample employee records and allows CRUD operations
+### Server
+The server provides employee records from a database and allows CRUD operations
 on those records.
 
-### The HTML Client
-Any client who makes a request to the server with HTML indicated in the accept
-header will receive an HTML page that provides the data in an editable
+### HTML Client
+Any client who makes a request to the server with HTML indicated in the "Accept"
+header (web browser, for example) will receive an HTML page that provides the data in an editable
 HTML table. The table allows for sorting by column and CRUD operations.
 
-### The Java Swing Client
+### Java Swing Client
 A Java Swing application that connects to the server and provides
 the same functionality as the HTML client is available at
+[Java Client](http://modintro.com/java/client/)
 
-## The Application Design
+## Application Design and Construction
 ### The Server
-### The HTML Client
+The server follows RFC 2616 HTTP Protocol to provide RESTful Web Services.
+It is written in object oriented PHP with a MySQL database and has
+an MVC architecture.
+
+### HTML Client
 The HTML client application uses a single page application (SAP)
-architecture, Responsive Web Design, and AJAX.
+architecture, Responsive Web Design, and AJAX. It is coded using
+javascript, HTML5, and CSS3.
+
+
 ## Notes and Additional Thoughts
 The client application uses a single page application (SAP)
 architecture conncting to a RESTful Web Service Server, Responsive Web Design, and AJAX. I am

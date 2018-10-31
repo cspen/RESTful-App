@@ -11,28 +11,37 @@ class Encode {
         
                 $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
                 $xml .= '<'.$type.'>'."\n";
-                $type = substr($type, 0, strlen($type)-1); // Remove plural
+                $pluralFlag = false;
+                if(substr($type, -1) == 's') {
+                	$type = substr($type, 0, strlen($type)-1); // Remove plural
+                	$pluralFlag = true; // Set flag
+                }
                 
                 foreach($data as $key => $value) {
-                        if(is_array($value)) {
-                                $xml .= '<'.$type.'>'."\n";
-                                foreach($value as $val_key => $val) {
-                                        $xml .= "\t".'<'.$val_key.'>'.$val.'</'.$val_key.'>'."\n";
-                                }
-                                $xml .= '</'.$type.'>'."\n";
-                        } else {
-				if(is_numeric($key)) {
-					$xml .= '<'.$type.'>';
-                                	$xml .= $value;
-                                	$xml .= '</'.$type.'>'."\n";
-				} else {
-					$xml .= '<'.$key.'>';
-                                	$xml .= $value;
-                                	$xml .= '</'.$key.'>'."\n";
-				}
+                	if(is_array($value)) {
+                    	$xml .= '<'.$type.'>'."\n";
+                        foreach($value as $val_key => $val) {
+                        	$xml .= "\t".'<'.$val_key.'>'.$val.'</'.$val_key.'>'."\n";
                         }
+                        $xml .= '</'.$type.'>'."\n";
+                    } else {
+						if(is_numeric($key)) {
+							$xml .= '<'.$type.'>';
+                            $xml .= $value;
+                            $xml .= '</'.$type.'>'."\n";
+						} else {
+							$xml .= '<'.$key.'>';
+                            $xml .= $value;
+                            $xml .= '</'.$key.'>'."\n";
+						}
+                	}
                 }
-                $xml .= '</'.$type.'s>'."\n";
+                
+                if($pluralFlag) {
+                	$xml .= '</'.$type.'s>'."\n";
+                } else {
+                	$xml .= '</'.$type.'>'."\n";
+                }
                 return $xml;
         }
         
@@ -142,7 +151,7 @@ EOT;
                 $html .= <<<EOT
         </div>
         <footer>
-                <p><a href="https://github.com/cspen/">Source Code</a></p>
+                <p><a href="https://github.com/cspen/RESTful-App">Source Code</a></p>
 				 <p>Created by: Craig Spencer</p>
                 <p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a>
 					 | <a href="https://linkedin.com/">LinkedIn</a> |
