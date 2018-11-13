@@ -7,7 +7,7 @@ var tm = tm || {};
 tm.globals = {
 		col : -1,			// Table column
 		row : 0,			// Table row
-		active : null,		// Is a cell currently being edited
+		active : null,			// Is a cell currently being edited
 		url : "http://localhost/GEM/rest/",
 		cbox : null,
 		sortByCol : "employeeID",
@@ -242,10 +242,11 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
         // UPDATE ETAG AND LAST MODIFIED FEILDS
        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else {
-		if(serverResponse.status == "412") {
+		if(serverResponse.status == "412") { console.log("SMACKERS");
 			// TO-DO: Change to dialog box
 			// alert("Unable to update - More recent copy on server");
 			// Update the row
+		console.log("URL: " + url);
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		} else {
 			
@@ -394,13 +395,13 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
  * Called when row on server is "fresher" than
  * row on this client after an attempted edit.
  */
-tm.updateRow = function(serverResponse, data, url) {
+tm.updateRow = function(serverResponse, data, url) { 
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
 		var table = document.getElementById('theTable');
 		
 		var i = 0;
-		for(var key in obj) { 
+		for(var key in obj) {
 			if(key === "full_time") {
 				if(obj[key]) {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
@@ -420,6 +421,7 @@ tm.updateRow = function(serverResponse, data, url) {
 		
 		// Highlight updated row
 		var element = table.rows[tm.globals.row];
+		console.log("E " + element);
 		tools.highlightElem(element);
 	    
 		tm.globals.active = null;
@@ -444,7 +446,9 @@ tm.updatePages = function(page) {
             nextPage = page;
     }
     
-    
+    // Commenting out the conditional makes this function
+    // reusable (called when row is deleted). However, now
+    // clicking the current page number makes a server request.
     // if(nextPage != tm.globals.currentPage) {
     	var request = tm.globals.url + "employees/?page=" + nextPage + "&pagesize=10&sort=" + tm.globals.sortByCol + "&order=" + tm.globals.sortOrder
     	ajax.request("GET", request,  tm.colCallBack, page, null, null);
