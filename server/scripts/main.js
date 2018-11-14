@@ -1,5 +1,13 @@
 /**
- * 
+ * Javascript Application: 
+ *      Makes an HTML functional/editable
+ *      	Update individual cells
+ *      	Delete rows
+ *      	Add new rows
+ *      	Sort by column
+ *      
+ * By Craig Spencer <craigspencer@modintro.com>
+ * November 2018
  */
 
 /* The Table Manager */
@@ -244,9 +252,8 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
 	} else {
 		if(serverResponse.status == "412") { console.log("SMACKERS");
 			// TO-DO: Change to dialog box
-			// alert("Unable to update - More recent copy on server");
+			alert("Unable to update - More recent copy on server");
 			// Update the row
-		console.log("URL: " + url);
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		} else {
 			
@@ -398,10 +405,12 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 tm.updateRow = function(serverResponse, data, url) { 
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
+		obj = obj.Employee;
 		var table = document.getElementById('theTable');
 		
 		var i = 0;
 		for(var key in obj) {
+			console.log(i + ": " + obj[key]);
 			if(key === "full_time") {
 				if(obj[key]) {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
@@ -421,7 +430,6 @@ tm.updateRow = function(serverResponse, data, url) {
 		
 		// Highlight updated row
 		var element = table.rows[tm.globals.row];
-		console.log("E " + element);
 		tools.highlightElem(element);
 	    
 		tm.globals.active = null;
