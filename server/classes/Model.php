@@ -268,8 +268,8 @@ class Model {
 			$stmt->bindParam(':empID', $id);
 			$stmt->execute();
 			
-			// $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			// $results = $results[0];
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$results = $results[0];
 			$rowCount = $stmt->rowCount();
 			$stmt->closeCursor();
 						
@@ -289,8 +289,8 @@ class Model {
 					VALUES(:empID, :lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
 			}
 			$stmt->bindParam(':empID', $id);
-			$stmt->bindParam(':lastName', $putVar['lastname']);
-			$stmt->bindParam(':firstName', $putVar['firstname']);
+			$stmt->bindParam(':lastName', ucwords(strtolower($putVar['lastname'])));
+			$stmt->bindParam(':firstName', ucwords(strtolower($putVar['firstname'])));
 			$stmt->bindParam(':department', $putVar['department']);
 			$stmt->bindParam(':fullTime', $putVar['fulltime']);
 			$stmt->bindParam(':hireDate', $putVar['hiredate']);
