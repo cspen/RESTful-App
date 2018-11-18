@@ -165,15 +165,14 @@ tm.setElement = function(elem) {
     
     if(elem.tagName == "INPUT") {
     	elem.select();
-    }
-    
+    }    
 };
 
 /**
  * 
  */
 tm.editorEventListener = function(event) {
-    if (event.keyCode == 13) {  
+    if (event.keyCode == 13) {  // Enter key
     	event.stopImmediatePropagation();
         event.preventDefault();       
 
@@ -245,13 +244,14 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
                         value = tools.format_nondecimal_currency(value);
                 }
         }
-        table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
+        // value = tools.capitalize(value);
+        // value = value.charAt(0).toUpperCase() + value.slice(1);
+        // table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
         
         // UPDATE ETAG AND LAST MODIFIED FEILDS
        ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else {
-		if(serverResponse.status == "412") { console.log("SMACKERS");
-			// TO-DO: Change to dialog box
+		if(serverResponse.status == "412") {
 			alert("Unable to update - More recent copy on server");
 			// Update the row
 			ajax.request("GET", url, tm.updateRow, null, null, null);
@@ -393,6 +393,8 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 	table.rows[tm.globals.row].cells[7].textContent = serverResponse.getResponseHeader("Etag");
 	table.rows[tm.globals.row].cells[8].textContent = serverResponse.getResponseHeader("Last-Modified");
 	
+	// Update row data
+	tm.updateRow(serverResponse, data, null);
 	tm.globals.active = null;
     tm.globals.col = -1;
     tm.globals.row = 0;
@@ -410,7 +412,6 @@ tm.updateRow = function(serverResponse, data, url) {
 		
 		var i = 0;
 		for(var key in obj) {
-			console.log(i + ": " + obj[key]);
 			if(key === "full_time") {
 				if(obj[key]) {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
@@ -436,7 +437,7 @@ tm.updateRow = function(serverResponse, data, url) {
 	    tm.globals.col = -1;
 	    tm.globals.row = 0;
 	} else {
-		alert("ERROR UR");
+		alert("Oops! Something went wrong.");
 	}
 };
 tm.updatePages = function(page) {
@@ -516,7 +517,7 @@ tm.createJSONString = function(table, row, colName, value) {
  */
 tm.newRow = function(event) {
 	// Need to check if cached department list is
-	// most recent
+	// most recent to save bandwidth
 	
 	// Make ajax call with etag and lmod
 	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
@@ -713,7 +714,7 @@ tm.cancel = function(event) {
 
 
 /**
- * 
+ * Helper functions.
  */
 var tools = tools || {};
 tools.isNumber = function(num) {
@@ -781,11 +782,6 @@ tools.validateDate = function(year, month, day) {
     
     return true;
 };
-
-
-
-
-
 
 
 
