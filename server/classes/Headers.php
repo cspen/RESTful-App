@@ -2,6 +2,13 @@
 require_once('AcceptMediaType.php');
 require_once('Config.php');
 
+/**
+ * Process HTTP headers according to the specification
+ * outlined in RFC 2616.
+ * 
+ * @author Craig Spencer <craigspencer@modintro.com>
+ */
+
 class Headers {
 	
 	public static function processHeaders() {
@@ -175,12 +182,12 @@ class Headers {
 		}
 	}
 	
-	public static function processConditionalHeaders( $rowCount, $etag, $lastModified) {
+	public static function processConditionalHeaders($rowCount, $etag, $lastModified) {
 		$ifModSin = Headers::processIfModifiedSinceHeader();
 		$ifUnmodSin = Headers::processIfUnmodifiedSinceHeader();
 		$ifMatch = Headers::processIfMatchHeader();
 		$ifNoneMatch = Headers::processIfNoneMatchHeader();
-				
+			
 		if($ifMatch && !$ifNoneMatch && !$ifModSin) {
 			if((in_array("*", $ifMatch) && ($rowCount == 0))) {
 				header('HTTP/1.1 412 Precondition Failed');
