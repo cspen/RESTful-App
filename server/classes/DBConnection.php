@@ -1,25 +1,17 @@
 <?php
 /**
- * Connect to a MySQL database with PDO.
- * This class must be stored above public access.
+ * Connect to a MySQL database with PDO using credentials stored in a config.ini file.
  */
 
 class DBConnection {
 	
-	// The DB connection
 	private $connection;
-
-	// DB credentials
-	private 	$username = 'dbo736128965';
-	private		$password = 'T3st1ng!';
-	private		$dbname = 'db736128965';
-	private		$servername = 'db736128965.db.1and1.com';
-
 	
 	function __construct() {
 		if(!isset($this->connection)) {
+			// $config = parse_ini_file('config.ini');
 			try {
-				$this->connection = new PDO("mysql:host=$this->servername;dbname=$this->dbname", $this->username, $this->password);
+				$this->connection = new PDO("mysql:host=localhost;dbname=restapp", 'root', '');
 			} catch(PDOException $e) {
 				echo $e->getMessage();
 			}

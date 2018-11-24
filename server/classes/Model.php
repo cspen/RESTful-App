@@ -2,6 +2,13 @@
 require_once('View.php');
 require_once('DBConnection.php');
 
+/**
+ * Model for RestFUL Web Service in a MVC architecture.
+ * 
+ * @author Craig Spencer <craigspencer@modintro.com>
+ *
+ */
+
 class Model {
 	
 	private $view;
@@ -10,6 +17,7 @@ class Model {
 		$this->view = $view;
 	}
 	
+	// DELETE
 	function deleteAll() {
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
@@ -54,6 +62,7 @@ class Model {
 		}
 	}
 	
+	// DELETE
 	function delete($id) {
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
@@ -96,6 +105,7 @@ class Model {
 		}
 	}
 	
+	// GET or HEAD
 	function getAll($HTTPverb) {
 		$query = "SELECT employeeID, last_name, first_name, department,
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
@@ -156,6 +166,7 @@ class Model {
 		}
 	}
 	
+	// GET or HEAD
 	function get($id, $HTTPverb) { 
 		$query = "SELECT employeeID, last_name, first_name, department,
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
@@ -185,6 +196,7 @@ class Model {
 		}
 	}
 	
+	// POST
 	function post() {
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
@@ -248,6 +260,7 @@ class Model {
 		}
 	}
 	
+	// PUT
 	function put($id) {
 		if(isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 			header('HTTP/1.1 412 Precondition Failed');
@@ -327,9 +340,6 @@ class Model {
 			header('HTTP/1.1 400 Bad Request');
 			exit;
 		}
-		
-		// if($hireDate)
-	}
-	
+	}	
 }
 ?>

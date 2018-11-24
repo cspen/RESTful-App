@@ -2,6 +2,13 @@
 
 require_once('Encode.php');
 
+/**
+ * The View component of a MVC architecure.
+ * 
+ * @author Craig Spencer <craigspencer@modintro.com>
+ *
+ */
+
 class View {
 	
 	private $outputFormat;

@@ -1,10 +1,20 @@
 <?php
 
+/**
+ * Encode data into either xml or html.
+ * 
+ * @author Craig Spencer <craigspencer@modintro.com>
+ *
+ */
+
 class Encode {
         
         /**
-         *
-         *
+         * Encode data array into xml document with elements
+         * of type.
+         * 
+         * @param data an array of values
+         * @param type the type of element in the xml
          */
         public static function xml_encode($data, $type) {
                 $type = ucfirst($type); // Upper case first letter              
@@ -45,6 +55,8 @@ class Encode {
                 return $xml;
         }
         
+        // This function encases the data into an HTML table
+        // which is part of a Single Page Application.
         public static function html_encode($data, $caption) {
                 
                 $html = <<<EOT

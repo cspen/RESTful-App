@@ -2,7 +2,18 @@
 require_once('Model.php');
 require_once('Headers.php');
 
-class Controller { 
+/**
+ * Controller in Model-View-Controller architecture.
+ * 
+ * This web service does not have any password protected
+ * components. If password protection is required (on
+ * delete method, for exmple) the code should be added
+ * to in the controller.
+ * 
+ * @author Craig Spencer <craigspencer@modintro.com>
+ */
+
+class Controller {
 	
 	private $model;
 	
@@ -18,14 +29,14 @@ class Controller {
 		$requestURI = explode("?", $_SERVER['REQUEST_URI']);
 		$requestURI = $requestURI[0];
 		
-		if(preg_match('/^\/employees\/$/', $requestURI)) {
+		if(preg_match('/^\/GEM\/rest\/employees\/$/', $requestURI)) {
 			/* URL: /employees/	*/
 			
 			switch($_SERVER['REQUEST_METHOD']) {
 				case "DELETE":
 					$this->model->deleteAll();
 				case "GET": 
-				case "HEAD": 
+				case "HEAD":
 					$this->model->getAll($_SERVER['REQUEST_METHOD']);
 				case "OPTIONS":
 					header("HTTP/1.1 200 OK");
@@ -39,7 +50,7 @@ class Controller {
 					exit;
 			}
 			
-		} elseif(preg_match('/^\/employees\/[0-9]+$/', $requestURI)) {
+		} elseif(preg_match('/^\/GEM\/rest\/employees\/[0-9]+$/', $requestURI)) {
 			/* URL: /employees/{id}	*/
 			
 			$id = end($params);
