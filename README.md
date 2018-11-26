@@ -10,14 +10,14 @@ http://modintro.com/employees/
 ## What the Application Does
 ### Server
 The server provides employee records from a database and allows CRUD operations
-on those records.
+on those records via Web Services as specified in RFC 2616 HTTP.
 
 ### HTML Client
 Any client who makes a request to the server with HTML indicated in the "Accept"
 header (web browser, for example) will receive an HTML page that provides the data in an editable
 HTML table. The table allows for sorting by column and CRUD operations.
 
-### Java Swing Client
+### Related Project - Java Swing Client
 A Java Swing application that connects to the server and provides
 the same functionality as the HTML client is available at
 [Java Client](http://modintro.com/java/client/)
@@ -36,7 +36,7 @@ javascript, HTML5, and CSS3.
 
 ## Notes and Additional Thoughts
 The client application uses a single page application (SAP)
-architecture conncting to a RESTful Web Service Server, Responsive Web Design, and AJAX. I am
+architecture connecting to a RESTful Web Service Server, Responsive Web Design, and AJAX. I am
 also hoping to extract some general functionality to create a reusable
 framework for editable html tables.
 
