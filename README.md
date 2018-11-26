@@ -2,7 +2,7 @@
 RESTful web service application with HTML client
 
 ## Location
-To be added when project complete
+http://modintro.com/employees/
 
 ![Screenshot](https://github.com/cspen/RESTful-App/blob/master/screenshot.png)
 
