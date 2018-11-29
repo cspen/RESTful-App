@@ -16,16 +16,16 @@ tm.globals = {
 		col : -1,			// Table column
 		row : 0,			// Table row
 		active : null,			// Is a cell currently being edited
-		url : "http://localhost/GEM/rest/",
+		url : "http://modintro.com/",	
 		cbox : null,
 		sortByCol : "employeeID",
 		sortOrder : "asc",
 		currentPage : 1,
 		startPage : 1,
-		currentDiv : null,	// For pop-overs
-		deptList : null,	// Department list for new row form
-		dlEtag : null,		// Etag for department list
-		dlLastMod : null,	// Last-Modified for department list
+		currentDiv : null,		// For pop-overs
+		deptList : null,		// Department list for new row form
+		dlEtag : null,			// Etag for department list
+		dlLastMod : null,		// Last-Modified for department list
 }
 
 /**
@@ -35,73 +35,76 @@ tm.clickedCell = function(e) {
 	if(tm.globals.active == null) {
 		// Get the clicked table cell
 		var elem = e.target;
-        tm.globals.row = elem.parentNode.rowIndex;
-        tm.globals.col = elem.cellIndex;
+        	tm.globals.row = elem.parentNode.rowIndex;
+        	tm.globals.col = elem.cellIndex;
         
-        // Column header clicked - sort by column
-        if(tm.globals.row == 0) {
-        	var table = document.getElementById('theTable');
-        	var colHead = table.rows[0].cells[tm.globals.col].innerHTML;
+        	// Column header clicked - sort by column
+        	if(tm.globals.row == 0) {
+        		var table = document.getElementById('theTable');
+        		var colHead = table.rows[0].cells[tm.globals.col].innerHTML;
         	
-        	// Translate column header into db row item
-            if(colHead === "EmployeeID") {
-                    colHead = "employeeID";
-            } else {
-                    colHead = colHead.toLowerCase();
-                    colHead = colHead.replace(/ /g,"_");
-            }
+        		// Translate column header into db row item
+            		if(colHead === "EmployeeID") {
+                    		colHead = "employeeID";
+           		} else {
+                    		lHead = colHead.toLowerCase();
+                    		lHead = colHead.replace(/ /g,"_");
+            		}
 
-            if(tm.globals.sortByCol === colHead) {
-                    // Same header - change sort order
-                    if(tm.globals.sortOrder === "asc") {
-                            tm.globals.sortOrder = "desc";
-                    } else {
-                            tm.globals.sortOrder = "asc";
-                    }
-            } else {
-                    tm.globals.sortByCol = colHead;
-                    tm.globals.sortOrder = "asc";
-            }
+            		if(tm.globals.sortByCol === colHead) {
+                    		// Same header - change sort order
+                    		if(tm.globals.sortOrder === "asc") {
+                           		tm.globals.sortOrder = "desc";
+                    		} else {
+                            		tm.globals.sortOrder = "asc";
+                    		}
+           		} else {
+                    		tm.globals.sortByCol = colHead;
+                    		tm.globals.sortOrder = "asc";
+           		 }
             
-            // Make ajax request 
-            var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
-            		colHead + "&order=" + tm.globals.sortOrder;
-            ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
-        	return;
-        } 
+            		// Make ajax request 
+            		var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
+            			colHead + "&order=" + tm.globals.sortOrder;
+            		ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
+        		return;
+        	} 
         
-        // Uneditable columns and rows
-        if(tm.globals.col == 0 || tm.globals.col == 5 || e.target.tagName == "CAPTION")
-        	return;
+        	// Uneditable columns and rows
+        	if(tm.globals.col == 0 || tm.globals.col == 5 || e.target.tagName == "CAPTION")
+        		return;
         
-        // Handle checkbox click - full time column
-        if(e.target.type == "checkbox") {
-        	e.stopImmediatePropagation();
-        	e.preventDefault();
-        	tm.globals.row = elem.parentNode.parentNode.rowIndex;
-        	tm.globals.col = elem.parentNode.cellIndex;
-        	tm.globals.cbox = e.target;
+        	// Handle checkbox click - full time column
+        	if(e.target.type == "checkbox") {
+        		e.stopImmediatePropagation();
+        		e.preventDefault();
+        		tm.globals.row = elem.parentNode.parentNode.rowIndex;
+        		tm.globals.col = elem.parentNode.cellIndex;
+        		tm.globals.cbox = e.target;
         	
-        	var table = document.getElementById('theTable');
-        	var empId = table.rows[tm.globals.row].cells[0].textContent;  
-        	var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked);
-        	var etag = table.rows[tm.globals.row].cells[7].textContent;
-            var lsmod = table.rows[tm.globals.row].cells[8].textContent;
-        	ajax.request("PUT", tm.globals.url+"employees/"+empId,
+        		var table = document.getElementById('theTable');
+        		var empId = table.rows[tm.globals.row].cells[0].textContent;  
+        		var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked);
+        		var etag = table.rows[tm.globals.row].cells[7].textContent;
+            		var lsmod = table.rows[tm.globals.row].cells[8].textContent; 
+        		ajax.request("PUT", tm.globals.url+"employees/"+empId,
         			tm.checkboxCallback, data, etag, lsmod);        	
-        	return;
-        } 
+        		return;
+        	} 
+		// If made if this far, not a checkbox
+		// Disable all checkboxes
+		tools.disableCheckboxes();
         
-        // Create the element for editing
-        var curVal = e.target.textContent;
-        if(tm.globals.col == 3) {
-        	var url = "http://localhost/GEM/rest/departments/";
-        	tm.createSelectElement(url, curVal);
-        } else {
-        	if(tm.globals.col != 4)
-        		tm.createInputElement(curVal);
-        }        
-        tm.globals.active = curVal;
+        	// Create the element for editing
+        	var curVal = e.target.textContent;
+        	if(tm.globals.col == 3) {
+        		var url = "http://localhost/GEM/rest/departments/";
+        		tm.createSelectElement(url, curVal);
+       		} else {
+        		if(tm.globals.col != 4)
+        			tm.createInputElement(curVal);
+        	}        
+        	tm.globals.active = curVal;
 	} 
 };
 
@@ -113,18 +116,18 @@ tm.createInputElement = function(content) {
 	var input = document.createElement("INPUT");
 	input.type = "text";
     
-    if(tm.globals.col == 6) {
-    	input.value = tools.strip_num_formatting(content);
-    	input.id = "salary";
-    } else { 
-    	if(tm.globals.col == 1) {
-    		input.id = "lastName";
-    	} else if(tm.globals.col == 2) {
-    		input.id = "firstName";
+    	if(tm.globals.col == 6) {
+    		input.value = tools.strip_num_formatting(content);
+    		input.id = "salary";
+    	} else { 
+    		if(tm.globals.col == 1) {
+    			input.id = "lastName";
+    		} else if(tm.globals.col == 2) {
+    			input.id = "firstName";
+    		}
+    		input.value = content;
     	}
-    	input.value = content;
-    }
-    tm.setElement(input);    
+    	tm.setElement(input);    
 };
 
 /**
@@ -139,7 +142,7 @@ tm.createSelectCallback = function(serverResponse, selected) {
 		var items = JSON.parse(serverResponse.responseText);	
 		var select = document.createElement("SELECT");
 		select.id = "department";
-		var length = items['Departments'].length;
+		var length = items["Departments"].length;
 		for (var i = 0; i < length; i++) {
             var option = document.createElement("option");
             option.value = items['Departments'][i];
@@ -172,95 +175,98 @@ tm.setElement = function(elem) {
  * 
  */
 tm.editorEventListener = function(event) {
-    if (event.keyCode == 13) {  // Enter key
-    	event.stopImmediatePropagation();
-        event.preventDefault();       
+	if (event.keyCode == 13) {  // Enter key
+    		event.stopImmediatePropagation();
+        	event.preventDefault();       
 
-        // Validate edit 
-        var value = this.value;
-        var table = document.getElementById('theTable');
+        	// Validate edit 
+        	var value = this.value;
+        	var table = document.getElementById('theTable');
         
-        if(value == "" || value === tm.globals.active) {
-        	// If input field is empty or hasn't changed, return the original content
-        	table.rows[tm.globals.row].cells[tm.globals.col].textContent = tm.globals.active;
-        	tm.globals.row = -1;
-        	tm.globals.col = 0;
-        	tm.globals.active = null;
-        	return;
-        }        
-        
-        if(tm.globals.col == 1 || tm.globals.col == 2) {
-        	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
-        	if(value.match(exp)) {
-        		// TO-DO: NEET TO CHANGE TO DIALOG BOX
-        		alert("First and last name fields must contain only letters");
+        	if(value == "" || value === tm.globals.active) {
+        		// If input field is empty or hasn't changed, return the original content
+        		table.rows[tm.globals.row].cells[tm.globals.col].textContent = tm.globals.active;
+        		tm.globals.row = -1;
+        		tm.globals.col = 0;
+        		tm.globals.active = null;
         		return;
+        	}        
+        
+        	if(tm.globals.col == 1 || tm.globals.col == 2) {
+        		var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
+        		if(value.match(exp)) {
+        			// TO-DO: NEET TO CHANGE TO DIALOG BOX
+        			alert("First and last name fields must contain only letters");
+        			return;
+        		}
+        	} else if(tm.globals.col == 6) { // Check that salary is numeric
+                	if(isNaN(parseFloat(value)) && !isFinite(value)) {
+                        	// TO-DO: NEED TO CHANGE TO DIALOG BOX
+                        	alert("Salary must be a numeric value");
+                        	return;
+                	}
         	}
-        } else if(tm.globals.col == 6) { // Check that salary is numeric
-                if(isNaN(parseFloat(value)) && !isFinite(value)) {
-                        // TO-DO: NEED TO CHANGE TO DIALOG BOX
-                        alert("Salary must be a numeric value");
-                        return;
-                }
-        }
         
-        var empId = table.rows[tm.globals.row].cells[0].textContent;
+        	var empId = table.rows[tm.globals.row].cells[0].textContent;
         
-        var data = null;
-        if(this.id == "department") { // Select list
-        	var v = this.options[this.selectedIndex].value;
-        	data = tm.createJSONString(table, tm.globals.row, this.id, v);
-        } else {
-        	data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
-        }
+        	var data = null;
+        	if(this.id == "department") { // Select list
+        		var v = this.options[this.selectedIndex].value;
+        		data = tm.createJSONString(table, tm.globals.row, this.id, v);
+        	} else {
+        		data = tm.createJSONString(table, tm.globals.row, this.id, this.value);
+        	}
         
-        // Get etag and last_modified header values from table (hidden columns)
-        var etag = table.rows[tm.globals.row].cells[7].textContent;
-        var lsmod = table.rows[tm.globals.row].cells[8].textContent;
-        
-        ajax.request("PUT", tm.globals.url+"employees/"+empId,
+        	// Get etag and last_modified header values from table (hidden columns)
+        	var etag = table.rows[tm.globals.row].cells[7].textContent;
+        	var lsmod = table.rows[tm.globals.row].cells[8].textContent;
+	        
+        	ajax.request("PUT", tm.globals.url+"employees/"+empId,
         		tm.editorEventListenerCallback, data, etag, lsmod);
-    } else if(event.keyCode == 27) {
-    	// Escape key pressed
-    	var table = document.getElementById('theTable');
-    	var node = table.rows[tm.globals.row].cells[tm.globals.col];
+    	} else if(event.keyCode == 27) {
+    		// Escape key pressed
+    		var table = document.getElementById('theTable');
+    		var node = table.rows[tm.globals.row].cells[tm.globals.col];
 		node.removeChild(node.firstChild);
 		node.textContent = tm.globals.active;
 		tm.globals.active = null;
-    }
-}
+		tools.enableCheckboxes();
+    	}
+};
 tm.editorEventListenerCallback = function(serverResponse, data, url) {
 	if(serverResponse.status == 200 || serverResponse.status == 204) {
 		var table = document.getElementById('theTable');
          
-        // Update the table
+        	// Update the table
 		var node = table.rows[tm.globals.row].cells[tm.globals.col];
 		var value = node.firstChild.value;
 		node.removeChild(node.firstChild);
 
-        // Convert Salary column to currency format
-        if(tm.globals.col === 6) {
-                if(tools.isNumber(value)) {
-                        value = tools.format_nondecimal_currency(value);
-                }
-        }
-        // value = tools.capitalize(value);
-        // value = value.charAt(0).toUpperCase() + value.slice(1);
-        // table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
+        	// Convert Salary column to currency format
+        	if(tm.globals.col === 6) {
+                	if(tools.isNumber(value)) {
+                        	value = tools.format_nondecimal_currency(value);
+                	}
+        	}
+        	// value = tools.capitalize(value);
+        	// value = value.charAt(0).toUpperCase() + value.slice(1);
+        	// table.rows[tm.globals.row].cells[tm.globals.col].textContent = value;
         
-        // UPDATE ETAG AND LAST MODIFIED FEILDS
-       ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
+        	// UPDATE ETAG AND LAST MODIFIED FEILDS
+	
+       		ajax.request("GET", url, tm.updateRow, null, null, null);
 	} else {
 		if(serverResponse.status == "412") {
 			alert("Unable to update - More recent copy on server");
 			// Update the row
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		} else {
-			
+			// Do nothing
 		}
 	}
+	tools.enableCheckboxes();
 };
-tm.checkboxCallback = function(serverResponse, data, url) {
+tm.checkboxCallback = function(serverResponse, data, url) { 
 	if(serverResponse.status == "200" || serverResponse.status == "204") {
 		if(tm.globals.cbox.checked) {
 			tm.globals.cbox.checked = false;
@@ -272,8 +278,9 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
 	} else { 
 		// Check for 412 status
-		if(serverResponse.status == "412") {
+		if(serverResponse.status == "412") { 
 			// Update the row
+			alert("Unable to update - More recent copy on server");
 			ajax.request("GET", url, tm.updateRow, null, null, null);
 		} else {
 			alert("STATUS " + serverResponse.status);
@@ -388,6 +395,7 @@ tm.colCallBack = function(xhttp, page) {
  * Called when row is updated.
  */
 tm.updateHeaderFields = function(serverResponse, data, url) {
+
 	// Update table
 	var table = document.getElementById('theTable');
 	table.rows[tm.globals.row].cells[7].textContent = serverResponse.getResponseHeader("Etag");
@@ -396,15 +404,15 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
 	// Update row data
 	tm.updateRow(serverResponse, data, null);
 	tm.globals.active = null;
-    tm.globals.col = -1;
-    tm.globals.row = 0;
+   	tm.globals.col = -1;
+    	tm.globals.row = 0;
 };
 
 /**
  * Called when row on server is "fresher" than
  * row on this client after an attempted edit.
  */
-tm.updateRow = function(serverResponse, data, url) { 
+tm.updateRow = function(serverResponse, data, url) {
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
 		obj = obj.Employee;
@@ -413,7 +421,7 @@ tm.updateRow = function(serverResponse, data, url) {
 		var i = 0;
 		for(var key in obj) {
 			if(key === "full_time") {
-				if(obj[key]) {
+				if(obj[key] === "1") { 
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
 				} else {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = false;
@@ -434,8 +442,8 @@ tm.updateRow = function(serverResponse, data, url) {
 		tools.highlightElem(element);
 	    
 		tm.globals.active = null;
-	    tm.globals.col = -1;
-	    tm.globals.row = 0;
+	        tm.globals.col = -1;
+	        tm.globals.row = 0;
 	} else {
 		alert("Oops! Something went wrong.");
 	}
@@ -549,7 +557,7 @@ tm.newRowFormCallback = function(xhttp, url) {
     pop.style.display = "block";
     tm.globals.currentDiv.style.display = "block";
 };
-tm.newRowSubmit = function(event) { alert("SUBMIT");
+tm.newRowSubmit = function(event) { 
 	var lname = document.getElementById('newlname').value;
 	var fname = document.getElementById('newfname').value;
 	var dept = document.getElementById('newdept').value;
@@ -778,11 +786,23 @@ tools.validateDate = function(year, month, day) {
     
     if(day < 1 || day > daysInMonth[month-1]) {
     	return false;
-    }
-    
+    }    
     return true;
 };
-
+tools.disableCheckboxes = function() {
+	var elems = document.getElementsByTagName('input');
+    	for(i in elems) {
+		if(elems[i].type === "checkbox")
+        		elems[i].disabled = true;
+        }
+};
+tools.enableCheckboxes = function() {
+	var elems = document.getElementsByTagName('input');
+    	for(i in elems) {
+		if(elems[i].type === "checkbox")
+        		elems[i].disabled = false;
+        }
+};
 
 
 
@@ -800,7 +820,7 @@ ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
     xmlhttp.open(method, url, true);
          
     if(etag != null) {
-       	xmlhttp.setRequestHeader("Etag", etag);
+       	xmlhttp.setRequestHeader("If-Match", etag);
     }
     if(lastMod != null) {
       	xmlhttp.setRequestHeader("If-Unmodified-Since", lastMod);
