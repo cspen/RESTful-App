@@ -245,7 +245,7 @@ class Model {
 						
 			if($stmt->execute()) {
 				$i = $dbconn->lastInsertId();
-				$location = $_SERVER['REQUEST_URI'].$i;
+				$location = "http://".$_SERVER[HTTP_HOST].$_SERVER['REQUEST_URI'].$i;
 				header('HTTP/1.1 201 Created');
 				header('Content-Location: '.$location);
 				echo $location;
@@ -271,7 +271,7 @@ class Model {
 		if(isset($putVar) && array_key_exists('lastname', $putVar) && array_key_exists('firstname', $putVar)
 				&& array_key_exists('department', $putVar) && array_key_exists('fulltime', $putVar)
 				&& array_key_exists('hiredate', $putVar) && array_key_exists('salary', $putVar)) {
-					
+
 			$this->validateNumericFields($putVar);
 					
 			$db = new DBConnection();
