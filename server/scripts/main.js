@@ -45,10 +45,10 @@ tm.clickedCell = function(e) {
         	
         		// Translate column header into db row item
             		if(colHead === "EmployeeID") {
-                    		colHead = "employeeID";
+                    		colHead = "employeeID";	// Server requires it this way
            		} else {
-                    		lHead = colHead.toLowerCase();
-                    		lHead = colHead.replace(/ /g,"_");
+                    		colHead = colHead.toLowerCase();
+                    		colHead = colHead.replace(/ /g,"_");
             		}
 
             		if(tm.globals.sortByCol === colHead) {
@@ -66,7 +66,7 @@ tm.clickedCell = function(e) {
             		// Make ajax request 
             		var request = tm.globals.url + "employees/?page=" + tm.globals.currentPage + "&pagesize=10&sort=" +
             			colHead + "&order=" + tm.globals.sortOrder;
-            		ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
+			ajax.request("GET", request, tm.colCallBack, tm.globals.currentPage, null, null);        	 
         		return;
         	} 
         
@@ -577,7 +577,7 @@ tm.newRowSubmit = function(event) {
 	if(tm.validateRow(lname, fname, salary, year, month, day)) {
 		var data = "lname=" + lname + "&fname=" + fname + "&dept=" + dept;
 		data += "&ftime=" + ftime + "&hdate=" + hdate + "&salary=" + salary;
-		ajax.request("POST", tm.globals.url + "employees/", tm.newRowCallback, data, null, null);
+		ajax.request("POST", tm.globals.url + "employees/", tm.newRowCallback, data, null, null); 
 	} 	
 };
 tm.newRowCallback = function(xhttp, data, url) {
@@ -587,13 +587,15 @@ tm.newRowCallback = function(xhttp, data, url) {
 		alert('Success! - The record has been created');
 		// Need to make another ajax call to get the updated record from
 		// the server and update the table
+		alert(xhttp.responseText);
 		ajax.request("GET", xhttp.responseText, tm.addNewRowCallback, null, null, null);
 	} else {
 		alert('Error - The new record could not be created');
 	}	
 };
-tm.addNewRowCallback = function(xhttp, data, url) {
+tm.addNewRowCallback = function(xhttp, data, url) { 
 	var rowData = JSON.parse(xhttp.responseText);
+	var rowData = rowData['Employee'];
 	var table = document.getElementById('theTable');
 	// Add new row to top of table
 	var row = table.insertRow(1); // row 0 is the table header
