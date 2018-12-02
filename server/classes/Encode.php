@@ -67,14 +67,14 @@ class Encode {
 						<meta http-equiv="Pragma" content="no-cache" />
 						<meta http-equiv="Expires" content="-1" />
                         <title>$caption</title>
-                        <link rel="stylesheet" type="text/css" href="../styles/main.css">
+                        <link rel="stylesheet" type="text/css" href="../styles/style.css">
                 </head>
                 <body>
-                        <ul id=\"nav\">
+                        <ul id="nav">
                                 <li><a href="javascript:tm.newRow()">New</a></li>
                                 <li><a href="javascript:tm.deleteRow()">Delete</a></li>
                                 <!-- <li><a href="javascript:tm.search()">Search</a></li> -->
-								<li style="float: right"><a href="javascript:tm.help()">Help</a></li>
+				<li style="float: right"><a href="javascript:tm.help()">Help</a></li>
                         </ul>
 						
                         <table id="theTable" onclick="tm.clickedCell(event)">
@@ -167,7 +167,7 @@ EOT;
 				 <p>Created by: Craig Spencer</p>
                 <p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a>
 					 | <a href="https://linkedin.com/">LinkedIn</a> |
-					<a href="">Github</a></p>
+					<a href="https://github.com/cspen">Github</a></p>
         </footer>
                                         
         <div id="overlay">
@@ -229,7 +229,7 @@ $html .= <<< EOT
                                 <button id="okDelete" class="button2">OK</button>
                         </div>
 						<div id="help" class="overlaycontent" style="display: none;">
-								<div id="helpdisplay" class="scrollable">
+								<div id="helpdisplay">
                                 <h2>Help</h2>
 								<hr>
 								<h3>Edit a Cell</h3>
@@ -238,7 +238,8 @@ $html .= <<< EOT
 								desired changes then press the "Enter" button. If the record
 								on the server has been updated the change will not occur and
 								the row will be highlighted in blue. Press esc to
-								abort making any changes.</p>
+								abort making any changes. <span class="note">Be sure the editing
+								element has focus.</span></p>
 
 								<h3>Sort by Column</h3>
 								<p>To sort by column single click the column header you wish to
@@ -257,10 +258,9 @@ $html .= <<< EOT
                                 <button class="button2" onclick="javascript:tm.cancel()">Cancel</button>
                         </div>                                 
                 </div>
-        </div>
-                                        
+        </div>                                        
         <script src="../scripts/main.js"></script>
-        </body></html>
+       	</body></html>
 EOT;
                         
         		return $html;
