@@ -525,7 +525,7 @@ tm.createJSONString = function(table, row, colName, value) {
  */
 tm.newRow = function(event) {
 	// Need to check if cached department list is
-	// most recent to save bandwidth
+	// most recent to save bandwidth but I don't do it here
 	
 	// Make ajax call with etag and lmod
 	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
@@ -554,8 +554,8 @@ tm.newRowFormCallback = function(xhttp, url) {
 	} 	
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('new');
-    pop.style.display = "block";
-    tm.globals.currentDiv.style.display = "block";
+    	pop.style.display = "block";
+    	tm.globals.currentDiv.style.display = "block";
 };
 tm.newRowSubmit = function(event) { 
 	var lname = document.getElementById('newlname').value;
@@ -587,7 +587,6 @@ tm.newRowCallback = function(xhttp, data, url) {
 		alert('Success! - The record has been created');
 		// Need to make another ajax call to get the updated record from
 		// the server and update the table
-		alert(xhttp.responseText);
 		ajax.request("GET", xhttp.responseText, tm.addNewRowCallback, null, null, null);
 	} else {
 		alert('Error - The new record could not be created');
@@ -607,7 +606,7 @@ tm.addNewRowCallback = function(xhttp, data, url) {
 	        	var checkbox = document.createElement('input');
 	        	checkbox.type = "checkbox";
 	        	if(rowData[key] == 1) {
-	        		checkbox.checked;
+	        		checkbox.checked = true;
 	        	} 
 	        	cell.appendChild(checkbox);
 	        } else {
