@@ -4,6 +4,7 @@ RESTful web service application with HTML client
 ## Location
 http://modintro.com/employees/
 
+## Screenshot
 ![Screenshot](https://github.com/cspen/RESTful-App/blob/master/screenshot.png)
 
 
@@ -17,7 +18,7 @@ Any client who makes a request to the server with HTML indicated in the "Accept"
 header (web browser, for example) will receive an HTML page that provides the data in an editable
 HTML table. The table allows for sorting by column and CRUD operations.
 
-### Related Project - Java Swing Client
+## Related Project - Java Swing Client
 A Java Swing application that connects to the server and provides
 the same functionality as the HTML client is available at
 [Java Client](http://modintro.com/java/client/)
@@ -92,7 +93,7 @@ design:
 
 Human clicks something -> EventHandler -> AJAX -> AJAXcallback
 
-By not using a single AJAX method not only would it be easier to
+By not using a single AJAX method, not only would it be easier to
 set request headers and other information unique to each AJAX call
 but it will also reduce the function chain from three to two.
 
