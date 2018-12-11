@@ -18,6 +18,11 @@ Any client who makes a request to the server with HTML indicated in the "Accept"
 header (web browser, for example) will receive an HTML page that provides the data in an editable
 HTML table. The table allows for sorting by column and CRUD operations.
 
+Tested in the following browsers
+- Mozilla Firefox 63.0.3
+- Microsoft Edge 42.17134.1.0
+- Google Chrome 71.0.3578.80
+
 ## Related Project - Java Swing Client
 A Java Swing application that connects to the server and provides
 the same functionality as the HTML client is available at
