@@ -2,61 +2,109 @@
 require_once('View.php');
 require_once('DBConnection.php');
 
+
 /**
+
  * Model for RestFUL Web Service in a MVC architecture.
- * 
+ 
+ *
+
  * @author Craig Spencer <craigspencer@modintro.com>
+
  *
  */
 
+
+
 class Model {
+
 	
 	private $view;
+
 	
 	public function __construct($view) {
+
 		$this->view = $view;
+
 	}
+
 	
 	// DELETE
+
 	function deleteAll() {
+
 		$db = new DBConnection();
+
 		$dbconn = $db->getConnection();
+
 		
 		$query = "DELETE FROM employee";
+
 		$fromFlag = $toFlag = FALSE;
+
 		if(isset($_GET['from'])) {
+
 			if(!is_numeric($_GET['from'])) {
+
 				header('HTTP/1.1 400 Bad Request');
+
 				exit;
+
 			}
+
 			$query .= " WHERE employeeID >= :fromID";
+
 			$fromFlag = TRUE;
+
 		}
+
 		if(isset($_GET['to'])) {
+
 			if(!is_numeric($_GET['to'])) {
+
 				header('HTTP/1.1 400 Bad Request');
+
 				exit;
+
 			}
+
 			$toFlag = TRUE;
+
 			if($fromFlag) {
+
 				$query .= " AND employeeID <= :toID";
+
 			} else {
+
 				$query .= " WHERE employeeID <= :toID";
+
 			}
+
 		}
-			
+
 		$stmt = $dbconn->prepare($query);
+
+
 		if($fromFlag) {
+
 			$stmt->bindParam(':fromID', $_GET['from']);
+
 		}
+
 		if($toFlag) {
+
 			$stmt->bindParam(':toID', $_GET['to']);
+
 		}
-			
+
 		if($stmt->execute()) {
+
 			header('HTTP/1.1 204 No Content');
+
 			exit;
+
 		} else {
+
 			header('HTTP/1.1 500 Internal Server Error');
 			exit;
 		}
@@ -120,18 +168,30 @@ class Model {
 			} elseif(isset($_GET['sort']) && $_GET['sort'] == "userid") {
 				$query .= " ORDER BY userID_FK";
 			} else {
+
 				header('HTTP/1.1 400 Bad Request');
+
 				exit;
+
 			}
+
 			
 			// Sort order - asc default
+
 			if(isset($_GET['order'])) {
+
 				$order = $_GET['order'];
+
 				if($order === "desc") {
+
 					$query .= " DESC";
+
 				} else if($order === "asc") {
+
 					$query .= " ASC";
-				} else {	
+
+				} else {
+	
 					header('HTTP/1.1 400 Bad Request');
 					exit;
 				}
@@ -161,31 +221,55 @@ class Model {
 			
 			$this->view->respond($results, "Employees");
 		} else {
+
 			header('HTTP/1.1 500 Internal Server Error');
+
 			exit;
+
 		}
+
 	}
+
 	
 	// GET or HEAD
-	function get($id, $HTTPverb) { 
+	function get($id, $HTTPverb) {
+ 
 		$query = "SELECT employeeID, last_name, first_name, department,
+
 			full_time, DATE_FORMAT(hire_date, '%Y-%m-%d') AS hire_date,
+
 			salary, etag, DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\")
+
 			AS last_modified FROM employee WHERE employeeID=:empID";
+
+
 		
-		$db = new DBConnection();
+$db = new DBConnection();
+
 		$dbconn = $db->getConnection();
+
 		$stmt = $dbconn->prepare($query);
+
 		$stmt->bindParam(':empID', $id);
+
+
 		if($stmt->execute()) {
+
 			$rowCount = $stmt->rowCount();
+
 			if($rowCount == 1) {
+
 				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 				$result = $result[0];
+
 				Headers::processConditionalHeaders($rowCount, $result['etag'], $result['last_modified']);
+
 				
-				$this->view->respond($result, "Employee");
+$this->view->respond($result, "Employee");
+
 			} else {
+
 				Headers::processConditionalHeaders(null, $rowCount, null);
 				header('HTTP/1.1 404 Not Found');
 				exit;
@@ -198,30 +282,55 @@ class Model {
 	
 	// POST
 	function post() {
+
 		$db = new DBConnection();
 		$dbconn = $db->getConnection();
+
+
 		
-		if(!empty($_POST)) {
+if(!empty($_POST)) {
+
+
 			// $mflag = FALSE;
+
 			/* if(($userType === "MASTER" || $userType === "ADMIN") && isset($_POST['userid_fk'])) {
+
 				$userID_FK = $_POST['userid_fk'];
+
 				$mflag = TRUE;
+
 			} */
+
 			if(isset($_POST['lname']) && isset($_POST['fname'])
+
 				&& isset($_POST['dept']) && isset($_POST['ftime'])
+
 				&& isset($_POST['hdate']) && isset($_POST['salary'])) {
+
 				$lastName = trim($_POST['lname']);
+
 				$firstName = trim($_POST['fname']);
+
 				$department = trim($_POST['dept']);
+
 				$fullTime = trim($_POST['ftime']);
+
 				$hireDate = trim($_POST['hdate']);
+
 				$salary = trim($_POST['salary']);
+
+
 				
-				$this->validatePostData($lastName, $firstName, $department,
+$this->validatePostData($lastName, $firstName, $department,
+
 						$fullTime, $hireDate, $salary);
+
 			} else {
+
 				header('HTTP/1.1 400 Bad Request');
+
 				exit;
+
 			}
 						
 			$stmt = $dbconn->prepare("INSERT INTO employee
@@ -231,14 +340,23 @@ class Model {
 			if($mflag) {
 				$stmt->bindParam(':userID_FK', $userID_FK);
 			} else {
+
 				$uid = $user->getId();
+
 				$stmt->bindParam(':userID_FK', $uid);
+
 			}*/
+
 			$stmt->bindParam(':lastName', $lastName);
+
 			$stmt->bindParam(':firstName', $firstName);
+
 			$stmt->bindParam(':department', $department);
+
 			$stmt->bindParam(':fullTime', $fullTime);
+
 			$stmt->bindParam(':hireDate', $hireDate);
+
 			$stmt->bindParam(':salary', $salary);
 			
 			
@@ -250,11 +368,17 @@ class Model {
 				header('Content-Location: '.$location);
 				echo $location;
 				exit;
+
 			} else {
+
 				header('HTTP/1.1 500 Internal Server Error');
+
 				exit;
+
 			}
+
 		} else {
+
 			header('HTTP/1.1 400 Bad Request');
 			exit;
 		}
@@ -269,6 +393,7 @@ class Model {
 		
 		$putVar = json_decode(file_get_contents("php://input"), true);
 		if(isset($putVar) && array_key_exists('lastname', $putVar) && array_key_exists('firstname', $putVar)
+
 				&& array_key_exists('department', $putVar) && array_key_exists('fulltime', $putVar)
 				&& array_key_exists('hiredate', $putVar) && array_key_exists('salary', $putVar)) {
 
@@ -278,6 +403,7 @@ class Model {
 			$dbconn = $db->getConnection();
 			
 			$stmt = $dbconn->prepare("SELECT * FROM employee WHERE employeeID = :empID");
+
 			$stmt->bindParam(':empID', $id);
 			$stmt->execute();
 			
@@ -293,7 +419,8 @@ class Model {
 				$stmt = $dbconn->prepare("UPDATE employee SET last_name=:lastName, first_name=:firstName,
 					department=:department, full_time=:fullTime, hire_date=:hireDate, salary=:salary
 					WHERE employeeID=:empID");
-				$flag = true;							
+				$flag = true;
+							
 			} else { // Create a new resource
 				Headers::processConditionalHeaders(null, 0, null);
 						
@@ -322,7 +449,9 @@ class Model {
 			}
 		} else {
 			header('HTTP/1.1 400 Bad Request');
+
 			exit;
+
 		}
 	}
 	
