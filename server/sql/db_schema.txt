@@ -29,7 +29,7 @@ CREATE TABLE employee (
 	hire_date			DATE NOT NULL,
 	salary				INT UNSIGNED NOT NULL,
 	etag				VARCHAR(32),
-	last_modified		TIMESTAMP,
+	last_modified			TIMESTAMP,
 	
 	PRIMARY KEY(employeeID)	
 )

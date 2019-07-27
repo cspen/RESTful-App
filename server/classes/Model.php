@@ -315,12 +315,17 @@ class Model {
                                 } else {
                                         header('HTTP/1.1 201 Created');
                                 }
-				$stmt = $dbconn->prepare("SELECT etag, last_modified FROM employee WHERE employeeID=:id");
+
+				// This code should probably be a function
+				$stmt = $dbconn->prepare("SELECT etag,
+					 DATE_FORMAT(last_modified, \"%a, %d %b %Y %T GMT\") as lastMod
+					 FROM employee WHERE employeeID=:id");
 				$stmt->bindParam(':id', $id);
 				$stmt->execute();
 				$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				header('ETag: '.$results['etag']);
-				header('Last-Modified: '.$results['last_modified']);
+
+				header('ETag: '.$results[0]['etag']);
+				header('Last-Modified: '.$results[0]['lastMod']);
 				exit;
                         } else {
                                 header('HTTP/1.1 504 Internal Server Error');
