@@ -316,12 +316,12 @@ class Model {
                                         header('HTTP/1.1 201 Created');
                                 }
 				$stmt = $dbconn->prepare("SELECT etag, last_modified FROM employee WHERE employeeID=:id");
-				$stmt->bindParam(':empID', $id);
+				$stmt->bindParam(':id', $id);
 				$stmt->execute();
 				$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				header('ETag: '.$results['etag']);
 				header('Last-Modified: '.$results['last_modified']);
-                                exit;
+				exit;
                         } else {
                                 header('HTTP/1.1 504 Internal Server Error');
                                 exit;
