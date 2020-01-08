@@ -1,6 +1,11 @@
 # RESTful-App
 RESTful web service application with HTML client
 
+# NOTE: This application exposed a bug in the Chrome browser as of 1/7/2020.
+The Salary column does not work properaly in Chrome's standard view but
+works perfectly in Chrome's development view. I reported the bug to Google.
+The application works perfectly in FireFox.
+
 ## Location
 http://modintro.com/employees/
 
