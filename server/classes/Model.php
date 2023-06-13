@@ -246,14 +246,15 @@ class Model {
                         $stmt->bindParam(':hireDate', $hireDate, PDO::PARAM_STR);
                         $stmt->bindParam(':salary', $salary, PDO::PARAM_INT);
                                                 
-			if($stmt->execute()) {
+			try {
+				$stmt->execute();
 				$i = $dbconn->lastInsertId();
 				$location = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].$i;
                                 header('HTTP/1.1 201 Created');
                                 header('Content-Location: '.$location);
                                 echo $location;
 				exit;
-                        } else {
+                        } catch(Exception $e) {
 				header('HTTP/1.1 500 Internal Server Error');
 				exit;
                         }
