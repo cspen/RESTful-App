@@ -15,6 +15,7 @@ class Model {
         
         public function __construct($view) {
                 $this->view = $view;
+		date_default_timezone_set('UTC');
         }
         
         // DELETE ALL
@@ -207,6 +208,8 @@ class Model {
                                 $userID_FK = $_POST['userid_fk'];
                                 $mflag = TRUE;
                         } */
+
+
                         if(isset($_POST['lname']) && isset($_POST['fname'])
                                 && isset($_POST['dept']) && isset($_POST['ftime'])
                                 && isset($_POST['hdate']) && isset($_POST['salary'])) {
@@ -216,15 +219,15 @@ class Model {
                                 $fullTime = trim($_POST['ftime']);
                                 $hireDate = trim($_POST['hdate']);
                                 $salary = trim($_POST['salary']);
-                                
-                                $this->validatePostData($lastName, $firstName, $department,
+
+				$this->validatePostData($lastName, $firstName, $department,
                                                 $fullTime, $hireDate, $salary);
                         } else {
                                 header('HTTP/1.1 400 Bad Request');
                                 exit;
                         }
-                                                
-                        $stmt = $dbconn->prepare("INSERT INTO employee
+
+			$stmt = $dbconn->prepare("INSERT INTO employee
                                 (last_name, first_name, department, full_time, hire_date, salary)
                                 VALUES(:lastName, :firstName, :department, :fullTime, :hireDate, :salary)");
                         /*              
@@ -234,25 +237,25 @@ class Model {
                                 $uid = $user->getId();
                                 $stmt->bindParam(':userID_FK', $uid);
                         }*/
-                        $stmt->bindParam(':lastName', $lastName);
-                        $stmt->bindParam(':firstName', $firstName);
-                        $stmt->bindParam(':department', $department);
-                        $stmt->bindParam(':fullTime', $fullTime);
-                        $stmt->bindParam(':hireDate', $hireDate);
-                        $stmt->bindParam(':salary', $salary);
-                        
-                        
+
+
+                        $stmt->bindParam(':lastName', $lastName, PDO::PARAM_STR);
+                        $stmt->bindParam(':firstName', $firstName, PDO::PARAM_STR);
+                        $stmt->bindParam(':department', $department, PDO::PARAM_STR);
+                        $stmt->bindParam(':fullTime', $fullTime, PDO::PARAM_BOOL);
+                        $stmt->bindParam(':hireDate', $hireDate, PDO::PARAM_STR);
+                        $stmt->bindParam(':salary', $salary, PDO::PARAM_INT);
                                                 
-                        if($stmt->execute()) {
-                                $i = $dbconn->lastInsertId();
-                                $location = "http://".$_SERVER[HTTP_HOST].$_SERVER['REQUEST_URI'].$i;
+			if($stmt->execute()) {
+				$i = $dbconn->lastInsertId();
+				$location = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].$i;
                                 header('HTTP/1.1 201 Created');
                                 header('Content-Location: '.$location);
                                 echo $location;
-                                exit;
+				exit;
                         } else {
-                                header('HTTP/1.1 500 Internal Server Error');
-                                exit;
+				header('HTTP/1.1 500 Internal Server Error');
+				exit;
                         }
                 } else {
                         header('HTTP/1.1 400 Bad Request');
@@ -268,9 +271,9 @@ class Model {
                 }
                 
                 $putVar = json_decode(file_get_contents("php://input"), true);
-                if(isset($putVar) && array_key_exists('lastname', $putVar) && array_key_exists('firstname', $putVar)
-                                && array_key_exists('department', $putVar) && array_key_exists('fulltime', $putVar)
-                                && array_key_exists('hiredate', $putVar) && array_key_exists('salary', $putVar)) {
+		if(isset($putVar) && isset($putVar['lastname']) && isset($putVar['firstname'])
+                                && isset($putVar['department']) && isset($putVar['fulltime'])
+                                && isset($putVar['hiredate']) && isset($putVar['salary'])) {
 
                         $this->validateNumericFields($putVar);
                                         
@@ -353,4 +356,10 @@ class Model {
                 }
         }       
 }
+
+/*
+if(isset($putVar) && isset('lastname', $putVar) && isset('firstname', $putVar)
+                                && isset('department', $putVar) && isset('fulltime', $putVar)
+                                && isset('hiredate', $putVar) && isset('salary', $putVar)) {
+*/
 ?>
