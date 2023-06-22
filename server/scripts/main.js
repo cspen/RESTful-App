@@ -16,7 +16,7 @@ tm.globals = {
 		col : -1,			// Table column
 		row : 0,			// Table row
 		active : null,			// Is a cell currently being edited
-		url : "http://modintro.com/",	
+		url : "https://modintro.com/",	
 		cbox : null,
 		sortByCol : "employeeID",
 		sortOrder : "asc",
@@ -88,7 +88,8 @@ tm.clickedCell = function(e) {
         		var etag = table.rows[tm.globals.row].cells[7].textContent;
             		var lsmod = table.rows[tm.globals.row].cells[8].textContent; 
         		ajax.request("PUT", tm.globals.url+"employees/"+empId,
-        			tm.checkboxCallback, data, etag, lsmod);        	
+        			tm.checkboxCallback, data, etag, lsmod);
+   	
         		return;
         	} 
 		// If made if this far, not a checkbox
@@ -189,6 +190,7 @@ tm.editorEventListener = function(event) {
         		tm.globals.row = -1;
         		tm.globals.col = 0;
         		tm.globals.active = null;
+			tools.enableCheckboxes();
         		return;
         	}        
         
@@ -233,7 +235,7 @@ tm.editorEventListener = function(event) {
 		tools.enableCheckboxes();
     	}
 };
-tm.editorEventListenerCallback = function(serverResponse, data, url) {
+tm.editorEventListenerCallback = function(serverResponse, data, url) { 
 	if(serverResponse.status == 200 || serverResponse.status == 204) {
 		var table = document.getElementById('theTable');
          
@@ -276,6 +278,7 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 		
 		 // UPDATE ETAG AND LAST MODIFIED FEILDS
 		ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
+
 	} else { 
 		// Check for 412 status
 		if(serverResponse.status == "412") { 
@@ -412,22 +415,22 @@ tm.updateHeaderFields = function(serverResponse, data, url) {
  * Called when row on server is "fresher" than
  * row on this client after an attempted edit.
  */
-tm.updateRow = function(serverResponse, data, url) {
+tm.updateRow = function(serverResponse, data, url) { 
 	if(serverResponse.status == "200") {
 		var obj = JSON.parse(serverResponse.responseText);
 		obj = obj.Employee;
 		var table = document.getElementById('theTable');
 		
 		var i = 0;
-		for(var key in obj) {
-			if(key === "full_time") {
-				if(obj[key] === "1") { 
+		for(var key in obj) { 
+			if(key == "full_time") {
+				if(obj[key] === "1") {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
 				} else {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = false;
 				}
-			} else {
-				if(key === "salary") {
+			} else { 
+				if(key === "salary") { 
 					table.rows[tm.globals.row].cells[i].textContent =
 						tools.format_nondecimal_currency(obj[key]);
 				} else { 
@@ -530,8 +533,9 @@ tm.newRow = function(event) {
 	// Make ajax call with etag and lmod
 	ajax.request("GET", tm.globals.url + "departments/", tm.newRowFormCallback,
 			null, tm.globals.dlEtag, tm.globals.dlLastMod);
+	
 };
-tm.newRowFormCallback = function(xhttp, url) {
+tm.newRowFormCallback = function(xhttp, url) { 
 	var list = null;
 	// If list on server changed...
 	if(xhttp.status == "200") { 
@@ -574,7 +578,7 @@ tm.newRowSubmit = function(event) {
 		ftime = 0;
 	}
 	
-	if(tm.validateRow(lname, fname, salary, year, month, day)) {
+	if(tm.validateRow(lname, fname, salary, year, month, day)) { 
 		var data = "lname=" + lname + "&fname=" + fname + "&dept=" + dept;
 		data += "&ftime=" + ftime + "&hdate=" + hdate + "&salary=" + salary;
 		ajax.request("POST", tm.globals.url + "employees/", tm.newRowCallback, data, null, null); 
@@ -742,15 +746,8 @@ tools.strip_num_formatting = function(num) {
     }
     return newNum;
 };
-tools.format_nondecimal_currency = function(num) {
-    var len = num.length;
-    var newNum = "";
-    for(var i = 0; i < len; i++) {
-            if((len - i)%3 == 0 && i != 0)
-                    newNum += ",";
-            newNum += num.charAt(i);
-    }
-    return "$" + newNum;
+tools.format_nondecimal_currency = function(num) { 
+    return "$" + num.toLocaleString("en-US");
 };
 tools.removeChildren = function(parent) {
 	while (parent.firstChild) {
@@ -809,7 +806,7 @@ tools.enableCheckboxes = function() {
 
 //Contact the server
 var ajax = ajax || {};
-ajax.request = function(method, url, callbackFunc, data, etag, lastMod) {
+ajax.request = function(method, url, callbackFunc, data, etag, lastMod) { 
 	var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
     if (this.readyState == 4) {
