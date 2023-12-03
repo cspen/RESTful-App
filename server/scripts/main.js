@@ -92,7 +92,7 @@ tm.clickedCell = function(e) {
    	
         		return;
         	} 
-		// If made if this far, not a checkbox
+		// If made it this far, not a checkbox
 		// Disable all checkboxes
 		tools.disableCheckboxes();
         
@@ -116,7 +116,8 @@ tm.createInputElement = function(content) {
 	// Create the element
 	var input = document.createElement("INPUT");
 	input.type = "text";
-    
+        input.onblur = tm.escape; 
+
     	if(tm.globals.col == 6) {
     		input.value = tools.strip_num_formatting(content);
     		input.id = "salary";
@@ -128,6 +129,7 @@ tm.createInputElement = function(content) {
     		}
     		input.value = content;
     	}
+	
     	tm.setElement(input);    
 };
 
@@ -225,15 +227,19 @@ tm.editorEventListener = function(event) {
 	        
         	ajax.request("PUT", tm.globals.url+"employees/"+empId,
         		tm.editorEventListenerCallback, data, etag, lsmod);
-    	} else if(event.keyCode == 27) {
+    	} else if(event.keyCode == 27) { console.log("keycode 27");
     		// Escape key pressed
-    		var table = document.getElementById('theTable');
-    		var node = table.rows[tm.globals.row].cells[tm.globals.col];
-		node.removeChild(node.firstChild);
-		node.textContent = tm.globals.active;
-		tm.globals.active = null;
-		tools.enableCheckboxes();
-    	}
+		tm.escape();
+
+       	}
+};
+tm.escape = function() { 
+	var table = document.getElementById('theTable');
+    	var node = table.rows[tm.globals.row].cells[tm.globals.col];
+	node.removeChild(node.firstChild);
+	node.textContent = tm.globals.active;
+	tm.globals.active = null;
+	tools.enableCheckboxes();
 };
 tm.editorEventListenerCallback = function(serverResponse, data, url) { 
 	if(serverResponse.status == 200 || serverResponse.status == 204) {
