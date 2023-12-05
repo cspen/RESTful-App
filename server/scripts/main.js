@@ -110,7 +110,7 @@ tm.clickedCell = function(e) {
 };
 
 /**
- * 
+ * Create a text input element.
  */
 tm.createInputElement = function(content) {
 	// Create the element
@@ -175,7 +175,7 @@ tm.setElement = function(elem) {
 };
 
 /**
- * 
+ * Event listener for table.
  */
 tm.editorEventListener = function(event) {
 	if (event.keyCode == 13) {  // Enter key
@@ -227,12 +227,15 @@ tm.editorEventListener = function(event) {
 	        
         	ajax.request("PUT", tm.globals.url+"employees/"+empId,
         		tm.editorEventListenerCallback, data, etag, lsmod);
-    	} else if(event.keyCode == 27) { console.log("keycode 27");
+    	} else if(event.keyCode == 27) {
     		// Escape key pressed
 		tm.escape();
 
        	}
 };
+/**
+ * Method to escape or cancel an input.
+ */
 tm.escape = function() { 
 	var table = document.getElementById('theTable');
     	var node = table.rows[tm.globals.row].cells[tm.globals.col];
