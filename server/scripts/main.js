@@ -144,6 +144,7 @@ tm.createSelectCallback = function(serverResponse, selected) {
 	try {
 		var items = JSON.parse(serverResponse.responseText);	
 		var select = document.createElement("SELECT");
+		select.onblur = tm.escape;
 		select.id = "department";
 		var length = items["Departments"].length;
 		for (var i = 0; i < length; i++) {
