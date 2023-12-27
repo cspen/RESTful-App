@@ -33,6 +33,9 @@ tm.globals = {
  */
 tm.clickedCell = function(e) {
 	if(tm.globals.active == null) {
+		e.stopImmediatePropagation();
+        	e.preventDefault();
+
 		// Get the clicked table cell
 		var elem = e.target;
         	tm.globals.row = elem.parentNode.rowIndex;
@@ -75,27 +78,25 @@ tm.clickedCell = function(e) {
         		return;
         
         	// Handle checkbox click - full time column
-        	if(e.target.type == "checkbox") {
-        		e.stopImmediatePropagation();
-        		e.preventDefault();
+        	if(e.target.type === "checkbox") {
+        		
         		tm.globals.row = elem.parentNode.parentNode.rowIndex;
         		tm.globals.col = elem.parentNode.cellIndex;
-        		tm.globals.cbox = e.target;
-        	
+			tm.globals.cbox = e.target;
+        		
         		var table = document.getElementById('theTable');
         		var empId = table.rows[tm.globals.row].cells[0].textContent;  
-        		var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked);
+        		var data = tm.createJSONString(table, tm.globals.row, "fulltime", e.target.checked); 
         		var etag = table.rows[tm.globals.row].cells[7].textContent;
             		var lsmod = table.rows[tm.globals.row].cells[8].textContent; 
-        		ajax.request("PUT", tm.globals.url+"employees/"+empId,
+			ajax.request("PUT", tm.globals.url+"employees/"+empId,
         			tm.checkboxCallback, data, etag, lsmod);
-   	
-        		return;
+           		return;
         	} 
 		// If made it this far, not a checkbox
 		// Disable all checkboxes
-		tools.disableCheckboxes();
-        
+		tools.disableCheckboxes();        
+
         	// Create the element for editing
         	var curVal = e.target.textContent;
         	if(tm.globals.col == 3) {
@@ -148,13 +149,13 @@ tm.createSelectCallback = function(serverResponse, selected) {
 		select.id = "department";
 		var length = items["Departments"].length;
 		for (var i = 0; i < length; i++) {
-            var option = document.createElement("option");
-            option.value = items['Departments'][i];
-            option.text = items['Departments'][i];
-            if(items['Departments'][i] == selected) {
-            	option.selected = true;
-            }
-            select.appendChild(option);
+            		var option = document.createElement("option");
+            		option.value = items['Departments'][i];
+            		option.text = items['Departments'][i];
+            		if(items['Departments'][i] == selected) {
+            			option.selected = true;
+            		}
+            		select.appendChild(option);
 		}
 		tm.setElement(select);
 		select.addEventListener("keydown", tm.editorEventListener);    
@@ -180,8 +181,9 @@ tm.setElement = function(elem) {
  */
 tm.editorEventListener = function(event) {
 	if (event.keyCode == 13) {  // Enter key
-    		event.stopImmediatePropagation();
-        	event.preventDefault();       
+    		
+		event.stopImmediatePropagation();
+        	event.preventDefault();   
 
         	// Validate edit 
         	var value = this.value;
@@ -280,15 +282,8 @@ tm.editorEventListenerCallback = function(serverResponse, data, url) {
 };
 tm.checkboxCallback = function(serverResponse, data, url) { 
 	if(serverResponse.status == "200" || serverResponse.status == "204") {
-		if(tm.globals.cbox.checked) {
-			tm.globals.cbox.checked = false;
-		} else {
-			tm.globals.cbox.checked = true;
-		}
-		
-		 // UPDATE ETAG AND LAST MODIFIED FEILDS
+		// UPDATE ETAG AND LAST MODIFIED FEILDS
 		ajax.request("GET", url, tm.updateHeaderFields, null, null, null);
-
 	} else { 
 		// Check for 412 status
 		if(serverResponse.status == "412") { 
@@ -299,6 +294,7 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 			alert("STATUS " + serverResponse.status);
 		}
 	}
+	tm.globals.cbox = null;
 	return;
 };
 tm.colCallBack = function(xhttp, page) {  
@@ -430,11 +426,11 @@ tm.updateRow = function(serverResponse, data, url) {
 		var obj = JSON.parse(serverResponse.responseText);
 		obj = obj.Employee;
 		var table = document.getElementById('theTable');
-		
+
 		var i = 0;
 		for(var key in obj) { 
 			if(key == "full_time") {
-				if(obj[key] === "1") {
+				if(obj[key] === 1) {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = true;
 				} else {
 					table.rows[tm.globals.row].cells[i].firstChild.checked = false;
@@ -449,14 +445,14 @@ tm.updateRow = function(serverResponse, data, url) {
 			} 
 			i++;
 		}
-		
+				
 		// Highlight updated row
 		var element = table.rows[tm.globals.row];
 		tools.highlightElem(element);
 	    
-		tm.globals.active = null;
+		/* tm.globals.active = null;
 	        tm.globals.col = -1;
-	        tm.globals.row = 0;
+	        tm.globals.row = 0; */
 	} else {
 		alert("Oops! Something went wrong.");
 	}
