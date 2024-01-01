@@ -163,11 +163,11 @@ EOT;
                 $html .= <<<EOT
         </div>
         <footer>
-                <p><a href="https://github.com/cspen/RESTful-App">Source Code</a></p>
+                <p><a href="https://github.com/cspen/RESTful-App" target="_blank">Source Code</a></p>
 				 <p>Created by: Craig Spencer</p>
                 <p>Contact: <a href="mailto:craigspencer@modintro.com">craigspencer@modintro.com</a>
-					 | <a href="https://linkedin.com/">LinkedIn</a> |
-					<a href="https://github.com/cspen">Github</a></p>
+					 | <a href="https://www.linkedin.com/in/craig-spencer-aa821538" target="_blank">LinkedIn</a> |
+					<a href="https://github.com/cspen" target="_blank">Github</a></p>
         </footer>
                                         
         <div id="overlay">
