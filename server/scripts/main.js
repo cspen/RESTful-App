@@ -450,9 +450,9 @@ tm.updateRow = function(serverResponse, data, url) {
 		var element = table.rows[tm.globals.row];
 		tools.highlightElem(element);
 	    
-		/* tm.globals.active = null;
+		tm.globals.active = null;
 	        tm.globals.col = -1;
-	        tm.globals.row = 0; */
+	        tm.globals.row = 0;
 	} else {
 		alert("Oops! Something went wrong.");
 	}
