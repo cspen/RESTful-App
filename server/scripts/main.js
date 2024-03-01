@@ -297,8 +297,8 @@ tm.checkboxCallback = function(serverResponse, data, url) {
 	tm.globals.cbox = null;
 	return;
 };
-tm.colCallBack = function(xhttp, page) {  
-		if(xhttp.status == "204") {
+tm.colCallBack = function(xhttp, page) {
+ 		if(xhttp.status == "204") {
 			return;
 		}
     // TO-DO: Check for error before modifying table
@@ -317,7 +317,7 @@ tm.colCallBack = function(xhttp, page) {
             }
 
             // Add new rows
-            // alert(xhttp.repsonseText + " STATUS: " + xhttp.status);
+            // alert(xhttp.responseText + " STATUS: " + xhttp.status);
             var obj = JSON.parse(xhttp.responseText);
             if(Array.isArray(obj.Employees)) {
                     var obLength = obj.Employees.length;
@@ -347,7 +347,8 @@ tm.colCallBack = function(xhttp, page) {
                                     }
                             }
                     }
-            }               
+            }
+               
     // Update page navigation
     if(page === "rarrow") { // Right arrow
             // Check if next page exists
@@ -358,7 +359,7 @@ tm.colCallBack = function(xhttp, page) {
                     document.getElementById(tm.globals.currentPage).classList.add('active');
             }
     } else if(page === "larrow") { // Left arrow
-    	var prev = document.getElementById(tm.globals.currentPage-1);
+	    var prev = document.getElementById(tm.globals.currentPage-1);
             if(prev != null) {
                     document.getElementById(tm.globals.currentPage).classList.remove('active');
                     tm.globals.currentPage--;
@@ -371,15 +372,16 @@ tm.colCallBack = function(xhttp, page) {
                     document.getElementById(tm.globals.currentPage).classList.remove('active');
                     tm.globals.currentPage = page;
                     document.getElementById(tm.globals.currentPage).classList.add('active');                   
-            }
+            }		
     }
     
-    if(tm.globals.currentPage > endPage) {
+    // Right page navigation
+    if(tm.globals.currentPage > endPage) { 
             document.getElementById(tm.globals.startPage).style.display = "none";
             tm.globals.startPage++;
             endPage++;
             document.getElementById(endPage).style.display = "block";               
-    } else if(tm.globals.currentPage < tm.globals.startPage) {
+    } else if(tm.globals.currentPage < tm.globals.startPage) { // Left page navigation
             document.getElementById(endPage).style.display = "none";
             tm.globals.startPage--;
             endPage--;
@@ -394,6 +396,7 @@ tm.colCallBack = function(xhttp, page) {
     }
     
     if(tm.globals.currentPage < number_of_pages) {
+	    // number_of_pages var is passed from serve in script tag
             document.getElementById('rarrow').style.background = "white";
     } else {
             document.getElementById('rarrow').style.background = "lightgrey";
@@ -460,18 +463,25 @@ tm.updateRow = function(serverResponse, data, url) {
 tm.updatePages = function(page) {
     // Determine which "page" to display
     var nextPage = 0;
+
     if(page === "rarrow") {
             nextPage = tm.globals.currentPage + 1;
     } else if(page === "larrow") {
     	if(tm.globals.currentPage != 1) {
-            nextPage = tm.globals.currentPage - 1;
+            	nextPage = tm.globals.currentPage - 1;
     	} else {
     		nextPage = tm.globals.currentPage;
     	}
-    } else {
-            nextPage = page;
+    } else { // Either clicked a number or added a new row to a full page
+	if(Number.isInteger(page))
+		nextPage = page;
+
+	// var table = document.getElementById('theTable');
+	// if(table.rows.length == 10)
+	//	nextPage = tm.globals.currentPage + 1;
+	// debug;
     }
-    
+   
     // Commenting out the conditional makes this function
     // reusable (called when row is deleted). However, now
     // clicking the current page number makes a server request.
@@ -597,15 +607,19 @@ tm.newRowCallback = function(xhttp, data, url) {
 		alert('Success! - The record has been created');
 		// Need to make another ajax call to get the updated record from
 		// the server and update the table
-		ajax.request("GET", xhttp.responseText, tm.addNewRowCallback, null, null, null);
+		// ajax.request("GET", xhttp.responseText, tm.addNewRowCallback, null, null, null);
+		location.replace(tm.globals.url + "employees/");
 	} else {
 		alert('Error - The new record could not be created');
 	}	
 };
 tm.addNewRowCallback = function(xhttp, data, url) { 
+	/**
+	 *
 	var rowData = JSON.parse(xhttp.responseText);
 	var rowData = rowData['Employee'];
 	var table = document.getElementById('theTable');
+
 	// Add new row to top of table
 	var row = table.insertRow(1); // row 0 is the table header
 	var i = 0;
@@ -634,7 +648,11 @@ tm.addNewRowCallback = function(xhttp, data, url) {
 	var rowCount = document.getElementById('theTable').rows.length;
 	if(rowCount >= 10) {
 		table.deleteRow(11);
-	}	
+	} */
+
+	// Update the table.
+	tm.updatePages(tm.globals.currentPage);
+
 };
 tm.validateRow = function(lname, fname, salary, year, month, day) {
 	var exp = /[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~0-9]/;
@@ -674,8 +692,8 @@ tm.validateRow = function(lname, fname, salary, year, month, day) {
 tm.deleteRow = function(event) {
 	var pop = document.getElementById('overlay');
 	tm.globals.currentDiv = document.getElementById('delete');
-    pop.style.display = "block";
-    tm.globals.currentDiv.style.display = "block";
+    	pop.style.display = "block";
+    	tm.globals.currentDiv.style.display = "block";
 };
 tm.deleteRowSubmit = function(event) {
 	var empId = document.getElementById('deleteInput').value;
@@ -695,7 +713,8 @@ tm.deleteRowCallback = function(xhttp, data, url) {
 		tm.cancel();
 		
 		// Update the table.
-		tm.updatePages(tm.globals.currentPage);
+		// tm.updatePages(tm.globals.currentPage);
+		location.replace(tm.globals.url + "employees/");
 	} 	
 };
 

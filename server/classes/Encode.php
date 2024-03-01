@@ -133,24 +133,41 @@ EOT;
                 $html .= <<<EOT
         </tbody></table>
         <div class="pagination">
-                <a id="larrow" href="javascript:tm.updatePages('larrow')" style="background:lightgrey;">&laquo;</a>
-                <a id="1" href="javascript:tm.updatePages(1)" class="active">1</a>
-                                
+                                          
 EOT;
-                
-                // Default is 10 results per page
-                $pages = ceil(count($data)/10);
-                $endPage = $count = 2;
-                
+
+                // Number of pages based on rows per page
+		$pages =  ceil(count($data)/10);
+		if(isset($_GET['pagesize'])) {
+			$pages = ceil(count($data)/$_GET['pagesize']);
+		} 
+
+		// Set current page
+		$startPage = 1;
+		if(isset($_GET['page'])) {
+			$startPage = $_GET['page'];
+			// $html .= '<a id="larrow" href="javascript:tm.updatePages(\'larrow\')" style="background:white;">&laquo;</a>'; 
+			$html .= '<a id="'.$startPage.'" href="javascript:tm.updatePages('.$startPage.')" class="active">'.$startPage.'</a>';
+		} else {
+			// Starting on first page
+			$html .= '<a id="larrow" href="javascript:tm.updatePages(\'larrow\')" style="background:lightgrey;">&laquo;</a>';
+			$html .= '<a id="1" href="javascript:tm.updatePages(1)" class="active">1</a>';
+		}
+
+		$endPage = $count = 2;
+		if($pages - $startPage > 3) {
+                	$endPage = $startPage + 3;
+		} 
+		$count = $startPage + 1;               
                 while($count <= $pages) {
                         if($count < 4) {
                                 $html .= '<a id="'.$count.'" href="javascript:void(0);" onclick="javascript:tm.updatePages('.$count.')">'.$count.'</a>';
-                                $endPage = $count;
+				$endPage = $count;
                         } else {
                                 $html .= '<a id="'.$count.'" style="display:none;" href="javascript:void(0);" onclick="javascript:tm.updatePages('.$count.')">'.$count.'</a>';
                         }
                         $count++;
-                }
+                } 
                 $html .= "<script>var number_of_pages = ".$pages."; var endPage = ".$endPage.";</script>";
                 
                 // if($pages > 4)
