@@ -79,9 +79,7 @@ to inform the user.
 ## Related Project - Java Swing Client
 A Java Swing application that connects to the same server used
 in this project and provides the same functionality as the HTML client in this
-project but is a stand-alone desktop application built with Java Swing. The
-project can be found at
-[Java Client](http://modintro.com/java/client/)
+project but is a stand-alone desktop application built with Java Swing.
 
 The Java Swing client code repository:
 https://github.com/cspen/Java-Client
