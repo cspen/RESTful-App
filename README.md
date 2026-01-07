@@ -46,6 +46,7 @@ Tested in the following browsers
 - Mozilla Firefox (63.0.3 and above)
 - Microsoft Edge (42.17134.1.0 and above)
 - Google Chrome (71.0.3578.80 and above)
+
 However, I can't guarantee the application works correctly in
 every version of every browser.
 
